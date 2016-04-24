@@ -28,10 +28,13 @@ private:
 
 };
 
+
+using OrientationOnNode = std::vector <Edge>;
+
 class Node {
 	friend class Graph;
 	friend class Edge;
-	friend class OrientationOnNode;
+	friend class Node;
 
 public:
 	Node(int i);
@@ -45,7 +48,6 @@ public:
 	void unMark();
 	bool isEulerian() const;
 	bool isWeaklyEulerian() const;
-	bool isFixed();
 	uint64_t compute_in_mask();
 	uint64_t compute_out_mask();
 	// in = 0, out = 1
@@ -61,6 +63,19 @@ public:
 	void __markage_proc_weakly_connected();
 	bool __check_validity();
 
+
+	int getInternalNumber() const;
+	std::vector<OrientationOnNode> allPossibleOrientations() const;
+	void setOrientedEdges(OrientationOnNode& ori);
+	std::vector<OrientationOnNode> saveOrientation() const {
+		OrientationOnNode res(edges.size());
+		for each(const Edge* ed in edges) {
+			res.push_back(*ed);
+		}
+	}
+
+	bool isComplete() const;
+
 private:
 	std::vector<Edge*> edges;
 
@@ -68,16 +83,5 @@ private:
 	int internalNumber;
 };
 
-class OrientationOnNode {
-	Node* baseNode;
-	std::vector<OrientedEdgeWrapper> orientedEdges;
 
-	explicit OrientationOnNode(Node* base_node);
-	~OrientationOnNode();
 
-	std::vector<OrientationOnNode> allPossibleOrientations() const;
-	void setOrientedEdges(std::vector<OrientedEdgeWrapper>& ori);
-
-	void __check() const;
-	bool isComplete() const;
-};
