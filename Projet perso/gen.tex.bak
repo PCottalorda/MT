@@ -1,0 +1,94 @@
+\documentclass[10pt, a4paper]{article}
+\usepackage[latin1]{inputenc}
+\usepackage[english]{babel}
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{amssymb}
+\usepackage{amsthm}
+\usepackage{graphicx}
+\usepackage[left = 2cm, right = 2cm, top = 2cm, bottom = 2cm]{geometry}
+\author{Paul Cottalorda}
+\title{Exemple de normes d'intersections sur le tore [Généré automatiquement]}
+\begin{document}
+\maketitle
+\section{Données 1}
+\paragraph{Norm : }[[92,39],[60,15],[-62,-86],[93,94],[81,-12],[-46,26],[-2,-9],[-42,-81],[-66,40],[-43,-83]]
+
+\begin{figure}
+	\centering
+	\includegraphics[width = 15cm]{data1.png}
+\end{figure}
+
+\section{Données 2}
+\paragraph{Norm : }[[51,-59],[76,95],[48,-97],[45,-36],[-2,-25],[-43,-84],[-53,84],[-23,82]]
+
+\begin{figure}
+	\centering
+	\includegraphics[width = 15cm]{data2.png}
+\end{figure}
+
+\section{Données 3}
+\paragraph{Norm : }[[1,-92],[15,97]]
+
+\begin{figure}
+	\centering
+	\includegraphics[width = 15cm]{data3.png}
+\end{figure}
+
+\section{Données 4}
+\paragraph{Norm : }[[71,-20],[4,70],[-36,-43],[-80,83],[-48,-52],[-28,70],[-97,-45],[-27,-53],[-60,34],[99,-40],[-28,29],[3,-30],[26,-96],[-77,-55],[-37,-98],[-39,45],[-7,18]]
+
+\begin{figure}
+	\centering
+	\includegraphics[width = 15cm]{data4.png}
+\end{figure}
+
+\section{Données 5}
+\paragraph{Norm : }[[67,73],[14,-10],[79,-70],[-22,-96],[-17,-70],[78,33],[-94,-8],[90,-38],[-71,-82],[87,-3],[-51,-75]]
+
+\begin{figure}
+	\centering
+	\includegraphics[width = 15cm]{data5.png}
+\end{figure}
+
+\section{Données 6}
+\paragraph{Norm : }[[-98,99],[-4,15],[-81,58],[-29,-21],[48,-11],[0,69],[1,-75],[-61,28],[-78,42]]
+
+\begin{figure}
+	\centering
+	\includegraphics[width = 15cm]{data6.png}
+\end{figure}
+
+\section{Données 7}
+\paragraph{Norm :}[[-72,58],[-92,-22],[94,57],[22,50],[73,16],[-25,77],[-93,-18],[47,42],[9,68],[-48,-60],[63,51],[-9,-91],[-4,-83],[-25,17]]
+
+\begin{figure}
+	\centering
+	\includegraphics[width = 15cm]{data7.png}
+\end{figure}
+
+\section{Données 8}
+\paragraph{Norm : }[[9,97],[4,53],[75,-70],[-94,47],[-26,-27],[7,-31],[65,75],[24,-72]]
+
+\begin{figure}
+	\centering
+	\includegraphics[width = 15cm]{data8.png}
+\end{figure}
+
+\section{Données 9}
+\paragraph{Norm : }[[-11,53],[-82,-5],[32,18],[-4,40],[10,13],[-63,16],[26,72]]
+
+\begin{figure}
+	\centering
+	\includegraphics[width = 15cm]{data9.png}
+\end{figure}
+
+\section{Données 10}
+\paragraph{Norm : }[[-98,-68],[19,54],[-3,99],[-26,-62],[67,-82],[-47,-22],[-50,-50],[-74,-65],[21,-70],[-6,-97],[-95,53],[85,100],[-78,-51],[-22,25],[43,20],[-89,-71]]
+
+\begin{figure}
+	\centering
+	\includegraphics[width = 15cm]{data10.png}
+\end{figure}
+
+\end{document}
