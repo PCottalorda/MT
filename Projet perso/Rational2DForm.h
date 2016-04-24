@@ -1,4 +1,3 @@
-
 class Rational2DPoint;
 using Rational2DForm = Rational2DPoint;
 

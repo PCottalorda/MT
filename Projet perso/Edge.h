@@ -4,8 +4,7 @@
 
 class Node;
 
-class Edge
-{
+class Edge {
 	friend class Graph;
 	friend class Node;
 	friend class OrientedEdgeWrapper;
@@ -16,18 +15,15 @@ public:
 
 	Edge(const Edge& other)
 		: Node1(other.Node1),
-		  Node2(other.Node2)
-	{
+		  Node2(other.Node2) {
 	}
 
 	Edge(Edge&& other)
 		: Node1(other.Node1),
-		  Node2(other.Node2)
-	{
+		  Node2(other.Node2) {
 	}
 
-	Edge& operator=(const Edge& other)
-	{
+	Edge& operator=(const Edge& other) {
 		if (this == &other)
 			return *this;
 		Node1 = other.Node1;
@@ -35,8 +31,7 @@ public:
 		return *this;
 	}
 
-	Edge& operator=(Edge&& other)
-	{
+	Edge& operator=(Edge&& other) {
 		if (this == &other)
 			return *this;
 		Node1 = other.Node1;
@@ -48,8 +43,7 @@ public:
 
 	bool isLoop() const;
 
-	bool isAdjacentTo(const Node* node) const
-	{
+	bool isAdjacentTo(const Node* node) const {
 		return (node == Node1) || (node == Node2);
 	}
 
@@ -62,55 +56,44 @@ protected:
 
 std::ostream& operator<<(std::ostream& os, const Edge& e);
 
-enum Orientation
-{
+enum Orientation {
 	STANDARD,
 	REVERSE
 };
 
-class OrientedEdgeWrapper
-{
-
+class OrientedEdgeWrapper {
 public:
 	Orientation ori;
 	Edge* base;
 	bool locked;
 
-	bool isLocked() const
-	{
+	bool isLocked() const {
 		return locked;
 	}
 
-	void lock()
-	{
+	void lock() {
 		locked = true;
 	}
 
-	void unLock()
-	{
+	void unLock() {
 		locked = false;
 	}
 
-	
 
-	const Node* getOrigin() const 
-	{
-		if (ori == STANDARD)
-		{
+	const Node* getOrigin() const {
+		if (ori == STANDARD) {
 			return base->Node1;
-		} else
-		{
+		}
+		else {
 			return base->Node2;
 		}
 	}
 
-	const Node* getDestination() const 
-	{
-		if (ori == STANDARD)
-		{
+	const Node* getDestination() const {
+		if (ori == STANDARD) {
 			return base->Node2;
-		} else
-		{
+		}
+		else {
 			return base->Node1;
 		}
 	}
@@ -118,18 +101,15 @@ public:
 
 	OrientedEdgeWrapper(const OrientedEdgeWrapper& other)
 		: ori(other.ori),
-		  base(other.base)
-	{
+		  base(other.base) {
 	}
 
 	OrientedEdgeWrapper(OrientedEdgeWrapper&& other)
 		: ori(other.ori),
-		  base(other.base)
-	{
+		  base(other.base) {
 	}
 
-	OrientedEdgeWrapper& operator=(const OrientedEdgeWrapper& other)
-	{
+	OrientedEdgeWrapper& operator=(const OrientedEdgeWrapper& other) {
 		if (this == &other)
 			return *this;
 		ori = other.ori;
@@ -137,8 +117,7 @@ public:
 		return *this;
 	}
 
-	OrientedEdgeWrapper& operator=(OrientedEdgeWrapper&& other)
-	{
+	OrientedEdgeWrapper& operator=(OrientedEdgeWrapper&& other) {
 		if (this == &other)
 			return *this;
 		ori = other.ori;
@@ -146,63 +125,50 @@ public:
 		return *this;
 	}
 
-	friend bool operator==(const OrientedEdgeWrapper& lhs, const OrientedEdgeWrapper& rhs)
-	{
+	friend bool operator==(const OrientedEdgeWrapper& lhs, const OrientedEdgeWrapper& rhs) {
 		return (lhs.getOrigin() == rhs.getOrigin()) && (lhs.getDestination() == rhs.getDestination());
 	}
 
-	friend bool operator!=(const OrientedEdgeWrapper& lhs, const OrientedEdgeWrapper& rhs)
-	{
+	friend bool operator!=(const OrientedEdgeWrapper& lhs, const OrientedEdgeWrapper& rhs) {
 		return !(lhs == rhs);
 	}
 
 
-	Orientation getOrientation() const
-	{
+	Orientation getOrientation() const {
 		return ori;
 	}
 
-	void setOrientation(Orientation ori)
-	{
+	void setOrientation(Orientation ori) {
 		this->ori = ori;
 	}
 
-	void reverseOrientation()
-	{
-		if (ori == STANDARD)
-		{
+	void reverseOrientation() {
+		if (ori == STANDARD) {
 			ori = REVERSE;
-		} else
-		{
+		}
+		else {
 			ori = STANDARD;
 		}
 	}
 
-	void setOrigin(const Node* node)
-	{
-		if (base->isAdjacentTo(node))
-		{
-			if (getOrigin() != node)
-			{
+	void setOrigin(const Node* node) {
+		if (base->isAdjacentTo(node)) {
+			if (getOrigin() != node) {
 				reverseOrientation();
 			}
-		} else
-		{
+		}
+		else {
 			throw std::exception();
 		}
 	}
 
-	void setDestination(const Node* node)
-	{
-		if (base->isAdjacentTo(node))
-		{
-			if (getOrigin() != node)
-			{
+	void setDestination(const Node* node) {
+		if (base->isAdjacentTo(node)) {
+			if (getOrigin() != node) {
 				reverseOrientation();
 			}
 		}
-		else
-		{
+		else {
 			throw std::exception();
 		}
 	}

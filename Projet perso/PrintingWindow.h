@@ -10,7 +10,6 @@
 #include "Rational2DPoint.h"
 
 
-
 sf::Color genColor(double x);
 
 using Boundiaries = struct {
@@ -21,19 +20,18 @@ using Boundiaries = struct {
 };
 
 
-Boundiaries generateBoundiaries(const std::vector<Rational2DPoint> &vertices);
+Boundiaries generateBoundiaries(const std::vector<Rational2DPoint>& vertices);
 
 
 class PrintingWindow :
-	public sf::RenderWindow
-{
+	public sf::RenderWindow {
 public:
 
 	sf::Vector2f windowCoor(const Rational2DPoint& r);
 
 	void drawPoly(const std::vector<Rational2DPoint>& v);
 
-	PrintingWindow(unsigned int X, unsigned int Y, const std::vector<Rational2DPoint> &vertices);
+	PrintingWindow(unsigned int X, unsigned int Y, const std::vector<Rational2DPoint>& vertices);
 	PrintingWindow(unsigned int X, unsigned int Y, const Boundiaries& bound);
 
 	void drawNorm(std::function<float(float x, float y)> norm);
@@ -68,4 +66,3 @@ private:
 	unsigned int X;
 	unsigned int Y;
 };
-

@@ -14,18 +14,17 @@ SegmentDrawable::SegmentDrawable(const sf::Vector2f& p1, const sf::Vector2f& p2,
 }
 
 SegmentDrawable::SegmentDrawable(const sf::Vector2f& p1, const sf::Vector2f& p2, float thickness, const sf::Color& color):
-	SegmentDrawable(p1,p2,thickness) {
+	SegmentDrawable(p1, p2, thickness) {
 	shape.setFillColor(color);
 }
 
-SegmentDrawable::~SegmentDrawable()
-{
+SegmentDrawable::~SegmentDrawable() {
 }
 
 void SegmentDrawable::computeShape() {
 	sf::Vector2f df = p2 - p1;
 	float rot = atan2f(df.y, df.x) * 180 / PI;
-	shape.setSize(sf::Vector2f(sqrtf(df.x*df.x + df.y*df.y), thk));
+	shape.setSize(sf::Vector2f(sqrtf(df.x * df.x + df.y * df.y), thk));
 	shape.setOrigin(0, thk / 2.0f);
 	shape.setPosition(p1);
 	shape.setRotation(rot);

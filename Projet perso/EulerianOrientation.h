@@ -5,8 +5,7 @@
 #include "Edge.h"
 #include "Graph.h"
 
-class EulerianOrientation
-{
+class EulerianOrientation {
 	friend Graph;
 
 public:
@@ -18,9 +17,8 @@ public:
 private:
 
 
-	Graph *BaseGraph;
+	Graph* BaseGraph;
 	std::vector<Edge> edges;
 
 	int internalNumber;
 };
-

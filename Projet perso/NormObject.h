@@ -18,9 +18,9 @@ public:
 	NormObject(std::string& str);
 	virtual ~NormObject();
 
-	float operator() (float x, float y) const;
-	Rational operator() (const Rational& x, const Rational& y) const;
-	Rational operator() (const Rational2DPoint& p) const;
+	float operator()(float x, float y) const;
+	Rational operator()(const Rational& x, const Rational& y) const;
+	Rational operator()(const Rational2DPoint& p) const;
 
 	// Private intern class
 private:
@@ -33,9 +33,9 @@ private:
 		RationalSlopeRep(int a, int b);
 		~RationalSlopeRep();
 
-		bool isProportional(const RationalSlopeRep &slopeRep) const;
+		bool isProportional(const RationalSlopeRep& slopeRep) const;
 
-		friend std::ostream& operator<< (std::ostream& os, const RationalSlopeRep& slopeRep);
+		friend std::ostream& operator<<(std::ostream& os, const RationalSlopeRep& slopeRep);
 
 	public:
 		int a;
@@ -50,9 +50,9 @@ private:
 
 	};
 
-	friend std::ostream& operator<< (std::ostream& os, const RationalSlopeRep& slopeRep);
-	friend std::ostream& operator<< (std::ostream& os, const NormObject& slopeRep);
-	
+	friend std::ostream& operator<<(std::ostream& os, const RationalSlopeRep& slopeRep);
+	friend std::ostream& operator<<(std::ostream& os, const NormObject& slopeRep);
+
 	// Private static methods
 	static bool isDigit(const char c);
 	static int getDigit(const char c);
@@ -61,6 +61,4 @@ private:
 	std::vector<RationalSlopeRep> v;
 
 
-
 };
-

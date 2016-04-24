@@ -4,11 +4,9 @@
 
 #include <string>
 
-std::string EulerianOrientation::generateGraphVizString() const
-{
+std::string EulerianOrientation::generateGraphVizString() const {
 	std::string graphVizString("");
-	for each(const Edge &e in edges)
-	{
+	for each (const Edge& e in edges) {
 		graphVizString += "\t\"" + std::to_string(internalNumber) + "_" + std::to_string(e.getHead()->getInternalNumber())
 			+ "\" -> \"" + std::to_string(internalNumber) + "_" + std::to_string(e.getTail()->getInternalNumber()) + "\"\n";
 	}
@@ -17,13 +15,11 @@ std::string EulerianOrientation::generateGraphVizString() const
 
 EulerianOrientation::EulerianOrientation(Graph* G, int tag):
 	internalNumber(tag),
-	BaseGraph(G)
-{
-	for each(const Edge* ed in G->getEdges())
-	{
+	BaseGraph(G) {
+	for each (const Edge* ed in G->getEdges()) {
 		edges.push_back(Edge(*ed));
 	}
 }
 
-EulerianOrientation::~EulerianOrientation()
-{}
+EulerianOrientation::~EulerianOrientation() {
+}

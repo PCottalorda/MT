@@ -1,4 +1,3 @@
-
 /*
 sf::Joystick::update();
 

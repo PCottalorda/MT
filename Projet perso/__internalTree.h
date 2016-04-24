@@ -8,7 +8,6 @@
 #include "Rational2DForm.h"
 
 
-
 class __internalTree {
 
 public:
@@ -20,14 +19,14 @@ public:
 
 	Rational2DPoint ConeIntersec;
 
-	Rational2DForm FlatNorm;		// Has sense only is isFlat
-	Rational2DForm ConeNorm1;		// Has sense only if ifCone
-	Rational2DForm ConeNorm2;		// Has sense only if ifCone
+	Rational2DForm FlatNorm; // Has sense only is isFlat
+	Rational2DForm ConeNorm1; // Has sense only if ifCone
+	Rational2DForm ConeNorm2; // Has sense only if ifCone
 
 	std::function<Rational(const Rational2DPoint&)> norm;
 
-	__internalTree *child_1 = nullptr;
-	__internalTree *child_2 = nullptr;
+	__internalTree* child_1 = nullptr;
+	__internalTree* child_2 = nullptr;
 
 
 public:

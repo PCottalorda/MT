@@ -2,9 +2,8 @@
 
 #include <SFML/Graphics.hpp>
 
-class SegmentDrawable : 
-	public sf::Drawable
-{
+class SegmentDrawable :
+	public sf::Drawable {
 public:
 	SegmentDrawable(const sf::Vector2f& p1, const sf::Vector2f& p2, float thickness);
 	SegmentDrawable(const sf::Vector2f& p1, const sf::Vector2f& p2, float thickness, const sf::Color& color);;
@@ -26,4 +25,3 @@ private:
 	float thk;
 	sf::RectangleShape shape;
 };
-

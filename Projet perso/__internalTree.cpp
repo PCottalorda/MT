@@ -1,16 +1,14 @@
 #include "__internalTree.h"
 
 
-
 __internalTree::__internalTree(Rational2DPoint __x1, Rational2DPoint __x2, std::function<Rational(const Rational2DPoint&)> norm) :
-x1(__x1),
-x2(__x2),
-norm(norm),
-child_1(NULL),
-child_2(NULL),
-__isFlat(false),
-__isCone(false)
-{
+	x1(__x1),
+	x2(__x2),
+	norm(norm),
+	child_1(NULL),
+	child_2(NULL),
+	__isFlat(false),
+	__isCone(false) {
 	normalize(x1);
 	normalize(x2);
 };
@@ -43,7 +41,7 @@ bool __internalTree::isLeaf() {
 bool __internalTree::isFlatSegment(const Rational2DPoint& x1, const Rational2DPoint& x2, std::function<Rational(const Rational2DPoint&)> norm) {
 	//std::cerr << "isFlat called [" << this << "]" << std::endl;
 	Rational2DPoint mid(middle(x1, x2));
-	return  (norm(mid) == Rational(1, 1));
+	return (norm(mid) == Rational(1, 1));
 };
 
 void __internalTree::prettyPrint() {
@@ -82,8 +80,8 @@ void __internalTree::__internal_computeUnitaryBall() {
 	}
 	else {
 		Rational2DPoint mid(middle(x1, x2));
-		mid = Rational(1, 2)*(x1 + x2);
-		if (norm(mid) == Rational(1, 1)) {			// Flat leaf
+		mid = Rational(1, 2) * (x1 + x2);
+		if (norm(mid) == Rational(1, 1)) { // Flat leaf
 			__isFlat = true;
 			FlatNorm = compute_rat_form(x1, x2);
 		}
@@ -115,14 +113,14 @@ void __internalTree::__internal_computeUnitaryBall() {
 			// By duality the same algorithm allows to compute the intersection point of the two forms.
 			Rational2DPoint __internal_intersectionPoint = compute_rat_form(f1, f2);
 
-			if (norm(__internal_intersectionPoint) == Rational(1, 1)) {		// Cone leaf
+			if (norm(__internal_intersectionPoint) == Rational(1, 1)) { // Cone leaf
 
 				ConeIntersec = __internal_intersectionPoint;
 				__isCone = true;
 				ConeNorm1 = f1;
 				ConeNorm2 = f2;
 			}
-			else {															// Not a leaf
+			else { // Not a leaf
 
 				normalize(mid);
 
@@ -144,7 +142,7 @@ void __internalTree::collectData(std::vector<Rational2DForm>& forms, std::vector
 		}
 		else {
 			Rational2DForm f = forms.back();
-			if (FlatNorm != f)		// We check if the norm matches
+			if (FlatNorm != f) // We check if the norm matches
 				forms.push_back(FlatNorm);
 		}
 	}
@@ -156,7 +154,7 @@ void __internalTree::collectData(std::vector<Rational2DForm>& forms, std::vector
 		}
 		else {
 			Rational2DForm f = forms.back();
-			if (ConeNorm1 != f) {		// We check if the norm matches
+			if (ConeNorm1 != f) { // We check if the norm matches
 				forms.push_back(ConeNorm1);
 			}
 			forms.push_back(ConeNorm2);

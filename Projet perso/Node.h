@@ -7,10 +7,9 @@
 #include "Edge.h"
 
 
-class Counter
-{
+class Counter {
 private:
-	std::vector<bool>loopGest;
+	std::vector<bool> loopGest;
 	uint64_t size;
 	std::function<bool(const std::vector<bool>&, uint64_t)> func;
 
@@ -29,8 +28,7 @@ private:
 
 };
 
-class Node
-{
+class Node {
 	friend class Graph;
 	friend class Edge;
 	friend class OrientationOnNode;
@@ -70,8 +68,7 @@ private:
 	int internalNumber;
 };
 
-class OrientationOnNode
-{
+class OrientationOnNode {
 	Node* baseNode;
 	std::vector<OrientedEdgeWrapper> orientedEdges;
 
@@ -84,5 +81,3 @@ class OrientationOnNode
 	void __check() const;
 	bool isComplete() const;
 };
-
-

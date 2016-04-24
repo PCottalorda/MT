@@ -1,14 +1,13 @@
 #include "SettingWindow.h"
 
 
-
 static const float PI = 3.14159265358979323846f;
 
 namespace {
 
 	sf::Vector2f __intersectionPoint(const sf::Vector2f& p1, const sf::Vector2f& p2) {
 		sf::Vector2f f(p2.y - p1.y, p1.x - p2.x);
-		float r = p1.x*p2.y - p2.x*p1.y;
+		float r = p1.x * p2.y - p2.x * p1.y;
 		if (r == 0) {
 			return sf::Vector2f(0, 0);
 		}
@@ -21,29 +20,28 @@ namespace {
 		float co = cosf(angle);
 		float si = sinf(angle);
 
-		float x = co*v.x - si*v.y;
-		float y = si*v.x + co*v.y;
+		float x = co * v.x - si * v.y;
+		float y = si * v.x + co * v.y;
 
 		v.x = x;
 		v.y = y;
 	}
 
 	float project(const sf::Vector2f& v, const sf::Vector2f& form) {
-		return v.x*form.x + v.y*form.y;
+		return v.x * form.x + v.y * form.y;
 	}
 
 }
 
 SettingWindow::SettingWindow(unsigned size, unsigned genus) :
-sf::RenderWindow(sf::VideoMode(size, size), "SettingWindows"),
-size(size),
-binded(true),
-complete(false),
-amplitude(size / 2.0f),
-cursorStandard(10.0f),
-cursorBoundiary(15.0f),
-InternalSys(this)
-{
+	sf::RenderWindow(sf::VideoMode(size, size), "SettingWindows"),
+	size(size),
+	binded(true),
+	complete(false),
+	amplitude(size / 2.0f),
+	cursorStandard(10.0f),
+	cursorBoundiary(15.0f),
+	InternalSys(this) {
 	// Exceptions
 	if (size <= 0)
 		throw std::exception();
@@ -53,7 +51,6 @@ InternalSys(this)
 
 	setVerticalSyncEnabled(true);
 	setMouseCursorVisible(false);
-
 
 
 	// Compute rationalForms
@@ -98,8 +95,7 @@ InternalSys(this)
 
 }
 
-SettingWindow::~SettingWindow()
-{
+SettingWindow::~SettingWindow() {
 }
 
 void SettingWindow::updateLoop() {
@@ -142,43 +138,42 @@ void SettingWindow::updateLoop() {
 		}
 
 	sf::Event event;
-	while (this->pollEvent(event))
-	{
+	while (this->pollEvent(event)) {
 		switch (event.type) {
-		case sf::Event::KeyPressed:
-			switch (event.key.code) {
-			case sf::Keyboard::B:
-				invertBinding();
-				break;
-			case sf::Keyboard::C:
-				cancelMove();
-				break;
-			case sf::Keyboard::Escape:
-				this->close();
-				break;
-			default:
-				break;
-			}
-			break;
-		case sf::Event::MouseButtonPressed:
-			switch (event.mouseButton.button) {
-			case sf::Mouse::Left:
-				if (actionConsistent()) {
-					InternalSys.addPoint();
+			case sf::Event::KeyPressed:
+				switch (event.key.code) {
+					case sf::Keyboard::B:
+						invertBinding();
+						break;
+					case sf::Keyboard::C:
+						cancelMove();
+						break;
+					case sf::Keyboard::Escape:
+						this->close();
+						break;
+					default:
+						break;
 				}
 				break;
+			case sf::Event::MouseButtonPressed:
+				switch (event.mouseButton.button) {
+					case sf::Mouse::Left:
+						if (actionConsistent()) {
+							InternalSys.addPoint();
+						}
+						break;
+					default:
+						break;
+				}
 			default:
 				break;
-			}
-		default:
-			break;
 		}
 	}
 
 }
 
 sf::Vector2f SettingWindow::convertInternalToWindow(const sf::Vector2f& v) const {
-	return 0.9f*amplitude*v + center;
+	return 0.9f * amplitude * v + center;
 }
 
 sf::Vector2f SettingWindow::convertWindowToInternal(const sf::Vector2f& v) const {
@@ -186,17 +181,15 @@ sf::Vector2f SettingWindow::convertWindowToInternal(const sf::Vector2f& v) const
 }
 
 
-
-
 void SettingWindow::addPoint(const sf::Vector2f& p, bool onBoudiary, bool addSegment) {
 	sf::Vector2f _p = convertInternalToWindow(p);
 	if (segmentPoints.size() == 0) {
-		segmentPoints.push_back(Vector2fWrapper(_p, onBoudiary,-1));
+		segmentPoints.push_back(Vector2fWrapper(_p, onBoudiary, -1));
 	}
 	else {
 		if (p != segmentPoints.back().point) {
 			sf::Vector2f p_prec = segmentPoints.back().point;
-			segmentPoints.push_back(Vector2fWrapper(_p, onBoudiary,-1));
+			segmentPoints.push_back(Vector2fWrapper(_p, onBoudiary, -1));
 			if (addSegment) {
 				segments.push_back(SegmentDrawable(p_prec, _p, 3, sf::Color::Magenta));
 			}

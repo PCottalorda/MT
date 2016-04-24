@@ -37,19 +37,16 @@ std::string str("[[5,6],[1,3],[-1,6],[-2,6]]");
 NormObject normO(str);
 
 
-
-
-
 void computeUnitaryBall(std::vector<Rational2DPoint>& intersectionPoints, std::vector<Rational2DForm>& forms, std::function<Rational(const Rational2DPoint&)> norm) {
 
-	Rational2DPoint x1(Rational(1, 1), Rational(0, 1));		// x1 = (1,0)
-	Rational2DPoint x2(Rational(0, 1), Rational(1, 1));		// x2 = (0,1)
-	Rational2DPoint x3(Rational(-1, 1), Rational(0, 1));	// x3 = (-1,0);
+	Rational2DPoint x1(Rational(1, 1), Rational(0, 1)); // x1 = (1,0)
+	Rational2DPoint x2(Rational(0, 1), Rational(1, 1)); // x2 = (0,1)
+	Rational2DPoint x3(Rational(-1, 1), Rational(0, 1)); // x3 = (-1,0);
 
 	__internalTree t1(x1, x2, norm);
 	__internalTree t2(x2, x3, norm);
 
-	try{
+	try {
 		t1.__internal_computeUnitaryBall();
 		t2.__internal_computeUnitaryBall();
 	}
@@ -64,7 +61,7 @@ void computeUnitaryBall(std::vector<Rational2DPoint>& intersectionPoints, std::v
 	// We collect and merge the data from the two edges
 	try {
 		t1.collectData(forms, intersectionPoints);
-		t2.collectData(forms, intersectionPoints);	// The data are naturally merged by collectData
+		t2.collectData(forms, intersectionPoints); // The data are naturally merged by collectData
 	}
 	catch (std::exception& e) {
 		std::cerr << "ERROR CATCHED!!!!! : " << e.what() << std::endl;
@@ -74,26 +71,26 @@ void computeUnitaryBall(std::vector<Rational2DPoint>& intersectionPoints, std::v
 	// We add the other points by symetry
 	size_t RP2_number_of_points = intersectionPoints.size();
 	for (unsigned int i = 0; i < RP2_number_of_points; i++) {
-		Rational2DPoint newPoint(Rational(-1, 1)*intersectionPoints[i]);		// newPoint = -intersectionPoints[i]
+		Rational2DPoint newPoint(Rational(-1, 1) * intersectionPoints[i]); // newPoint = -intersectionPoints[i]
 		intersectionPoints.push_back(newPoint);
 	}
 
 	// We add the other 1-forms by symetry
 	size_t RP2_number_of_forms = forms.size();
 	unsigned int i = 0;
-	if (forms.front() == (Rational(-1,1))*forms.back()) {
+	if (forms.front() == (Rational(-1, 1)) * forms.back()) {
 		RP2_number_of_forms--;
 		i++;
 	}
-	for (; i < RP2_number_of_forms; i++) {							// i was already initialized
-		Rational2DForm newForm(Rational(-1, 1)*forms[i]);		// newForm = -forms[i]
+	for (; i < RP2_number_of_forms; i++) { // i was already initialized
+		Rational2DForm newForm(Rational(-1, 1) * forms[i]); // newForm = -forms[i]
 		forms.push_back(newForm);
 	}
 
 };
 
-bool checkUnitaryBall(const std::vector<Rational2DPoint> &vertices, std::function<Rational(const Rational2DPoint&)> norm) {
-	
+bool checkUnitaryBall(const std::vector<Rational2DPoint>& vertices, std::function<Rational(const Rational2DPoint&)> norm) {
+
 	if (vertices.size() < 4) {
 		return false;
 	}
@@ -111,12 +108,12 @@ bool checkUnitaryBall(const std::vector<Rational2DPoint> &vertices, std::functio
 		return false;
 
 	// We check the simplicies
-	Rational2DPoint prec = vertices[0];		// At this point, vertices.size() >= 4
+	Rational2DPoint prec = vertices[0]; // At this point, vertices.size() >= 4
 	for (size_t i = 1; i < vertices.size() + 1; i++) {
 		size_t new_index = i % vertices.size();
 		Rational2DPoint current = vertices[new_index];
 
-		Rational2DPoint middle = Rational(1, 2)*(prec + current);
+		Rational2DPoint middle = Rational(1, 2) * (prec + current);
 		if (norm(middle) != Rational(1, 1)) {
 			correctResults = false;
 			break;
@@ -126,11 +123,10 @@ bool checkUnitaryBall(const std::vector<Rational2DPoint> &vertices, std::functio
 		prec = current;
 	}
 
-	
+
 	return correctResults;
 
 }
-
 
 
 void generateLaTeX(std::ostream& os, unsigned int nbData = 10) {
@@ -154,7 +150,7 @@ void generateLaTeX(std::ostream& os, unsigned int nbData = 10) {
 	window.drawNorm(normO);
 	window.drawPoly(vertices);
 	window.display();
-	window.clear();		// Double loop due to double buffering
+	window.clear(); // Double loop due to double buffering
 	window.drawNorm(normO);
 	window.drawPoly(vertices);
 	window.display();
@@ -180,7 +176,7 @@ void generateLaTeX(std::ostream& os, unsigned int nbData = 10) {
 
 	for (unsigned int i = 0; i < nbData; i++) {
 		int index = i + 1;
-		NormObject norm;		// The default constructor generates a random NormObject
+		NormObject norm; // The default constructor generates a random NormObject
 
 		vertices.clear();
 		forms.clear();
@@ -194,7 +190,7 @@ void generateLaTeX(std::ostream& os, unsigned int nbData = 10) {
 		window.drawNorm(norm);
 		window.drawPoly(vertices);
 		window.display();
-		window.clear();		// Double loop due to double buffering
+		window.clear(); // Double loop due to double buffering
 		window.drawNorm(norm);
 		window.drawPoly(vertices);
 		window.display();
@@ -229,7 +225,7 @@ void generateLaTeX(std::ostream& os, unsigned int nbData = 10) {
 
 int main(int argc, char* argv[]) {
 
-	
+
 	/*
 	// === Initialization
 	std::cerr << "Launching programm..." << std::endl;
@@ -291,7 +287,7 @@ int main(int argc, char* argv[]) {
 	system("pause");
 
 	*/
-	
+
 	/*
 	std::ofstream outFile("gen.tex", std::ios::out);
 	if (!outFile.is_open()) {
@@ -347,15 +343,14 @@ int main(int argc, char* argv[]) {
 	*/
 
 
-SettingWindow window(800,4);
-//sf::RenderWindow window(sf::VideoMode(800, 800), "SFML Window");
-window.setFramerateLimit(60);
-while (window.isOpen())
-{
-	window.clear(sf::Color::Black);
-	window.updateLoop();
-	window.display();
-}
+	SettingWindow window(800, 4);
+	//sf::RenderWindow window(sf::VideoMode(800, 800), "SFML Window");
+	window.setFramerateLimit(60);
+	while (window.isOpen()) {
+		window.clear(sf::Color::Black);
+		window.updateLoop();
+		window.display();
+	}
 
 	return EXIT_SUCCESS;
 

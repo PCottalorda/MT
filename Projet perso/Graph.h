@@ -9,8 +9,7 @@
 
 class EulerianOrientation;
 
-class Graph
-{
+class Graph {
 public:
 	Graph(unsigned int nbVertices);
 	~Graph();

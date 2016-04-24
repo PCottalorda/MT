@@ -27,7 +27,7 @@ sf::Color genColor(double x) {
 }
 
 
-Boundiaries generateBoundiaries(const std::vector<Rational2DPoint> &vertices) {
+Boundiaries generateBoundiaries(const std::vector<Rational2DPoint>& vertices) {
 	Rational __x_max(vertices[0].x);
 	Rational __x_min(vertices[0].x);
 	Rational __y_max(vertices[0].y);
@@ -58,11 +58,11 @@ Boundiaries generateBoundiaries(const std::vector<Rational2DPoint> &vertices) {
 	Rational x_rat_sum = __x_max + __x_min;
 	Rational y_rat_sum = __y_max + __y_min;
 
-	float x_amp = 1.2f*static_cast<float>(x_rat_amp);
-	float y_amp = 1.2f*static_cast<float>(y_rat_amp);
+	float x_amp = 1.2f * static_cast<float>(x_rat_amp);
+	float y_amp = 1.2f * static_cast<float>(y_rat_amp);
 
-	float x_center = 0.5f*static_cast<float>(x_rat_sum);
-	float y_center = 0.5f*static_cast<float>(x_rat_sum);
+	float x_center = 0.5f * static_cast<float>(x_rat_sum);
+	float y_center = 0.5f * static_cast<float>(x_rat_sum);
 
 	float half_x_amp = x_amp * 0.5f;
 	float half_y_amp = y_amp * 0.5f;
@@ -83,7 +83,6 @@ Boundiaries generateBoundiaries(const std::vector<Rational2DPoint> &vertices) {
 };
 
 
-
 sf::Vector2f PrintingWindow::windowCoor(const Rational2DPoint& r) {
 	float __x = static_cast<float>(r.x) - x_min;
 	float __y = static_cast<float>(r.y) - y_min;
@@ -102,7 +101,7 @@ void PrintingWindow::drawPoly(const std::vector<Rational2DPoint>& v) {
 
 	sf::VertexArray arr(sf::LinesStrip, v.size() + 1);
 	for (unsigned int i = 0; i < v.size() + 1; i++) {
-		arr[i] = windowCoor(v[i%v.size()]);
+		arr[i] = windowCoor(v[i % v.size()]);
 		arr[i].color = sf::Color::White;
 		arr[i].color = sf::Color(148, 0, 211);
 	}
@@ -120,14 +119,13 @@ void PrintingWindow::drawPoly(const std::vector<Rational2DPoint>& v) {
 };
 
 PrintingWindow::PrintingWindow(unsigned int X, unsigned int Y, float x_min, float x_max, float y_min, float y_max) :
-RenderWindow(sf::VideoMode(X, Y), "Visualization window"),
-x_min(x_min),
-x_max(x_max),
-y_min(y_min),
-y_max(y_max),
-X(X),
-Y(Y)
-{
+	RenderWindow(sf::VideoMode(X, Y), "Visualization window"),
+	x_min(x_min),
+	x_max(x_max),
+	y_min(y_min),
+	y_max(y_max),
+	X(X),
+	Y(Y) {
 	if (X == 0 || Y == 0) {
 		// TODO: Generate exception;
 		throw std::exception();
@@ -174,8 +172,8 @@ void PrintingWindow::drawNorm(std::function<float(float x, float y)> norm) {
 
 	for (unsigned int i = 0; i < X; i++)
 		for (unsigned int j = 0; j < Y; j++) {
-			float x = x_min + i*x_coeff;
-			float y = y_min + j*y_coeff;
+			float x = x_min + i * x_coeff;
+			float y = y_min + j * y_coeff;
 
 			float __eval_norm = norm(x, y);
 
@@ -207,22 +205,22 @@ bool PrintingWindow::generateImage(const std::string& filename) {
 
 
 PrintingWindow::PrintingWindow(unsigned int X, unsigned int Y, const Boundiaries& bound) :
-PrintingWindow(X, Y, bound.x_min, bound.x_max, bound.y_min, bound.y_max)
-{};
+	PrintingWindow(X, Y, bound.x_min, bound.x_max, bound.y_min, bound.y_max) {
+};
 
 
-PrintingWindow::PrintingWindow(unsigned int X, unsigned int Y, const std::vector<Rational2DPoint> &vertices) :
-PrintingWindow(X, Y, generateBoundiaries(vertices))
-{};
+PrintingWindow::PrintingWindow(unsigned int X, unsigned int Y, const std::vector<Rational2DPoint>& vertices) :
+	PrintingWindow(X, Y, generateBoundiaries(vertices)) {
+};
 
 void PrintingWindow::resetBoundiaires(const Boundiaries& bounds) {
-	
+
 	x_min = bounds.x_min;
 	x_max = bounds.x_max;
 	y_min = bounds.y_min;
 	y_max = bounds.y_max;
-	
-	
+
+
 	if (x_min >= x_max || y_min >= y_max) {
 		// TODO: Generate exception;
 		throw std::exception();
@@ -251,7 +249,7 @@ void PrintingWindow::computeUpperLayout() {
 	//=========== Creating and setting the upper layout =============
 	// UpperLayout is a member.
 	UpperLayout.create(X, Y);
-	UpperLayout.clear(sf::Color(0, 0, 0, 0));	// Transparent layout
+	UpperLayout.clear(sf::Color(0, 0, 0, 0)); // Transparent layout
 
 
 	// Compute a "good size" for the integral latice.
@@ -268,7 +266,7 @@ void PrintingWindow::computeUpperLayout() {
 
 	sf::CircleShape origin_point(origin_point_rad);
 	origin_point.setOrigin(origin_point.getRadius(), origin_point.getRadius());
-	sf::Vector2f origin(-x_min*x_coeff, -y_min*y_coeff);
+	sf::Vector2f origin(-x_min * x_coeff, -y_min * y_coeff);
 	origin_point.setPosition(origin);
 	origin_point.setFillColor(sf::Color::Black);
 
@@ -279,7 +277,7 @@ void PrintingWindow::computeUpperLayout() {
 	int int_y_min = (int)y_min - 1;
 	int int_y_max = (int)y_max + 1;
 
-	int numberOfPoints = (int_x_max - int_x_min + 1)*(int_y_max - int_y_min + 1);
+	int numberOfPoints = (int_x_max - int_x_min + 1) * (int_y_max - int_y_min + 1);
 	int counter = 1;
 
 	//std::cerr << "In..." << std::endl;
@@ -289,8 +287,8 @@ void PrintingWindow::computeUpperLayout() {
 			float __x = (float)i;
 			float __y = (float)j;
 
-			float x = (__x - x_min)*x_coeff;
-			float y = (__y - y_min)*y_coeff;
+			float x = (__x - x_min) * x_coeff;
+			float y = (__y - y_min) * y_coeff;
 			// Convert to frame coordinates
 
 
@@ -301,7 +299,7 @@ void PrintingWindow::computeUpperLayout() {
 		}
 	}
 
-	UpperLayout.draw(origin_point);		// Draw the origin point
+	UpperLayout.draw(origin_point); // Draw the origin point
 
 	sf::RectangleShape X_axis(sf::Vector2f((float)X, 4.0f));
 	X_axis.setOrigin(X_axis.getSize() / 2.0f);

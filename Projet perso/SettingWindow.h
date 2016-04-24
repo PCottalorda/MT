@@ -6,11 +6,10 @@
 #include "PointOnBoundiaryWrapper.h"
 #include "InternalPositionSystem.h"
 
-using Vector2fWrapper = PointOnBoundiaryWrapper <sf::Vector2f> ;
+using Vector2fWrapper = PointOnBoundiaryWrapper<sf::Vector2f>;
 
 class SettingWindow :
-	public sf::RenderWindow
-{
+	public sf::RenderWindow {
 
 	friend class InternalPositionSystem;
 
@@ -60,4 +59,3 @@ private:
 
 	InternalPositionSystem InternalSys;
 };
-

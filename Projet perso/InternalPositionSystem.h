@@ -7,10 +7,9 @@
 
 class SettingWindow;
 
-using Point = PointOnBoundiaryWrapper < sf::Vector2f > ;
+using Point = PointOnBoundiaryWrapper<sf::Vector2f>;
 
-class InternalPositionSystem
-{
+class InternalPositionSystem {
 public:
 	explicit InternalPositionSystem(SettingWindow* w);
 	~InternalPositionSystem();
@@ -28,18 +27,17 @@ public:
 
 
 	int index;
-	SettingWindow *window;
+	SettingWindow* window;
 
 	sf::Vector2f getMouseWindowPosition() const;
 
 	void update();
 	void readMousePosition();
 	void writeMousePosition() const;
-	void setMouseInternal(const sf::Vector2f &v);
+	void setMouseInternal(const sf::Vector2f& v);
 
 	void addPoint();
 
 	void invert();
 
 };
-

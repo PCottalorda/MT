@@ -5,11 +5,11 @@
 
 namespace {
 	float project(const sf::Vector2f& v, const sf::Vector2f& form) {
-		return v.x*form.x + v.y*form.y;
+		return v.x * form.x + v.y * form.y;
 	}
 
 	float norm2(const sf::Vector2f& v) {
-		return v.x*v.x + v.y*v.y;
+		return v.x * v.x + v.y * v.y;
 	}
 
 	float dist2(const sf::Vector2f& v1, const sf::Vector2f& v2) {
@@ -18,12 +18,11 @@ namespace {
 }
 
 InternalPositionSystem::InternalPositionSystem(SettingWindow* w) :
-window(w),
-onClosure(false),
-authModif(true),
-onBoundiary(false),
-index(0)
-{
+	window(w),
+	onClosure(false),
+	authModif(true),
+	onBoundiary(false),
+	index(0) {
 	// ratFormF initialized in SettingWindow::SettingWindow()
 	// internalShape initialized in SettingWindow::SettingWindow()
 }
@@ -55,23 +54,23 @@ void InternalPositionSystem::update() {
 	}
 
 	// We recompute the position to "stick" to the boundiary
-		if (onBoundiary) {
-			sf::Vector2f p1 = internalShape[index];
-			sf::Vector2f p2 = internalShape[(index - 1 + internalShape.size()) % internalShape.size()];
+	if (onBoundiary) {
+		sf::Vector2f p1 = internalShape[index];
+		sf::Vector2f p2 = internalShape[(index - 1 + internalShape.size()) % internalShape.size()];
 
-			sf::Vector2f X = p2 - p1;
+		sf::Vector2f X = p2 - p1;
 
-			sf::Vector2f nP = MouseInternal - p1;
-			float coeff = project(nP, X) / norm2(X);
-			if (coeff < 0.01f) {
-				coeff = 0.01f;
-			}
-			else if (coeff > 0.99f) {
-				coeff = 0.99f;
-			}
-			sf::Vector2f newPos = coeff*p2 + (1 - coeff)*p1;
-			setMouseInternal(newPos);
-			writeMousePosition();
+		sf::Vector2f nP = MouseInternal - p1;
+		float coeff = project(nP, X) / norm2(X);
+		if (coeff < 0.01f) {
+			coeff = 0.01f;
+		}
+		else if (coeff > 0.99f) {
+			coeff = 0.99f;
+		}
+		sf::Vector2f newPos = coeff * p2 + (1 - coeff) * p1;
+		setMouseInternal(newPos);
+		writeMousePosition();
 	}
 	//=================================================
 
@@ -111,13 +110,14 @@ void InternalPositionSystem::addPoint() {
 	 *		- A point placed on a boundiary is automatically teleported on a segment.
 	 *		- Points cannot intersect on a boundiary.
 	 */
-	
-	if (!authModif) return;	// NEED TO HAVE MODIFICATION AUTHORIZATION
+
+	if (!authModif) return; // NEED TO HAVE MODIFICATION AUTHORIZATION
 
 	if (onBoundiary) {
-		if (internalPoints.empty()) {	// The first point is located on the border
+		if (internalPoints.empty()) { // The first point is located on the border
 			return;
-		} else {
+		}
+		else {
 			// We check if the last point was onBoundiary
 			// TODO: Restrict to same boundiary!
 			if (internalPoints.back().index == index) {
@@ -126,10 +126,10 @@ void InternalPositionSystem::addPoint() {
 			else {
 				// We add the new boundiary point
 				// TODO: Add the new points
-				internalPoints.push_back(Point(MouseInternal, true,index));
-				window->addPoint(MouseInternal,true,true);
+				internalPoints.push_back(Point(MouseInternal, true, index));
+				window->addPoint(MouseInternal, true, true);
 				invert();
-				internalPoints.push_back(Point(MouseInternal, true,index));
+				internalPoints.push_back(Point(MouseInternal, true, index));
 				window->addPoint(MouseInternal, true, false);
 			}
 		}
@@ -139,7 +139,7 @@ void InternalPositionSystem::addPoint() {
 		// (onClosure and onBoundiary are never both true at the same time)
 
 		if (internalPoints.empty()) {
-			internalPoints.push_back(Point(MouseInternal, false,-1));
+			internalPoints.push_back(Point(MouseInternal, false, -1));
 			window->addPoint(MouseInternal, true, false);
 		}
 		else {
@@ -150,7 +150,7 @@ void InternalPositionSystem::addPoint() {
 				window->addPoint(MouseInternal, true, true);
 			}
 			else {
-				internalPoints.push_back(Point(MouseInternal, false,-1));
+				internalPoints.push_back(Point(MouseInternal, false, -1));
 				window->addPoint(MouseInternal, true, true);
 			}
 		}
@@ -159,8 +159,8 @@ void InternalPositionSystem::addPoint() {
 }
 
 void InternalPositionSystem::invert() {
-	sf::Vector2f middSeg = 0.5f*(window->convertWindowToInternal(window->edgeSegments[index].getP1()) + window->convertWindowToInternal(window->edgeSegments[index].getP2()));
-	MouseInternal = MouseInternal - 2.0f*middSeg;
+	sf::Vector2f middSeg = 0.5f * (window->convertWindowToInternal(window->edgeSegments[index].getP1()) + window->convertWindowToInternal(window->edgeSegments[index].getP2()));
+	MouseInternal = MouseInternal - 2.0f * middSeg;
 	writeMousePosition();
 }
 
