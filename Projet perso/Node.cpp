@@ -108,7 +108,7 @@ std::vector<std::vector<bool>> Counter::generateAll() {
 	while (!finished()) {
 		allTrue.push_back(getNext());
 	}
-	assert(std::all_of(allTrue.begin(), allTrue.end(), std::bind2nd(func, size)));
+	//assert(std::all_of(allTrue.begin(), allTrue.end(), [&](const std::vector<bool> &v){return func(v, size); }));
 	return allTrue;
 }
 
@@ -132,7 +132,7 @@ void Node::addAdjacentEdge(Edge* ed) {
 }
 
 bool Node::__check_validity() {
-	return std::all_of(edges.begin(), edges.end(), &Edge::isAdjacentTo)
+	return std::all_of(edges.begin(), edges.end(), [&](const Edge* e){return e->isAdjacentTo(this); })
 		&& std::is_sorted(edges.begin(), edges.end(), [](const Edge* e1, const Edge* e2){ return *e1 < *e2; });
 }
 
@@ -147,8 +147,8 @@ std::vector<OrientationOnNode> Node::allPossibleOrientations() const {
 	uint64_t in_degree = 0;
 	uint64_t out_degree = 0;
 
-	std::for_each(edges.begin(), edges.end(), [&degree](const Edge& ed) {
-		              if (ed.isLoop()) degree++;
+	std::for_each(edges.begin(), edges.end(), [&degree](const Edge* ed) {
+		              if (ed->isLoop()) degree++;
 	              });
 
 	// We dispatch the edges.
@@ -156,10 +156,12 @@ std::vector<OrientationOnNode> Node::allPossibleOrientations() const {
 		Edge& OriEdge = *ed;
 		if (OriEdge.isLocked()) {
 			lockedEdges.push_back(OriEdge);
-		} else {
+		}
+		else {
 			if (OriEdge.isLoop()) {
 				notLockedLoopedEdges.push_back(OriEdge);
-			} else {
+			}
+			else {
 				notLockedNotLoopedEdges.push_back(OriEdge);
 				if (OriEdge.getOrigin() == this) {
 					out_degree++;
@@ -169,6 +171,7 @@ std::vector<OrientationOnNode> Node::allPossibleOrientations() const {
 				}
 			}
 		}
+	}
 
 		assert(edges.size() == lockedEdges.size() + notLockedLoopedEdges.size() + notLockedNotLoopedEdges.size());
 		assert(degree % 2 == 0);
@@ -234,9 +237,9 @@ std::vector<OrientationOnNode> Node::allPossibleOrientations() const {
 					assert(notLoopedStates.size() == othersEdges.size());
 					applyInChange(notLoopedStates[i], othersEdges);
 					resEdges = concatenate(resEdges, othersEdges);
-					std::for_each(resEdges.begin(), resEdges.end(), &Edge::lock);
+					std::for_each(resEdges.begin(), resEdges.end(), std::mem_fn(&Edge::lock));
 					resEdges = concatenate(resEdges, lockedEdges);
-					assert(std::all_of(resEdges.begin(),resEdges.end(), &Edge::isLocked));
+					assert(std::all_of(resEdges.begin(),resEdges.end(), std::mem_fn(&Edge::isLocked)));
 					std::sort(resEdges.begin(), resEdges.end());
 					assert(resEdges.size() == edges.size());
 					orientations.push_back(resEdges);
@@ -251,9 +254,9 @@ std::vector<OrientationOnNode> Node::allPossibleOrientations() const {
 					assert(loopedStates.size() == loops.size());
 					applyChange(loopedStates[j], othersEdges);
 					resEdges = concatenate(resEdges, loops);
-					std::for_each(resEdges.begin(), resEdges.end(), &Edge::lock);
+					std::for_each(resEdges.begin(), resEdges.end(), std::mem_fn(&Edge::lock));
 					resEdges = concatenate(resEdges, lockedEdges);
-					assert(std::all_of(resEdges.begin(), resEdges.end(), &Edge::isLocked));
+					assert(std::all_of(resEdges.begin(), resEdges.end(), std::mem_fn(&Edge::isLocked)));
 					std::sort(resEdges.begin(), resEdges.end());
 					assert(resEdges.size() == edges.size());
 					orientations.push_back(resEdges);
@@ -270,19 +273,20 @@ std::vector<OrientationOnNode> Node::allPossibleOrientations() const {
 						applyChange(loopedStates[j], loops);
 						resEdges = concatenate(resEdges, othersEdges);
 						resEdges = concatenate(resEdges,loops);
-						std::for_each(resEdges.begin(), resEdges.end(), &Edge::lock);
+						std::for_each(resEdges.begin(), resEdges.end(), std::mem_fn(&Edge::lock));
 						resEdges = concatenate(resEdges, lockedEdges);
-						assert(std::all_of(resEdges.begin(), resEdges.end(), &Edge::isLocked));
+						assert(std::all_of(resEdges.begin(), resEdges.end(), std::mem_fn(&Edge::isLocked)));
 						std::sort(resEdges.begin(), resEdges.end());
 						orientations.push_back(resEdges);
 					}
 				}
 			}
+			return orientations;
 		}
 	}
-}
 
-void Node::setOrientedEdges(OrientationOnNode& ori) {
+
+void Node::setOrientedEdges(const OrientationOnNode& ori) {
 	assert(std::is_sorted(edges.begin(),edges.end(), [](const Edge* e1, const Edge* e2){return e1->id < e2->id; }));
 	assert(std::is_sorted(ori.begin(),ori.end()));
 	assert(ori.size() == edges.size());
@@ -302,7 +306,7 @@ OrientationOnNode Node::saveOrientation() const {
 }
 
 bool Node::isComplete() const {
-	return std::all_of(edges.begin(), edges.end(), &Edge::isLocked);
+	return std::all_of(edges.begin(), edges.end(), std::mem_fn(&Edge::isLocked));
 }
 
 

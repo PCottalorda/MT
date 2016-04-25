@@ -24,7 +24,7 @@ public:
 	bool __check_validity();
 
 	std::vector<OrientationOnNode> allPossibleOrientations() const;
-	void setOrientedEdges(OrientationOnNode& ori);
+	void setOrientedEdges(const OrientationOnNode& ori);
 	OrientationOnNode saveOrientation() const;
 
 	bool isComplete() const;

@@ -10,7 +10,7 @@
 
 Graph::Graph(unsigned nbVertices) :
 	numberVertices(nbVertices),
-	internalNodeCounter(0) {
+	internalNodeCounter(0), internalEdgeCounter(0) {
 	for (unsigned int i = 0; i < numberVertices; i++) {
 		nodes.push_back(new Node(i));
 	}
@@ -64,7 +64,7 @@ bool Graph::__internal_correct_edge(const Edge& ed) {
 }
 
 bool Graph::isEulerian() {
-		return std::all_of(nodes.begin(), nodes.end(), &Node::isEulerian);
+	return std::all_of(nodes.begin(), nodes.end(), [](const Node* n){return n->isEulerian(); });
 }
 
 std::vector<EulerianOrientation> Graph::generateAllEulerianOrientations() {
@@ -72,13 +72,7 @@ std::vector<EulerianOrientation> Graph::generateAllEulerianOrientations() {
 	std::vector<EulerianOrientation> eulOri;
 
 	//Check the possibility
-	if (isWeaklyEulerian()) {
-		resetMark();
-		__kernel_generateEulerian(0, eulOri);
-	}
-	else {
-		throw std::exception();
-	}
+	__kernel_generateEulerian(0, eulOri);
 
 	std::cerr << "digraph G {\n";
 	for each (const EulerianOrientation& eO in eulOri) {
@@ -109,7 +103,7 @@ void Graph::__kernel_generateEulerian(unsigned i, std::vector<EulerianOrientatio
 		else {
 			std::vector<OrientationOnNode> ori(refNode->allPossibleOrientations());
 			OrientationOnNode saveOri(refNode->saveOrientation());
-			for each (OrientationOnNode &o in ori) {
+			for each (const OrientationOnNode &o in ori) {
 				refNode->setOrientedEdges(o);
 				__kernel_generateEulerian(i + 1, eulOri);
 			}

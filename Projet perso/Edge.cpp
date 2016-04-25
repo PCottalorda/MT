@@ -89,12 +89,12 @@ Node* Edge::getDestination() {
 	}
 }
 
-Edge::Edge(const Edge& other):
-ori(other.ori),
+Edge::Edge(const Edge& other) : Node1(other.Node1), Node2(other.Node2), id(other.id),
+                               ori(other.ori),
 locked(false) {
 }
 
-Edge::Edge(Edge&& other): 
+Edge::Edge(Edge&& other) : Node1(other.Node1), Node2(other.Node2), id(other.id),
 ori(other.ori),
 locked(false) {
 }

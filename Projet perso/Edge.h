@@ -13,9 +13,9 @@ enum Orientation {
 class Edge {
 	friend class Graph;
 	friend class Node;
-	friend class Edge;
 
 public:
+	Edge() {};
 	Edge(const Edge& other);
 	Edge(Edge&& other);
 	~Edge();

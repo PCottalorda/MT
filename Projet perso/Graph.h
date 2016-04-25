@@ -22,12 +22,8 @@ public:
 	bool isConsistent() const;
 	bool __internal_correct_node(const Node* node);
 	bool __internal_correct_edge(const Edge& ed);
-	void resetMark();
 
-	bool isStronglyConnected();
 	bool isEulerian();
-	bool isWeaklyConnected();
-	bool isWeaklyEulerian();
 
 	std::vector<EulerianOrientation> generateAllEulerianOrientations();
 	void __kernel_generateEulerian(unsigned int i, std::vector<EulerianOrientation> eulOri);
