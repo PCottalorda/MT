@@ -79,7 +79,7 @@ std::vector<EulerianOrientation> Graph::generateAllEulerianOrientations() {
 		std::cerr << eO.generateGraphVizString() << std::endl;
 	}
 	std::cerr << "}" << std::endl;
-
+	 
 	return eulOri;
 }
 
