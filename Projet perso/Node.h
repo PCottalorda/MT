@@ -4,7 +4,7 @@
 
 #include "Edge.h"
 
-using OrientationOnNode = std::vector <Edge>;
+using OrientationOnNode = std::vector<Edge>;
 
 class Node {
 	friend class Graph;
@@ -25,12 +25,7 @@ public:
 
 	std::vector<OrientationOnNode> allPossibleOrientations() const;
 	void setOrientedEdges(OrientationOnNode& ori);
-	std::vector<OrientationOnNode> saveOrientation() const {
-		OrientationOnNode res(edges.size());
-		for each(const Edge* ed in edges) {
-			res.push_back(*ed);
-		}
-	}
+	OrientationOnNode saveOrientation() const;
 
 	bool isComplete() const;
 

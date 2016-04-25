@@ -22,7 +22,6 @@
 
 #include <stdint.h>
 
-#include "XBoxJoystick.h"
 #include "Rational.h"
 #include "Rational2DPoint.h"
 #include "__internalTree.h"

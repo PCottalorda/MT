@@ -5,6 +5,116 @@
 #include <cstdint>
 #include <functional>
 
+
+
+//=============================== COUNTER ===================================================================
+
+class Counter {
+private:
+	std::vector<bool> loopGest;
+	uint64_t size;
+	std::function<bool(const std::vector<bool>&, uint64_t)> func;
+
+public:
+	Counter(uint64_t size, const std::function<bool(const std::vector<bool>&, uint64_t)>& func);
+	~Counter();
+	std::vector<bool> getNext();
+	bool finished() const;
+	std::vector<std::vector<bool>> generateAll();
+
+private:
+	void reset();
+	void __next(uint64_t i);
+	void findNext();
+	void next();
+
+};
+
+class BinomialConfigs : public Counter {
+public:
+	BinomialConfigs(uint64_t n, uint64_t m) :
+		Counter(m, [n, m](const std::vector<bool>& v, uint64_t s)
+	{
+		uint64_t count = 0;
+		for (uint64_t i = 0; i < s; i++)
+			if (v[i]) count++;
+
+		return count == n;
+	}) {
+		assert(m >= n);
+	};
+};
+
+class AllConfigs : public Counter {
+public:
+	AllConfigs(uint64_t s) :
+		Counter(s, [](const std::vector<bool>&, uint64_t) {
+		return true;
+	}) {};
+};
+
+Counter::Counter(uint64_t size, const std::function<bool(const std::vector<bool>&, uint64_t)>& func) : size(size),
+func(func),
+loopGest(size + 1, false) {
+	findNext();
+}
+
+Counter::~Counter() {
+}
+
+std::vector<bool> Counter::getNext() {
+	std::vector<bool> res(size);
+	for (uint64_t i = 0; i < size; i++) {
+		res[i] = loopGest[i];
+	}
+	findNext();
+	return res;
+}
+
+void Counter::findNext() {
+	while (!finished() && !func(loopGest, size)) {
+		next();
+	}
+}
+
+void Counter::next() {
+	__next(0);
+}
+
+
+void Counter::reset() {
+	for (uint64_t i = 0; i < size + 1; i++) {
+		loopGest[i] = false;
+	}
+	findNext();
+}
+
+void Counter::__next(uint64_t i) {
+	if (!finished()) {
+		if (loopGest[i]) {
+			loopGest[i] = false;
+			__next(++i);
+		}
+	}
+}
+
+bool Counter::finished() const {
+	return loopGest[size];
+}
+
+std::vector<std::vector<bool>> Counter::generateAll() {
+	std::vector<std::vector<bool>> allTrue;
+	reset();
+	while (!finished()) {
+		allTrue.push_back(getNext());
+	}
+	assert(std::all_of(allTrue.begin(), allTrue.end(), std::bind2nd(func, size)));
+	return allTrue;
+}
+
+
+//======== NODE ==============================================================================================
+
 Node::Node(int i) : internalNumber(i) {
 }
 
@@ -183,6 +293,14 @@ void Node::setOrientedEdges(OrientationOnNode& ori) {
 	}
 }
 
+OrientationOnNode Node::saveOrientation() const {
+	OrientationOnNode res(edges.size());
+	for each (const Edge* ed in edges) {
+		res.push_back(*ed);
+	}
+	return res;
+}
+
 bool Node::isComplete() const {
 	return std::all_of(edges.begin(), edges.end(), &Edge::isLocked);
 }
@@ -221,108 +339,3 @@ int Node::degree() const {
 	return count;
 }
 
-
-//=============================== COUNTER ===================================================================
-
-class Counter {
-private:
-	std::vector<bool> loopGest;
-	uint64_t size;
-	std::function<bool(const std::vector<bool>&, uint64_t)> func;
-
-public:
-	Counter(uint64_t size, const std::function<bool(const std::vector<bool>&, uint64_t)>& func);
-	~Counter();
-	std::vector<bool> getNext();
-	bool finished() const;
-	std::vector<std::vector<bool>> generateAll();
-
-private:
-	void reset();
-	void __next(uint64_t i);
-	void findNext();
-	void next();
-
-};
-
-class BinomialConfigs : public Counter {
-public:
-	BinomialConfigs(uint64_t n, uint64_t m) :
-		Counter(m, [n,m](const std::vector<bool>& v, uint64_t s)
-	{
-		uint64_t count = 0;
-		for (uint64_t i = 0; i < s; i++)
-			if (v[i]) count++;
-
-		return count == n;
-	}) {
-		assert(m >= n);
-	};
-};
-
-class AllConfigs : public Counter {
-public:
-	AllConfigs(uint64_t s) :
-		Counter(s, [](const std::vector<bool>&, uint64_t) {
-		return true;
-	}) {};
-};
-
-Counter::Counter(uint64_t size, const std::function<bool(const std::vector<bool>&, uint64_t)>& func): size(size),
-                                                                                                      func(func),
-                                                                                                      loopGest(size + 1, false) {
-	findNext();
-}
-
-Counter::~Counter() {
-}
-
-std::vector<bool> Counter::getNext() {
-	std::vector<bool> res(size);
-	for (uint64_t i = 0; i < size; i++) {
-		res[i] = loopGest[i];
-	}
-	findNext();
-	return res;
-}
-
-void Counter::findNext() {
-	while (!finished() && !func(loopGest, size)) {
-		next();
-	}
-}
-
-void Counter::next() {
-	__next(0);
-}
-
-
-void Counter::reset() {
-	for (uint64_t i = 0; i < size + 1; i++) {
-		loopGest[i] = false;
-	}
-	findNext();
-}
-
-void Counter::__next(uint64_t i) {
-	if (!finished()) {
-		if (loopGest[i]) {
-			loopGest[i] = false;
-			__next(++i);
-		}
-	}
-}
-
-bool Counter::finished() const {
-	return loopGest[size];
-}
-
-std::vector<std::vector<bool>> Counter::generateAll() {
-	std::vector<std::vector<bool>> allTrue;
-	reset();
-	while (!finished()) {
-		allTrue.push_back(getNext());
-	}
-	assert(std::all_of(allTrue.begin(),allTrue.end(),std::bind2nd(func,size)));
-	return allTrue;
-}
