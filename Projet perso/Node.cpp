@@ -23,6 +23,7 @@ public:
 	std::vector<std::vector<bool>> generateAll();
 
 private:
+	uint64_t state();
 	void reset();
 	void __next(uint64_t i);
 	void findNext();
@@ -56,17 +57,31 @@ public:
 Counter::Counter(uint64_t size, const std::function<bool(const std::vector<bool>&, uint64_t)>& func) : size(size),
 func(func),
 loopGest(size + 1, false) {
-	findNext();
+
 }
 
 Counter::~Counter() {
 }
 
+uint64_t Counter::state() {
+	uint64_t res = 0;
+	for (int64_t i = loopGest.size() - 1; i >= 0; i--) {
+		res *= 2;
+		if (loopGest[i]) {
+			res++;
+		}
+	}
+	return res;
+}
+
+
 std::vector<bool> Counter::getNext() {
+	std::cout << "\tConfiguration Found: " << state() << std::endl;
 	std::vector<bool> res(size);
 	for (uint64_t i = 0; i < size; i++) {
 		res[i] = loopGest[i];
 	}
+	next();
 	findNext();
 	return res;
 }
@@ -90,10 +105,12 @@ void Counter::reset() {
 }
 
 void Counter::__next(uint64_t i) {
-	if (!finished()) {
+	if (i < loopGest.size()) {
 		if (loopGest[i]) {
 			loopGest[i] = false;
-			__next(++i);
+			__next(i+1);
+		} else {
+			loopGest[i] = true;
 		}
 	}
 }
@@ -105,10 +122,12 @@ bool Counter::finished() const {
 std::vector<std::vector<bool>> Counter::generateAll() {
 	std::vector<std::vector<bool>> allTrue;
 	reset();
-	while (!finished()) {
-		allTrue.push_back(getNext());
+	if (loopGest.size() != 1) {
+		while (!finished()) {
+			allTrue.push_back(getNext());
+		}
 	}
-	//assert(std::all_of(allTrue.begin(), allTrue.end(), [&](const std::vector<bool> &v){return func(v, size); }));
+	assert(std::all_of(allTrue.begin(), allTrue.end(), [&](const std::vector<bool> &v){return func(v, size); }));
 	return allTrue;
 }
 
@@ -127,16 +146,17 @@ void Node::addAdjacentEdge(Edge* ed) {
 
 	// Architecture can be optimized!
 	edges.push_back(ed);
-	std::sort(edges.begin(), edges.end(), [](Edge* e1, Edge* e2){return e1 < e2; });
-	assert(__check_validity());
+	std::sort(edges.begin(), edges.end(), [](Edge* e1, Edge* e2){return *e1 < *e2; });
+	__check_validity();
 }
 
-bool Node::__check_validity() {
-	return std::all_of(edges.begin(), edges.end(), [&](const Edge* e){return e->isAdjacentTo(this); })
-		&& std::is_sorted(edges.begin(), edges.end(), [](const Edge* e1, const Edge* e2){ return *e1 < *e2; });
+void Node::__check_validity() {
+	assert(std::all_of(edges.begin(), edges.end(), [&](const Edge* e){return e->isAdjacentTo(this); }));
+	assert(std::is_sorted(edges.begin(), edges.end(), [](const Edge* e1, const Edge* e2){ return *e1 < *e2; }));
 }
 
 std::vector<OrientationOnNode> Node::allPossibleOrientations() const {
+	std::cout << "Generate possible eulerian orientation of node " << internalNumber << std::endl;
 	std::vector<OrientationOnNode> orientations;
 
 	std::vector<Edge> lockedEdges;
@@ -148,21 +168,17 @@ std::vector<OrientationOnNode> Node::allPossibleOrientations() const {
 	uint64_t out_degree = 0;
 
 	std::for_each(edges.begin(), edges.end(), [&degree](const Edge* ed) {
-		              if (ed->isLoop()) degree++;
+		              if (!ed->isLoop()) degree++;
 	              });
+
+	std::cout << "Non looped degree: " << degree << std::endl;
 
 	// We dispatch the edges.
 	for each (Edge* ed in edges) {
 		Edge& OriEdge = *ed;
 		if (OriEdge.isLocked()) {
 			lockedEdges.push_back(OriEdge);
-		}
-		else {
-			if (OriEdge.isLoop()) {
-				notLockedLoopedEdges.push_back(OriEdge);
-			}
-			else {
-				notLockedNotLoopedEdges.push_back(OriEdge);
+			if (!OriEdge.isLoop()) {
 				if (OriEdge.getOrigin() == this) {
 					out_degree++;
 				}
@@ -171,11 +187,22 @@ std::vector<OrientationOnNode> Node::allPossibleOrientations() const {
 				}
 			}
 		}
+		else {
+			if (OriEdge.isLoop()) {
+				notLockedLoopedEdges.push_back(OriEdge);
+			}
+			else {
+				notLockedNotLoopedEdges.push_back(OriEdge);
+			}
+		}
 	}
+
+	std::cout << "Non looped locked in degree  :" << in_degree << std::endl;
+	std::cout << "Non looped locked out degree :" << out_degree << std::endl;
 
 		assert(edges.size() == lockedEdges.size() + notLockedLoopedEdges.size() + notLockedNotLoopedEdges.size());
 		assert(degree % 2 == 0);
-		assert(degree <= out_degree + in_degree);
+		assert(degree >= out_degree + in_degree);
 
 		// uint64_t is of degree 2.
 		uint64_t demi_degree = degree / 2;
@@ -190,8 +217,12 @@ std::vector<OrientationOnNode> Node::allPossibleOrientations() const {
 
 			assert(in_rem + out_rem == notLockedNotLoopedEdges.size());
 			
+			std::cout << "Generate Binomial configs ("<< in_rem << " parmi " << notLockedNotLoopedEdges.size() << ")..." << std::endl;
 			std::vector<std::vector<bool>> notLoopedStates = BinomialConfigs(in_rem, notLockedNotLoopedEdges.size()).generateAll();
+			std::cout << notLoopedStates.size() << " configuration(s) found" << std::endl;
+			std::cout << "Generate all configs..." << std::endl;
 			std::vector<std::vector<bool>> loopedStates = AllConfigs(notLockedLoopedEdges.size()).generateAll();
+			std::cout << loopedStates.size() << " configuration(s) found" << std::endl;
 
 			//--- Lambdas ---
 			auto applyInChange = [&](std::vector<bool>& setOri, std::vector<Edge>& edges) {
@@ -230,6 +261,7 @@ std::vector<OrientationOnNode> Node::allPossibleOrientations() const {
 
 			if (loopedStates.empty()) {
 				// There is no loop
+				std::cout << "No loop found..." << std::endl;
 				for (uint64_t i = 0; i < notLoopedStates.size(); i++) {
 					resEdges.clear();
 					std::vector<Edge> loops(notLockedLoopedEdges);
@@ -277,10 +309,12 @@ std::vector<OrientationOnNode> Node::allPossibleOrientations() const {
 						resEdges = concatenate(resEdges, lockedEdges);
 						assert(std::all_of(resEdges.begin(), resEdges.end(), std::mem_fn(&Edge::isLocked)));
 						std::sort(resEdges.begin(), resEdges.end());
+						assert(resEdges.size() == edges.size());
 						orientations.push_back(resEdges);
 					}
 				}
 			}
+			assert(!orientations.empty());
 			return orientations;
 		}
 	}
@@ -298,10 +332,12 @@ void Node::setOrientedEdges(const OrientationOnNode& ori) {
 }
 
 OrientationOnNode Node::saveOrientation() const {
-	OrientationOnNode res(edges.size());
-	for each (const Edge* ed in edges) {
-		res.push_back(*ed);
+	OrientationOnNode res;
+	assert(std::is_sorted(edges.begin(), edges.end(), [](const Edge* e1, const Edge* e2){return *e1 < *e2; }));
+	for each (const Edge* e in edges) {
+		res.push_back(*e);
 	}
+	assert(std::is_sorted(res.begin(), res.end()));
 	return res;
 }
 

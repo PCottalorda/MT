@@ -21,7 +21,7 @@ public:
 	bool isWeaklyEulerian() const;
 	int getInternalNumber() const;
 
-	bool __check_validity();
+	void __check_validity();
 
 	std::vector<OrientationOnNode> allPossibleOrientations() const;
 	void setOrientedEdges(const OrientationOnNode& ori);

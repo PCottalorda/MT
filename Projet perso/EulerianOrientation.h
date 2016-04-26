@@ -3,14 +3,15 @@
 #include <vector>
 
 #include "Edge.h"
-#include "Graph.h"
+
+class Graph;
 
 class EulerianOrientation {
 	friend Graph;
 
 public:
 	EulerianOrientation(Graph* G, int tag);
-	~EulerianOrientation();;
+	~EulerianOrientation();
 
 	std::string generateGraphVizString() const;
 

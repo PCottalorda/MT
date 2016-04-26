@@ -1,12 +1,12 @@
 #include "Graph.h"
 
-#include "EulerianOrientation.h"
 
 #include <algorithm>
 #include <exception>
 #include <string>
 #include <cstdint>
-
+#include <functional>
+#include <cassert>
 
 Graph::Graph(unsigned nbVertices) :
 	numberVertices(nbVertices),
@@ -34,6 +34,11 @@ void Graph::addEdge(int i, int j) {
 	if (!newNode->isLoop()) {
 		node2->addAdjacentEdge(newNode);
 	}
+
+	// TODO: OPTIMIZE!
+	std::sort(edges.begin(),edges.end());
+	assert(std::is_sorted(edges.begin(),edges.end()));
+	assert(std::none_of(edges.begin(), edges.end(), std::mem_fn(&Edge::isLocked)));
 }
 
 std::vector<Edge*>& Graph::getEdges() {
@@ -70,9 +75,11 @@ bool Graph::isEulerian() {
 std::vector<EulerianOrientation> Graph::generateAllEulerianOrientations() {
 
 	std::vector<EulerianOrientation> eulOri;
+	assert(eulOri.empty());
 
 	//Check the possibility
 	__kernel_generateEulerian(0, eulOri);
+	assert(!eulOri.empty());
 
 	std::cerr << "digraph G {\n";
 	for each (const EulerianOrientation& eO in eulOri) {
@@ -84,27 +91,38 @@ std::vector<EulerianOrientation> Graph::generateAllEulerianOrientations() {
 }
 
 void Graph::__kernel_generateEulerian(unsigned i, std::vector<EulerianOrientation> eulOri) {
+	std::cout << "kernelGenerator step: " << i << std::endl;
 	if (i >= nodes.size()) {
+		std::cout << "All nodes parcoured: New Eulerian Orientation!" << std::endl;
 		// TODO:: generate Eulerian Orientation
 		eulOri.push_back(EulerianOrientation(this, internalNodeCounter));
 		internalNodeCounter++;
 	}
 	else {
+		std::cout << "Node " << i << std::endl;
 		Node* refNode = nodes[i];
 		if (refNode->isComplete()) {
+			std::cout << "\tComplete Node..." << std::endl;
 			if (refNode->isEulerian()) {
+				std::cout << "\t\tEulerian Node..." << std::endl;
 				__kernel_generateEulerian(i + 1, eulOri);
 			}
 			else {
+				std::cout << "\t\tNon Eulerian Node..." << std::endl;
 				// The current restricted orientation is not eulerian
 				// and cannot be extended
 			}
 		}
 		else {
+			std::cout << "\tIncomplete Node..." << std::endl;
 			std::vector<OrientationOnNode> ori(refNode->allPossibleOrientations());
+			std::cout << ori.size() << " possible eulerian orientations..." << std::endl;
 			OrientationOnNode saveOri(refNode->saveOrientation());
 			for each (const OrientationOnNode &o in ori) {
+				// We check if the two orientations are compatible
 				refNode->setOrientedEdges(o);
+				assert(refNode->isComplete());
+				assert(refNode->isEulerian());
 				__kernel_generateEulerian(i + 1, eulOri);
 			}
 			refNode->setOrientedEdges(saveOri);

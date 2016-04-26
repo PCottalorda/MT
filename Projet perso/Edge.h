@@ -15,7 +15,6 @@ class Edge {
 	friend class Node;
 
 public:
-	Edge() {};
 	Edge(const Edge& other);
 	Edge(Edge&& other);
 	~Edge();

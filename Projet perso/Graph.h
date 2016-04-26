@@ -5,9 +5,7 @@
 
 #include <vector>
 #include <unordered_set>
-
-
-class EulerianOrientation;
+#include "EulerianOrientation.h"
 
 class Graph {
 public:
