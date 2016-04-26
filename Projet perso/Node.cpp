@@ -248,66 +248,60 @@ std::vector<OrientationOnNode> Node::allPossibleOrientations() const {
 					}
 				}
 			};
-			auto concatenate = [](std::vector<Edge>& v1, std::vector<Edge>& v2) {
-				std::vector<Edge> res(v1);
-				for (uint64_t i = 0; i < v2.size(); i++) {
-					v1.push_back(v2[i]);
-				}
+			auto concatenate = [](std::vector<Edge>& v1, std::vector<Edge>& v2) -> std::vector<Edge> {
+				std::vector<Edge> res;
+				std::for_each(v1.begin(), v1.end(), [&res](const Edge& e){res.push_back(e); });
+				std::for_each(v2.begin(), v2.end(), [&res](const Edge& e){res.push_back(e); });
 				return res;
 			};
 			//---------------
 
 			std::vector<Edge> resEdges;
 
+			assert(orientations.empty());
+
 			if (loopedStates.empty()) {
 				// There is no loop
 				std::cout << "No loop found..." << std::endl;
 				for (uint64_t i = 0; i < notLoopedStates.size(); i++) {
 					resEdges.clear();
-					std::vector<Edge> loops(notLockedLoopedEdges);
 					std::vector<Edge> othersEdges(notLockedNotLoopedEdges);
-					assert(notLoopedStates.size() == othersEdges.size());
+					assert(notLoopedStates[i].size() == othersEdges.size());
 					applyInChange(notLoopedStates[i], othersEdges);
 					resEdges = concatenate(resEdges, othersEdges);
-					std::for_each(resEdges.begin(), resEdges.end(), std::mem_fn(&Edge::lock));
 					resEdges = concatenate(resEdges, lockedEdges);
-					assert(std::all_of(resEdges.begin(),resEdges.end(), std::mem_fn(&Edge::isLocked)));
 					std::sort(resEdges.begin(), resEdges.end());
 					assert(resEdges.size() == edges.size());
 					orientations.push_back(resEdges);
 				}
 			} else if (notLoopedStates.empty()) {
 				// There is nothing else but loop
-
+				std::cout << "Only loops found..." << std::endl;
 				for (uint64_t j = 0; j < loopedStates.size(); j++) {
 					resEdges.clear();
 					std::vector<Edge> loops(notLockedLoopedEdges);
-					std::vector<Edge> othersEdges(notLockedNotLoopedEdges);
-					assert(loopedStates.size() == loops.size());
-					applyChange(loopedStates[j], othersEdges);
+					assert(loopedStates[j].size() == loops.size());
+					applyChange(loopedStates[j], loops);
 					resEdges = concatenate(resEdges, loops);
-					std::for_each(resEdges.begin(), resEdges.end(), std::mem_fn(&Edge::lock));
 					resEdges = concatenate(resEdges, lockedEdges);
-					assert(std::all_of(resEdges.begin(), resEdges.end(), std::mem_fn(&Edge::isLocked)));
 					std::sort(resEdges.begin(), resEdges.end());
 					assert(resEdges.size() == edges.size());
 					orientations.push_back(resEdges);
 				}
 			} else {
+				std::cout << "Loops and other edges found..." << std::endl;
 				for (uint64_t i = 0; i < notLoopedStates.size(); i++) {
 					for (uint64_t j = 0; j < loopedStates.size(); j++) {
 						resEdges.clear();
 						std::vector<Edge> loops(notLockedLoopedEdges);
 						std::vector<Edge> othersEdges(notLockedNotLoopedEdges);
-						assert(notLoopedStates.size() == othersEdges.size());
-						assert(loopedStates.size() == loops.size());
+						assert(notLoopedStates[i].size() == othersEdges.size());
+						assert(loopedStates[j].size() == loops.size());
 						applyInChange(notLoopedStates[i], othersEdges);
 						applyChange(loopedStates[j], loops);
 						resEdges = concatenate(resEdges, othersEdges);
 						resEdges = concatenate(resEdges,loops);
-						std::for_each(resEdges.begin(), resEdges.end(), std::mem_fn(&Edge::lock));
 						resEdges = concatenate(resEdges, lockedEdges);
-						assert(std::all_of(resEdges.begin(), resEdges.end(), std::mem_fn(&Edge::isLocked)));
 						std::sort(resEdges.begin(), resEdges.end());
 						assert(resEdges.size() == edges.size());
 						orientations.push_back(resEdges);
@@ -315,6 +309,14 @@ std::vector<OrientationOnNode> Node::allPossibleOrientations() const {
 				}
 			}
 			assert(!orientations.empty());
+			std::for_each(orientations.begin(), orientations.end(), [](OrientationOnNode& o)
+			{
+					std::for_each(o.begin(), o.end(), std::mem_fn(&Edge::lock));
+			});
+			assert(std::all_of(orientations.begin(), orientations.end(), [](const OrientationOnNode& o)
+			{
+				return std::all_of(o.begin(), o.end(), std::mem_fn(&Edge::isLocked));
+			}));
 			return orientations;
 		}
 	}

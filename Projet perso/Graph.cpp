@@ -90,12 +90,13 @@ std::vector<EulerianOrientation> Graph::generateAllEulerianOrientations() {
 	return eulOri;
 }
 
-void Graph::__kernel_generateEulerian(unsigned i, std::vector<EulerianOrientation> eulOri) {
+void Graph::__kernel_generateEulerian(unsigned i, std::vector<EulerianOrientation> &eulOri) {
 	std::cout << "kernelGenerator step: " << i << std::endl;
 	if (i >= nodes.size()) {
 		std::cout << "All nodes parcoured: New Eulerian Orientation!" << std::endl;
 		// TODO:: generate Eulerian Orientation
 		eulOri.push_back(EulerianOrientation(this, internalNodeCounter));
+		assert(!eulOri.empty());
 		internalNodeCounter++;
 	}
 	else {

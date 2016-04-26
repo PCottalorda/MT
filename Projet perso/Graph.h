@@ -24,7 +24,7 @@ public:
 	bool isEulerian();
 
 	std::vector<EulerianOrientation> generateAllEulerianOrientations();
-	void __kernel_generateEulerian(unsigned int i, std::vector<EulerianOrientation> eulOri);
+	void __kernel_generateEulerian(unsigned int i, std::vector<EulerianOrientation>& eulOri);
 	std::string generateGraphVizString() const;
 
 
