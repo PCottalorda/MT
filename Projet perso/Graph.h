@@ -5,9 +5,7 @@
 
 #include <vector>
 #include <unordered_set>
-
-
-class EulerianOrientation;
+#include "EulerianOrientation.h"
 
 class Graph {
 public:
@@ -22,15 +20,11 @@ public:
 	bool isConsistent() const;
 	bool __internal_correct_node(const Node* node);
 	bool __internal_correct_edge(const Edge& ed);
-	void resetMark();
 
-	bool isStronglyConnected();
 	bool isEulerian();
-	bool isWeaklyConnected();
-	bool isWeaklyEulerian();
 
 	std::vector<EulerianOrientation> generateAllEulerianOrientations();
-	void __kernel_generateEulerian(unsigned int i, std::vector<EulerianOrientation> eulOri);
+	void __kernel_generateEulerian(unsigned int i, std::vector<EulerianOrientation>& eulOri);
 	std::string generateGraphVizString() const;
 
 
@@ -38,7 +32,8 @@ private:
 	std::unordered_set<const Node*> __fast_ptr_nodes;
 	unsigned int numberVertices;
 
-	int internalCounter;
+	uint64_t internalNodeCounter;
+	uint64_t internalEdgeCounter;
 	std::vector<Node *> nodes;
 	std::vector<Edge *> edges;
 

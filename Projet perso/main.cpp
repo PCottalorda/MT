@@ -22,7 +22,6 @@
 
 #include <stdint.h>
 
-#include "XBoxJoystick.h"
 #include "Rational.h"
 #include "Rational2DPoint.h"
 #include "__internalTree.h"
@@ -303,7 +302,7 @@ int main(int argc, char* argv[]) {
 	//outFile.close();
 
 
-	/*
+	
 	std::ofstream outFile("C:\\Users\\Paul Cottalorda\\Desktop\\GraphVizOut.txt", std::ios::out);
 	if (!outFile.is_open()) {
 		return EXIT_FAILURE;
@@ -319,7 +318,7 @@ int main(int argc, char* argv[]) {
 	G.addEdge(0, 2);
 
 	std::cerr << G.generateGraphVizString() << std::endl;
-	outFile << G.generateGraphVizString();
+	//outFile << G.generateGraphVizString();
 
 	auto printBool = [](bool b) -> std::string { if (b) { return "true"; } else { return "false"; }};
 
@@ -333,14 +332,10 @@ int main(int argc, char* argv[]) {
 		std::cerr << "Noeud " << i << " : " << G.getNodes()[i]->degree() << std::endl;
 	}
 
-	std::cerr << "isWeaklyConnected : " << printBool(G.isWeaklyConnected()) << std::endl;
-	std::cerr << "isWeaklyEulerian : " << printBool(G.isWeaklyEulerian()) << std::endl;
-
 	G.generateAllEulerianOrientations();
 
 	outFile.close();
 	system("pause");
-	*/
 
 
 	SettingWindow window(800, 4);

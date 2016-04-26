@@ -83,7 +83,6 @@
     <ClCompile Include="Segment.cpp" />
     <ClCompile Include="SegmentDrawable.cpp" />
     <ClCompile Include="SettingWindow.cpp" />
-    <ClCompile Include="XBoxJoystick.cpp" />
     <ClCompile Include="__internalTree.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -101,7 +100,6 @@
     <ClInclude Include="Segment.h" />
     <ClInclude Include="SegmentDrawable.h" />
     <ClInclude Include="SettingWindow.h" />
-    <ClInclude Include="XBoxJoystick.h" />
     <ClInclude Include="__internalTree.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

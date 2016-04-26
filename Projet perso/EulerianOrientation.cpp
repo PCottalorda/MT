@@ -1,14 +1,15 @@
 #include "EulerianOrientation.h"
 
 #include "Node.h"
+#include "Graph.h"
 
 #include <string>
 
 std::string EulerianOrientation::generateGraphVizString() const {
 	std::string graphVizString("");
 	for each (const Edge& e in edges) {
-		graphVizString += "\t\"" + std::to_string(internalNumber) + "_" + std::to_string(e.getHead()->getInternalNumber())
-			+ "\" -> \"" + std::to_string(internalNumber) + "_" + std::to_string(e.getTail()->getInternalNumber()) + "\"\n";
+		graphVizString += "\t\"" + std::to_string(internalNumber) + "_" + std::to_string(e.getOrigin()->getInternalNumber())
+			+ "\" -> \"" + std::to_string(internalNumber) + "_" + std::to_string(e.getDestination()->getInternalNumber()) + "\"\n";
 	}
 	return graphVizString;
 }

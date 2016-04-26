@@ -89,30 +89,47 @@ Node* Edge::getDestination() {
 	}
 }
 
-Edge::Edge(const Edge& other): ori(other.ori),
-                                                                            locked(false) {
+
+Edge::Edge(const Edge& other): Node1(other.Node1),
+                               Node2(other.Node2),
+                               ori(other.ori),
+                               locked(other.locked),
+                               id(other.id) {
 }
 
-Edge::Edge(Edge&& other): ori(other.ori),
-                                                                       locked(false) {
-}
-
-Edge::~Edge() {
+Edge::Edge(Edge&& other): Node1(other.Node1),
+                          Node2(other.Node2),
+                          ori(other.ori),
+                          locked(other.locked),
+                          id(other.id) {
 }
 
 Edge& Edge::operator=(const Edge& other) {
 	if (this == &other)
 		return *this;
+	Node1 = other.Node1;
+	Node2 = other.Node2;
 	ori = other.ori;
+	locked = other.locked;
+	id = other.id;
 	return *this;
 }
 
 Edge& Edge::operator=(Edge&& other) {
 	if (this == &other)
 		return *this;
+	Node1 = other.Node1;
+	Node2 = other.Node2;
 	ori = other.ori;
+	locked = other.locked;
+	id = other.id;
 	return *this;
 }
+
+Edge::~Edge() {
+}
+
+
 
 void Edge::reverseOrientation() {
 	if (ori == STANDARD) {

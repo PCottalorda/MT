@@ -13,12 +13,14 @@ enum Orientation {
 class Edge {
 	friend class Graph;
 	friend class Node;
-	friend class Edge;
 
 public:
 	Edge(const Edge& other);
 	Edge(Edge&& other);
 	~Edge();
+
+	Edge& operator=(const Edge& other);
+	Edge& operator=(Edge&& other);
 
 	bool isLocked() const;
 	void lock();
@@ -35,8 +37,6 @@ public:
 	const Node* getOrigin() const;
 	const Node* getDestination() const;
 
-	Edge& operator=(const Edge& other);
-	Edge& operator=(Edge&& other);
 	friend bool operator==(const Edge& lhs, const Edge& rhs);
 	friend bool operator!=(const Edge& lhs, const Edge& rhs);
 
@@ -57,7 +57,8 @@ protected:
 	Orientation ori;
 	bool locked;
 	uint64_t id;
-	Edge(Node* n1, Node* n2, uint64_t id);
+
+	Edge(Node* node1, Node* node2, uint64_t id);
 };
 
 std::ostream& operator<<(std::ostream& os, const Edge& e);
