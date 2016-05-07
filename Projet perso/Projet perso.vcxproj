@@ -71,6 +71,7 @@
     <ClCompile Include="EulerianOrientation.cpp" />
     <ClCompile Include="Graph.cpp" />
     <ClCompile Include="InternalPositionSystem.cpp" />
+    <ClCompile Include="IntersectionManager.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Node.cpp" />
     <ClCompile Include="NormObject.cpp" />
@@ -90,6 +91,7 @@
     <ClInclude Include="EulerianOrientation.h" />
     <ClInclude Include="Graph.h" />
     <ClInclude Include="InternalPositionSystem.h" />
+    <ClInclude Include="IntersectionManager.h" />
     <ClInclude Include="PointOnBoundiaryWrapper.h" />
     <ClInclude Include="Rational2DForm.h" />
     <ClInclude Include="Node.h" />

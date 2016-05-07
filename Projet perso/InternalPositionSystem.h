@@ -4,8 +4,11 @@
 #include <vector>
 
 #include "PointOnBoundiaryWrapper.h"
+#include "Rational2DPoint.h"
 
 class SettingWindow;
+
+
 
 using Point = PointOnBoundiaryWrapper<sf::Vector2f>;
 
@@ -25,7 +28,6 @@ public:
 
 	bool authModif;
 
-
 	int index;
 	SettingWindow* window;
 
@@ -41,3 +43,4 @@ public:
 	void invert();
 
 };
+

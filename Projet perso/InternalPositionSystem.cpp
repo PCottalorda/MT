@@ -15,6 +15,7 @@ namespace {
 	float dist2(const sf::Vector2f& v1, const sf::Vector2f& v2) {
 		return norm2(v2 - v1);
 	}
+
 }
 
 InternalPositionSystem::InternalPositionSystem(SettingWindow* w) :

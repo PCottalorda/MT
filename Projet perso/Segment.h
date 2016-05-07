@@ -1,5 +1,7 @@
 #pragma once
 
+/**
+
 template <typename T>
 class Segment {
 public:
@@ -24,3 +26,5 @@ public:
 	T c0;
 	T c1;
 };
+
+**/

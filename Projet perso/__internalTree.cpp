@@ -40,7 +40,7 @@ bool __internalTree::isLeaf() {
 
 bool __internalTree::isFlatSegment(const Rational2DPoint& x1, const Rational2DPoint& x2, std::function<Rational(const Rational2DPoint&)> norm) {
 	//std::cerr << "isFlat called [" << this << "]" << std::endl;
-	Rational2DPoint mid(middle(x1, x2));
+	Rational2DPoint mid(Rational2DPoint::middle(x1, x2));
 	return (norm(mid) == Rational(1, 1));
 };
 
@@ -79,7 +79,7 @@ void __internalTree::__internal_computeUnitaryBall() {
 		throw std::exception();
 	}
 	else {
-		Rational2DPoint mid(middle(x1, x2));
+		Rational2DPoint mid(Rational2DPoint::middle(x1, x2));
 		mid = Rational(1, 2) * (x1 + x2);
 		if (norm(mid) == Rational(1, 1)) { // Flat leaf
 			__isFlat = true;
@@ -95,11 +95,11 @@ void __internalTree::__internal_computeUnitaryBall() {
 
 
 			while (!isFlatSegment(x1, normed(__xx), norm)) {
-				__xx = middle(x1, __xx);
+				__xx = Rational2DPoint::middle(x1, __xx);
 				normalize(__xx);
 			}
 			while (!isFlatSegment(x2, normed(__yy), norm)) {
-				__yy = middle(x2, __yy);
+				__yy = Rational2DPoint::middle(x2, __yy);
 				normalize(__yy);
 			}
 

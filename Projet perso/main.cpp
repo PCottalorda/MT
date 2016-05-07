@@ -335,7 +335,7 @@ int main(int argc, char* argv[]) {
 	G.generateAllEulerianOrientations();
 
 	outFile.close();
-	system("pause");
+	//system("pause");
 
 
 	SettingWindow window(800, 4);
