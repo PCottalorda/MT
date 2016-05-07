@@ -3,12 +3,6 @@
 
 
 
-class DegeneratedSegement : std::exception{};
-class InfiniteIntersection : std::exception{};
-class NoIntersection : std::exception{};
-
-
-
 class Segment {
 
 public:
