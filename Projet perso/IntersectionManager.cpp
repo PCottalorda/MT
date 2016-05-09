@@ -168,6 +168,234 @@ Rational Segment::lambdaCoeff(const Rational2DPoint& X) const {
 	}
 }
 
+SplitSegmentWrapper::iterator::iterator(SplitSegmentWrapper* base): base(base) {
+	assert(!base->isSplit());
+}
+
+SplitSegmentWrapper::iterator::iterator(const iterator& it): base(it.base) {
+}
+
+SplitSegmentWrapper::iterator& SplitSegmentWrapper::iterator::operator++() {
+	SplitSegmentWrapper* current = base;
+	SplitSegmentWrapper* next = nullptr;
+	while (!current->isRoot()) {
+		// We check from what side we come
+		if (current == current->father->son1) { // current is the first son of his father
+			next = current->father->son2;
+			// We descend on the youngest leaf
+			while (next->isSplit()) {
+				next = next->son1;
+			}
+			break; // The next has been found
+		} else { // current is the second son of his father! 
+			current = current->father;
+		}
+	}
+
+	// We check if a next has been found!
+	if (next == nullptr) {
+		throw SplitSegmentIteratorOutOfRange();
+	}
+
+	base = next;
+	return *this;
+}
+
+SplitSegmentWrapper::iterator SplitSegmentWrapper::iterator::operator++(int) {
+	iterator tmp(*this);
+	operator++();
+	return tmp;
+}
+
+bool SplitSegmentWrapper::iterator::operator==(const iterator& rhs) const {
+	return base == rhs.base;
+}
+
+bool SplitSegmentWrapper::iterator::operator!=(const iterator& rhs) const {
+	return !operator==(rhs);
+}
+
+SplitSegmentWrapper& SplitSegmentWrapper::iterator::operator*() const {
+	return *base;
+}
+
+SplitSegmentWrapper::iterator SplitSegmentWrapper::begin() {
+	// We compute the first son
+	SplitSegmentWrapper* current = this;
+	while (current->isSplit()) {
+		current = current->son1;
+	}
+	return iterator(current);
+}
+
+SplitSegmentWrapper::iterator SplitSegmentWrapper::end() {
+	SplitSegmentWrapper* current = this;
+	while (current->isSplit()) {
+		current = current->son2;
+	}
+	return iterator(current);
+}
+
+SplitSegmentWrapper::SplitSegmentWrapper(Segment& base, SplitSegmentWrapper* father):
+	base(base),
+	__isSplit(false),
+	son1(nullptr),
+	son2(nullptr),
+	father(father) {
+
+}
+
+SplitSegmentWrapper::SplitSegmentWrapper(const SplitSegmentWrapper& seg):
+	__isSplit(seg.isSplit()),
+	base(seg.base), 
+	father(nullptr)
+{
+	if (__isSplit) {
+		son1 = new SplitSegmentWrapper(*seg.son1);
+		son1->father = this;
+		son2 = new SplitSegmentWrapper(*seg.son2);
+		son2->father = this;
+	} else {
+		son1 = nullptr;
+		son2 = nullptr;
+	}
+}
+
+SplitSegmentWrapper::~SplitSegmentWrapper() {
+	delete son1;
+	delete son2;
+}
+
+void SplitSegmentWrapper::split(const Rational2DPoint& splitPoint) {
+	if (!base.segmentContains(splitPoint)) {
+		throw IncorrectSplit();
+	}
+
+	if (isSplit()) {
+		if (son1->base.segmentContains(splitPoint)) {
+			son1->split(splitPoint);
+		} else if (son2->base.segmentContains(splitPoint)) {
+			son2->split(splitPoint);
+		} else {
+			assert(false);
+		}
+	} else {
+		if (splitPoint == base.p1 || splitPoint == base.p2) {
+			// Nothing to split!
+		} else {
+			// The split is coherent in this case
+			Segment b(base.p1, splitPoint);
+			son1 = new SplitSegmentWrapper(b,this);
+			b = Segment(splitPoint, base.p2);
+			son1 = new SplitSegmentWrapper(b,this);
+			__isSplit = true;
+		}
+	}
+}
+
+bool SplitSegmentWrapper::isSplit() const {
+	return __isSplit;
+}
+
+bool SplitSegmentWrapper::isRoot() const {
+	return father == nullptr;
+}
+
+void SplitSegmentWrapper::__checkValidity() const {
+	if (isSplit()) {
+		assert(son1 != nullptr);
+		assert(son2 != nullptr);
+		son1->__checkValidity();
+		son2->__checkValidity();
+		assert(son1->base.p1 == base.p1);
+		assert(son2->base.p2 == base.p2);
+		assert(son1->base.p2 == son2->base.p1);
+		assert(base.segmentContains(son1->base.p2));
+	} else {
+		assert(son1 == nullptr);
+		assert(son2 == nullptr);
+	}
+}
+
+PolyLineCurve::iterator::iterator(const iterator& it):
+	curve(it.curve),
+	internalIt(it.internalIt) {
+	if (it.subInternalIt != nullptr) {
+		subInternalIt = new SplitSegmentWrapper::iterator(*(it.subInternalIt));
+	} else {
+		subInternalIt = nullptr;
+	}
+}
+
+PolyLineCurve::iterator::~iterator() {
+	delete subInternalIt;
+}
+
+PolyLineCurve::iterator& PolyLineCurve::iterator::operator++() {
+	if (internalIt == curve.end()) {
+		throw PolyLineCurveOutOfRangeIteratorException();
+	}
+	assert(subInternalIt == nullptr);
+	if (*subInternalIt == curve.back().end()) {
+		throw PolyLineCurveOutOfRangeIteratorException();
+	}
+
+	try {
+		++(*subInternalIt);
+	} catch (SplitSegmentWrapper::SplitSegmentIteratorOutOfRange&) {
+		++internalIt;
+		*subInternalIt = internalIt->begin();
+	}
+
+	return *this;
+}
+
+PolyLineCurve::iterator PolyLineCurve::iterator::operator++(int) {
+	iterator tmp(*this);
+	operator++();
+	return tmp;
+}
+
+SplitSegmentWrapper& PolyLineCurve::iterator::operator*() const {
+	if (subInternalIt == nullptr) {
+		throw PolyLineCurveOutOfRangeIteratorException();
+	} else {
+		try {
+			return *(*subInternalIt);
+		} catch (std::exception&) {
+			throw PolyLineCurveOutOfRangeIteratorException();
+		}
+	}
+}
+
+PolyLineCurve::iterator::iterator(std::vector<SplitSegmentWrapper>& curve):
+	curve(curve),
+	internalIt(curve.begin()),
+	subInternalIt(curve.empty() ? nullptr : new SplitSegmentWrapper::iterator(curve.begin()->begin())) {
+}
+
+void PolyLineCurve::iterator::pointEnd() {
+	if (curve.empty()) {
+		internalIt = curve.end();
+	} else {
+		internalIt = --curve.end();
+		*subInternalIt = internalIt->end();
+	}
+}
+
+PolyLineCurve::PolyLineCurve(std::vector<SplitSegmentWrapper> segs): segments(segs) {
+}
+
+PolyLineCurve::iterator PolyLineCurve::begin() {
+	return iterator(segments);
+}
+
+PolyLineCurve::iterator PolyLineCurve::end() {
+	iterator it(begin());
+	it.pointEnd();
+	return it;
+}
+
 IntersectionManager::IntersectionManager()
 {
 }
@@ -187,4 +415,24 @@ const Rational2DPoint* IntersectionManager::requestPoint(const Rational2DPoint& 
 		// We return the adresse of the point found
 		return &(*request);
 	}
+}
+
+bool operator==(const SplitSegmentWrapper& lhs, const SplitSegmentWrapper& rhs) {
+	return lhs.__isSplit == rhs.__isSplit
+	       && lhs.base == rhs.base
+	       && lhs.isSplit() ? *lhs.son1 == *rhs.son1 && *lhs.son2 == *rhs.son2 : true;
+}
+
+bool operator!=(const SplitSegmentWrapper& lhs, const SplitSegmentWrapper& rhs) {
+	return !(lhs == rhs);
+}
+
+bool operator==(const PolyLineCurve::iterator& lhs, const PolyLineCurve::iterator& rhs) {
+	return lhs.curve == rhs.curve
+		&& lhs.internalIt == rhs.internalIt
+		&& lhs.subInternalIt == rhs.subInternalIt;
+}
+
+bool operator!=(const PolyLineCurve::iterator& lhs, const PolyLineCurve::iterator& rhs) {
+	return !(lhs == rhs);
 }
