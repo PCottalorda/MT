@@ -9,7 +9,6 @@
 class SettingWindow;
 
 
-
 using Point = PointOnBoundiaryWrapper<sf::Vector2f>;
 
 class InternalPositionSystem {
@@ -43,4 +42,3 @@ public:
 	void invert();
 
 };
-

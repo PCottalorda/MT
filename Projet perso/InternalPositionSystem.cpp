@@ -65,8 +65,7 @@ void InternalPositionSystem::update() {
 		float coeff = project(nP, X) / norm2(X);
 		if (coeff < 0.01f) {
 			coeff = 0.01f;
-		}
-		else if (coeff > 0.99f) {
+		} else if (coeff > 0.99f) {
 			coeff = 0.99f;
 		}
 		sf::Vector2f newPos = coeff * p2 + (1 - coeff) * p1;
@@ -117,14 +116,12 @@ void InternalPositionSystem::addPoint() {
 	if (onBoundiary) {
 		if (internalPoints.empty()) { // The first point is located on the border
 			return;
-		}
-		else {
+		} else {
 			// We check if the last point was onBoundiary
 			// TODO: Restrict to same boundiary!
 			if (internalPoints.back().index == index) {
 				// We do nothing!
-			}
-			else {
+			} else {
 				// We add the new boundiary point
 				// TODO: Add the new points
 				internalPoints.push_back(Point(MouseInternal, true, index));
@@ -134,23 +131,20 @@ void InternalPositionSystem::addPoint() {
 				window->addPoint(MouseInternal, true, false);
 			}
 		}
-	}
-	else {
+	} else {
 		// WE REMIND THAT THE FIRST POINT IS NEVER ON BOUNDIARY 
 		// (onClosure and onBoundiary are never both true at the same time)
 
 		if (internalPoints.empty()) {
 			internalPoints.push_back(Point(MouseInternal, false, -1));
 			window->addPoint(MouseInternal, true, false);
-		}
-		else {
+		} else {
 			if (onClosure) {
 				// We do not add any point!
 				window->complete = true;
 				window->setBinding(false);
 				window->addPoint(MouseInternal, true, true);
-			}
-			else {
+			} else {
 				internalPoints.push_back(Point(MouseInternal, false, -1));
 				window->addPoint(MouseInternal, true, true);
 			}

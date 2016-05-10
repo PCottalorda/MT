@@ -33,6 +33,3 @@ private:
 	std::vector<Edge*> edges;
 	int internalNumber;
 };
-
-
-

@@ -41,7 +41,7 @@ Rational2DPoint Segment::intersectionWith(const Segment& S) const {
 	Rational2DPoint calcInt = S.p2 - p2;
 	Rational lambda1 = (red2.y * calcInt.x - red2.x * calcInt.y) / determinant;
 	//=== Compute only for vérification purpose ===
-	Rational lambda2 = (-red1.y * calcInt.x + red1.x * calcInt.y)/determinant;
+	Rational lambda2 = (-red1.y * calcInt.x + red1.x * calcInt.y) / determinant;
 	Rational2DPoint verif_res = lambda2 * S.p1 + (1 - lambda2) * S.p2;
 	//=============================================
 	Rational2DPoint result = lambda1 * p1 + (1 - lambda1) * p2;
@@ -173,6 +173,7 @@ Rational Segment::lambdaCoeff(const Rational2DPoint& X) const {
 	}
 }
 
+/*
 SplitSegmentWrapper::iterator::iterator(SplitSegmentWrapper* base): base(base) {
 	if (base != nullptr) {
 		assert(!base->isSplit());
@@ -237,6 +238,7 @@ SplitSegmentWrapper::iterator SplitSegmentWrapper::end() {
 	SplitSegmentWrapper* current = this;
 	return iterator(nullptr);
 }
+*/
 
 SplitSegmentWrapper::SplitSegmentWrapper(const Segment& base, SplitSegmentWrapper* father):
 	base(base),
@@ -249,9 +251,8 @@ SplitSegmentWrapper::SplitSegmentWrapper(const Segment& base, SplitSegmentWrappe
 
 SplitSegmentWrapper::SplitSegmentWrapper(const SplitSegmentWrapper& seg):
 	__isSplit(seg.isSplit()),
-	base(seg.base), 
-	father(nullptr)
-{
+	base(seg.base),
+	father(nullptr) {
 	if (__isSplit) {
 		son1 = new SplitSegmentWrapper(*seg.son1);
 		son1->father = this;
@@ -266,6 +267,14 @@ SplitSegmentWrapper::SplitSegmentWrapper(const SplitSegmentWrapper& seg):
 SplitSegmentWrapper::~SplitSegmentWrapper() {
 	delete son1;
 	delete son2;
+}
+
+size_t SplitSegmentWrapper::size() const {
+	return isSplit() ? son1->size() + son2->size() : 1;
+}
+
+Segment::IntersectSol SplitSegmentWrapper::intersectionWith(const SplitSegmentWrapper& s) const {
+	return base.uniqueIntersectionWith(s.base);
 }
 
 void SplitSegmentWrapper::split(const Rational2DPoint& splitPoint) {
@@ -287,9 +296,9 @@ void SplitSegmentWrapper::split(const Rational2DPoint& splitPoint) {
 		} else {
 			// The split is coherent in this case
 			Segment b(base.p1, splitPoint);
-			son1 = new SplitSegmentWrapper(b,this);
+			son1 = new SplitSegmentWrapper(b, this);
 			b = Segment(splitPoint, base.p2);
-			son1 = new SplitSegmentWrapper(b,this);
+			son1 = new SplitSegmentWrapper(b, this);
 			__isSplit = true;
 		}
 	}
@@ -322,33 +331,39 @@ void SplitSegmentWrapper::__checkValidity() const {
 PolyLineCurve::iterator::iterator(const iterator& it):
 	curve(it.curve),
 	internalIt(it.internalIt) {
+	/*
 	if (it.subInternalIt != nullptr) {
 		subInternalIt = new SplitSegmentWrapper::iterator(*(it.subInternalIt));
 	} else {
 		subInternalIt = nullptr;
 	}
+	*/
 }
 
 PolyLineCurve::iterator& PolyLineCurve::iterator::operator=(const iterator& it) {
 	curve = it.curve;
 	internalIt = it.internalIt;
+	/*
 	if (it.subInternalIt != nullptr) {
 		delete subInternalIt;
 		subInternalIt = new SplitSegmentWrapper::iterator(*(it.subInternalIt));
 	} else {
 		subInternalIt = nullptr;
 	}
+	*/
 	return *this;
 }
 
 PolyLineCurve::iterator::~iterator() {
-	delete subInternalIt;
+	//delete subInternalIt;
 }
 
 PolyLineCurve::iterator& PolyLineCurve::iterator::operator++() {
 	if (internalIt == curve.end()) {
 		throw PolyLineCurveOutOfRangeIteratorException();
 	}
+	++internalIt;
+	/*
 	assert(subInternalIt != nullptr);
 	if (*subInternalIt == curve.back().end()) {
 		throw PolyLineCurveOutOfRangeIteratorException();
@@ -364,7 +379,7 @@ PolyLineCurve::iterator& PolyLineCurve::iterator::operator++() {
 			subInternalIt = nullptr;
 		}
 	}
-
+	*/
 	return *this;
 }
 
@@ -375,6 +390,7 @@ PolyLineCurve::iterator PolyLineCurve::iterator::operator++(int) {
 }
 
 SplitSegmentWrapper& PolyLineCurve::iterator::operator*() const {
+	/*
 	if (subInternalIt == nullptr) {
 		throw PolyLineCurveOutOfRangeIteratorException();
 	} else {
@@ -384,14 +400,17 @@ SplitSegmentWrapper& PolyLineCurve::iterator::operator*() const {
 			throw PolyLineCurveOutOfRangeIteratorException();
 		}
 	}
+	*/
+	return *internalIt;
 }
 
 PolyLineCurve::iterator::iterator(std::vector<SplitSegmentWrapper>& curve):
 	curve(curve),
-	internalIt(curve.begin()),
-	subInternalIt(curve.empty() ? nullptr : new SplitSegmentWrapper::iterator(curve.begin()->begin())) {
+	internalIt(curve.begin()) {
+	//subInternalIt(curve.empty() ? nullptr : new SplitSegmentWrapper::iterator(curve.begin()->begin())) {
 }
 
+/*
 void PolyLineCurve::iterator::pointEnd() {
 	if (curve.empty()) {
 		internalIt = curve.end();
@@ -401,6 +420,7 @@ void PolyLineCurve::iterator::pointEnd() {
 		subInternalIt = nullptr;
 	}
 }
+*/
 
 PolyLineCurve::PolyLineCurve(std::vector<SplitSegmentWrapper> segs): segments(segs) {
 }
@@ -418,17 +438,24 @@ PolyLineCurve::iterator PolyLineCurve::begin() {
 
 PolyLineCurve::iterator PolyLineCurve::end() {
 	iterator it(begin());
-	it.pointEnd();
+	it.internalIt = it.curve.end();
+	//it.pointEnd();
 	return it;
 }
 
-IntersectionManager::IntersectionManager()
-{
+size_t PolyLineCurve::size() const {
+	size_t res = 0;
+	for (const SplitSegmentWrapper& s : segments) {
+		res += s.size();
+	}
+	return res;
+}
+
+IntersectionManager::IntersectionManager() {
 }
 
 
-IntersectionManager::~IntersectionManager()
-{
+IntersectionManager::~IntersectionManager() {
 }
 
 const Rational2DPoint* IntersectionManager::requestPoint(const Rational2DPoint& p) {
@@ -473,6 +500,8 @@ std::ostream& operator<<(std::ostream& os, const SplitSegmentWrapper& sW) {
 }
 
 bool operator==(const PolyLineCurve::iterator& lhs, const PolyLineCurve::iterator& rhs) {
+	return lhs.internalIt == rhs.internalIt;
+	/*
 	bool pre_res = true;
 	if (lhs.subInternalIt == nullptr) {
 		if (rhs.subInternalIt == nullptr) {
@@ -487,6 +516,7 @@ bool operator==(const PolyLineCurve::iterator& lhs, const PolyLineCurve::iterato
 	}
 	return lhs.curve == rhs.curve
 		&& lhs.internalIt == rhs.internalIt && pre_res;
+	*/
 }
 
 bool operator!=(const PolyLineCurve::iterator& lhs, const PolyLineCurve::iterator& rhs) {

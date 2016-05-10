@@ -56,16 +56,14 @@ void __internalTree::prettyPrint() {
 			std::cerr << "||\t ConeNorm1 : " << ConeNorm1 << std::endl;
 			std::cerr << "||\t ConeNorm2 : " << ConeNorm2 << std::endl;
 			std::cerr << "||\t Intersect : " << ConeIntersec << std::endl;
-		}
-		else {
+		} else {
 			std::cerr << "|| FLAT : " << std::endl;
 			std::cerr << "|| x1 : " << x1 << std::endl;
 			std::cerr << "|| x2 : " << x2 << std::endl;
 			std::cerr << "||\t FlatNorm : " << FlatNorm << std::endl;
 		}
 		std::cerr << std::endl;
-	}
-	else {
+	} else {
 		child_1->prettyPrint();
 		child_2->prettyPrint();
 	}
@@ -77,15 +75,13 @@ void __internalTree::__internal_computeUnitaryBall() {
 		// Dead case: should never happened!
 		// TODO: gestion erreur;
 		throw std::exception();
-	}
-	else {
+	} else {
 		Rational2DPoint mid(Rational2DPoint::middle(x1, x2));
 		mid = Rational(1, 2) * (x1 + x2);
 		if (norm(mid) == Rational(1, 1)) { // Flat leaf
 			__isFlat = true;
 			FlatNorm = compute_rat_form(x1, x2);
-		}
-		else {
+		} else {
 			Rational2DPoint __xx(mid);
 			Rational2DPoint __yy(mid);
 
@@ -119,8 +115,7 @@ void __internalTree::__internal_computeUnitaryBall() {
 				__isCone = true;
 				ConeNorm1 = f1;
 				ConeNorm2 = f2;
-			}
-			else { // Not a leaf
+			} else { // Not a leaf
 
 				normalize(mid);
 
@@ -139,20 +134,17 @@ void __internalTree::collectData(std::vector<Rational2DForm>& forms, std::vector
 		// We add the FlatNorm to the list 
 		if (forms.size() == 0) {
 			forms.push_back(FlatNorm);
-		}
-		else {
+		} else {
 			Rational2DForm f = forms.back();
 			if (FlatNorm != f) // We check if the norm matches
 				forms.push_back(FlatNorm);
 		}
-	}
-	else if (isCone()) {
+	} else if (isCone()) {
 		// We add the ConeForms to the list
 		if (forms.size() == 0) {
 			forms.push_back(ConeNorm1);
 			forms.push_back(ConeNorm2);
-		}
-		else {
+		} else {
 			Rational2DForm f = forms.back();
 			if (ConeNorm1 != f) { // We check if the norm matches
 				forms.push_back(ConeNorm1);
@@ -160,8 +152,7 @@ void __internalTree::collectData(std::vector<Rational2DForm>& forms, std::vector
 			forms.push_back(ConeNorm2);
 		}
 		v.push_back(ConeIntersec);
-	}
-	else {
+	} else {
 		child_1->collectData(forms, v);
 		child_2->collectData(forms, v);
 	}

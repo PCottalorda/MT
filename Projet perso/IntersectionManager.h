@@ -3,17 +3,19 @@
 #include <iterator>
 
 
-
 class Segment {
 
 public:
 
 	friend class SplitSegmentWrapper;
 
-	class DegeneratedSegment : std::exception{};
+	class DegeneratedSegment : std::exception {
+	};
+
 	class IntersectSol {
 	public:
-		IntersectSol() : exists(false), isUnique(false) {}
+		IntersectSol() : exists(false), isUnique(false) {
+		}
 
 		bool exists = false;
 		bool isUnique = false;
@@ -52,7 +54,7 @@ public:
 class SplitSegmentWrapper {
 
 public:
-	SplitSegmentWrapper(const Segment& base,SplitSegmentWrapper* father = nullptr);
+	SplitSegmentWrapper(const Segment& base, SplitSegmentWrapper* father = nullptr);
 	SplitSegmentWrapper(const SplitSegmentWrapper& seg);
 	~SplitSegmentWrapper();
 
@@ -60,7 +62,10 @@ public:
 	friend bool operator!=(const SplitSegmentWrapper& lhs, const SplitSegmentWrapper& rhs);
 	friend std::ostream& operator<<(std::ostream& os, const SplitSegmentWrapper& sW);
 
-	class IncorrectSplit : std::exception {};
+	class IncorrectSplit : std::exception {
+	};
+
+	/*
 	class SplitSegmentIteratorOutOfRange : std::exception {};
 	class iterator : public std::iterator < std::input_iterator_tag, SplitSegmentWrapper > {
 		friend class SplitSegmentWrapper;
@@ -80,23 +85,20 @@ public:
 
 	iterator begin();
 	iterator end();
-	size_t size() const {
-		return isSplit() ? son1->size() + son2->size() : 1;
-	}
-	
-	Segment::IntersectSol intersectionWith(const SplitSegmentWrapper& s) const {
-		return base.uniqueIntersectionWith(s.base);
-	}
+	*/
+	size_t size() const;
+
+	Segment::IntersectSol intersectionWith(const SplitSegmentWrapper& s) const;
 
 	void split(const Rational2DPoint& splitPoint);
 	bool isSplit() const;
 	bool isRoot() const;
 
-private:	// Methods
+private: // Methods
 
 	void __checkValidity() const;
 
-private:	// Members
+private: // Members
 	bool __isSplit;
 	Segment base;
 	SplitSegmentWrapper* father;
@@ -105,14 +107,15 @@ private:	// Members
 };
 
 
-
 class PolyLineCurve {
-	
+
 	friend class iterator;
 
 public:
 
-	class PolyLineCurveOutOfRangeIteratorException : std::exception {};
+	class PolyLineCurveOutOfRangeIteratorException : std::exception {
+	};
+
 	class iterator : public std::iterator<std::input_iterator_tag, SplitSegmentWrapper> {
 		friend class PolyLineCurve;
 	public:
@@ -128,12 +131,12 @@ public:
 
 	private:
 		explicit iterator(std::vector<SplitSegmentWrapper>& curve);
-		void pointEnd();
+		//void pointEnd();
 
-	private:	// Members
+	private: // Members
 		std::vector<SplitSegmentWrapper>& curve;
 		std::vector<SplitSegmentWrapper>::iterator internalIt;
-		SplitSegmentWrapper::iterator* subInternalIt;
+		//SplitSegmentWrapper::iterator* subInternalIt;
 	};
 
 	explicit PolyLineCurve(std::vector<SplitSegmentWrapper> segs);
@@ -141,13 +144,7 @@ public:
 
 	iterator begin();
 	iterator end();
-	size_t size() const {
-		size_t res = 0;
-		for (const SplitSegmentWrapper& s : segments) {
-			res += s.size();
-		}
-		return res;
-	}
+	size_t size() const;
 
 
 private:
@@ -155,9 +152,7 @@ private:
 };
 
 
-
-class IntersectionManager
-{
+class IntersectionManager {
 	friend class Segment;
 
 public:
@@ -169,5 +164,3 @@ public:
 private:
 	std::vector<Rational2DPoint> intersectionPointsSet;
 };
-
-

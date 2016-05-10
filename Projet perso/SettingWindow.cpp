@@ -10,8 +10,7 @@ namespace {
 		float r = p1.x * p2.y - p2.x * p1.y;
 		if (r == 0) {
 			return sf::Vector2f(0, 0);
-		}
-		else {
+		} else {
 			return f /= r;
 		}
 	}
@@ -119,8 +118,7 @@ void SettingWindow::updateLoop() {
 		if (MouseOnBoundiary()) {
 			cursorBoundiary.setPosition(MousePos);
 			draw(cursorBoundiary);
-		}
-		else {
+		} else {
 			cursorStandard.setPosition(MousePos);
 			draw(cursorStandard);
 		}
@@ -185,8 +183,7 @@ void SettingWindow::addPoint(const sf::Vector2f& p, bool onBoudiary, bool addSeg
 	sf::Vector2f _p = convertInternalToWindow(p);
 	if (segmentPoints.size() == 0) {
 		segmentPoints.push_back(Vector2fWrapper(_p, onBoudiary, -1));
-	}
-	else {
+	} else {
 		if (p != segmentPoints.back().point) {
 			sf::Vector2f p_prec = segmentPoints.back().point;
 			segmentPoints.push_back(Vector2fWrapper(_p, onBoudiary, -1));
@@ -221,18 +218,15 @@ void SettingWindow::drawPointSegsAndPos(const sf::Vector2f& p) {
 void SettingWindow::cancelMove() {
 	if (segmentPoints.size() == 0) {
 		// Nothing to do!
-	}
-	else if (segmentPoints.size() == 1) {
+	} else if (segmentPoints.size() == 1) {
 		segmentPoints.pop_back();
-	}
-	else {
+	} else {
 		segments.pop_back();
 		Vector2fWrapper last = segmentPoints.back();
 		if (last.onBoundiary) {
 			segmentPoints.pop_back();
 			segmentPoints.pop_back();
-		}
-		else {
+		} else {
 			segmentPoints.pop_back();
 		}
 	}

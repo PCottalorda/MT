@@ -9,8 +9,7 @@ Edge::Edge(Node* n1, Node* n2, uint64_t id) :
 	Node2(n2),
 	locked(false),
 	ori(STANDARD),
-	id(id)
-	{
+	id(id) {
 	if (n1 == NULL || n2 == NULL)
 		throw std::exception();
 
@@ -56,8 +55,7 @@ void Edge::unLock() {
 const Node* Edge::getOrigin() const {
 	if (ori == STANDARD) {
 		return this->Node1;
-	}
-	else {
+	} else {
 		return this->Node2;
 	}
 }
@@ -65,8 +63,7 @@ const Node* Edge::getOrigin() const {
 const Node* Edge::getDestination() const {
 	if (ori == STANDARD) {
 		return this->Node2;
-	}
-	else {
+	} else {
 		return this->Node1;
 	}
 }
@@ -74,8 +71,7 @@ const Node* Edge::getDestination() const {
 Node* Edge::getOrigin() {
 	if (ori == STANDARD) {
 		return this->Node1;
-	}
-	else {
+	} else {
 		return this->Node2;
 	}
 }
@@ -83,8 +79,7 @@ Node* Edge::getOrigin() {
 Node* Edge::getDestination() {
 	if (ori == STANDARD) {
 		return this->Node2;
-	}
-	else {
+	} else {
 		return this->Node1;
 	}
 }
@@ -130,12 +125,10 @@ Edge::~Edge() {
 }
 
 
-
 void Edge::reverseOrientation() {
 	if (ori == STANDARD) {
 		ori = REVERSE;
-	}
-	else {
+	} else {
 		ori = STANDARD;
 	}
 }
@@ -145,8 +138,7 @@ void Edge::setOrigin(const Node* node) {
 		if (getOrigin() != node) {
 			reverseOrientation();
 		}
-	}
-	else {
+	} else {
 		throw std::exception();
 	}
 }
@@ -156,8 +148,7 @@ void Edge::setDestination(const Node* node) {
 		if (getOrigin() != node) {
 			reverseOrientation();
 		}
-	}
-	else {
+	} else {
 		throw std::exception();
 	}
 }

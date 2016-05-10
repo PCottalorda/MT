@@ -24,15 +24,15 @@ public:
 
 	friend bool operator==(const Rational2DPoint& p1, const Rational2DPoint& p2);;
 	friend bool operator!=(const Rational2DPoint& p1, const Rational2DPoint& p2);;
-	
-	
+
+
 	bool operator==(const Rational2DPoint& p);
 	bool operator!=(const Rational2DPoint& p);
 
 	static Rational2DPoint middle(const Rational2DPoint& p1, const Rational2DPoint& p2);
 	static Rational dotProduct(const Rational2DPoint& p1, const Rational2DPoint& p2);
 	static Rational det(const Rational2DPoint& p1, const Rational2DPoint& p2);
-	
+
 	friend std::ostream& operator<<(std::ostream& os, const Rational2DPoint& obj);
 
 	sf::Vector2f toSFMLVector2f();

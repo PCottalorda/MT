@@ -12,8 +12,7 @@ void NormObject::RationalSlopeRep::randomize() {
 	do {
 		a = RNG();
 		b = RNG();
-	}
-	while (a == 0 && b == 0);
+	} while (a == 0 && b == 0);
 }
 
 NormObject::NormObject() {
@@ -21,8 +20,7 @@ NormObject::NormObject() {
 
 	do {
 		nb_set = abs(RationalSlopeRep::RNG()) % 20;
-	}
-	while (nb_set <= 1);
+	} while (nb_set <= 1);
 
 	auto check = [](const std::vector<RationalSlopeRep>& v) {
 		const RationalSlopeRep& refSlope = v[0];
@@ -40,8 +38,7 @@ NormObject::NormObject() {
 		for (int i = 0; i < nb_set; i++) {
 			v.push_back(RationalSlopeRep()); // Random slope rep
 		}
-	}
-	while (!check(v));
+	} while (!check(v));
 }
 
 std::ostream& operator<<(std::ostream& os, const NormObject::RationalSlopeRep& slopeRep) {
@@ -107,16 +104,14 @@ NormObject::NormObject(std::string& str) {
 			case START:
 				if (curr == '[') {
 					state = GEN_OPEN;
-				}
-				else {
+				} else {
 					throw NormObject::NormObjectException();
 				}
 				break;
 			case GEN_OPEN:
 				if (curr == '[') {
 					state = LOC_OPEN;
-				}
-				else {
+				} else {
 					throw NormObject::NormObjectException();
 				}
 				break;
@@ -128,23 +123,19 @@ NormObject::NormObject(std::string& str) {
 				if (curr == '-') {
 					negative_read = true;
 					state = MINUS_1;
-				}
-				else if (isDigit(curr)) {
+				} else if (isDigit(curr)) {
 					number_read_1 = number_read_1 * 10 + getDigit(curr);
 					state = READ_NUMBER_1;
-				}
-				else {
+				} else {
 					throw NormObject::NormObjectException();
 				}
 				break;
 			case LOC_CLOSE:
 				if (curr == ',') {
 					state = COMMA_GEN;
-				}
-				else if (curr == ']') {
+				} else if (curr == ']') {
 					state = GEN_CLOSE;
-				}
-				else {
+				} else {
 					throw NormObject::NormObjectException();
 				}
 				negative_read = false;
@@ -157,12 +148,10 @@ NormObject::NormObject(std::string& str) {
 					}
 					negative_read = false;
 					state = COMMA_LOC;
-				}
-				else if (isDigit(curr)) {
+				} else if (isDigit(curr)) {
 					number_read_1 = number_read_1 * 10 + getDigit(curr);
 					state = READ_NUMBER_1;
-				}
-				else {
+				} else {
 					throw NormObject::NormObjectException();
 				}
 				break;
@@ -170,8 +159,7 @@ NormObject::NormObject(std::string& str) {
 				if (isDigit(curr)) {
 					number_read_1 = number_read_1 * 10 + getDigit(curr);
 					state = READ_NUMBER_1;
-				}
-				else {
+				} else {
 					throw NormObject::NormObjectException();
 				}
 				break;
@@ -182,12 +170,10 @@ NormObject::NormObject(std::string& str) {
 					}
 					negative_read = false;
 					state = LOC_CLOSE;
-				}
-				else if (isDigit(curr)) {
+				} else if (isDigit(curr)) {
 					number_read_2 = number_read_2 * 10 + getDigit(curr);
 					state = READ_NUMBER_2;
-				}
-				else {
+				} else {
 					throw NormObject::NormObjectException();
 				}
 				break;
@@ -195,8 +181,7 @@ NormObject::NormObject(std::string& str) {
 				if (isDigit(curr)) {
 					number_read_2 = number_read_2 * 10 + getDigit(curr);
 					state = READ_NUMBER_2;
-				}
-				else {
+				} else {
 					throw NormObject::NormObjectException();
 				}
 				break;
@@ -204,20 +189,17 @@ NormObject::NormObject(std::string& str) {
 				if (curr == '-') {
 					negative_read = true;
 					state = MINUS_2;
-				}
-				else if (isDigit(curr)) {
+				} else if (isDigit(curr)) {
 					number_read_2 = number_read_2 * 10 + getDigit(curr);
 					state = READ_NUMBER_2;
-				}
-				else {
+				} else {
 					throw NormObject::NormObjectException();
 				}
 				break;
 			case COMMA_GEN:
 				if (curr == '[') {
 					state = LOC_OPEN;
-				}
-				else {
+				} else {
 					throw NormObject::NormObjectException();
 				}
 				break;

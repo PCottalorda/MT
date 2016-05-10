@@ -50,8 +50,7 @@ void computeUnitaryBall(std::vector<Rational2DPoint>& intersectionPoints, std::v
 	try {
 		t1.__internal_computeUnitaryBall();
 		t2.__internal_computeUnitaryBall();
-	}
-	catch (std::exception& e) {
+	} catch (std::exception& e) {
 		std::cerr << "ERROR CATCHED!!!!! : " << e.what() << std::endl;
 	}
 
@@ -63,8 +62,7 @@ void computeUnitaryBall(std::vector<Rational2DPoint>& intersectionPoints, std::v
 	try {
 		t1.collectData(forms, intersectionPoints);
 		t2.collectData(forms, intersectionPoints); // The data are naturally merged by collectData
-	}
-	catch (std::exception& e) {
+	} catch (std::exception& e) {
 		std::cerr << "ERROR CATCHED!!!!! : " << e.what() << std::endl;
 	}
 
@@ -243,10 +241,10 @@ int main(int argc, char* argv[]) {
 	// === Test
 	std::cerr << "TestingResults...";
 	if (checkUnitaryBall(vertices, normO)) {
-		std::cerr << "\t\t[Done]" << std::endl;
+	std::cerr << "\t\t[Done]" << std::endl;
 	}
 	else {
-		std::cerr << "\t\t[Failure]" << std::endl;
+	std::cerr << "\t\t[Failure]" << std::endl;
 	}
 
 	// === Window creation
@@ -263,7 +261,7 @@ int main(int argc, char* argv[]) {
 
 	// === Printing the forms
 	for (auto it = forms.begin(); it != forms.end(); ++it)
-		std::cerr << *it << std::endl;
+	std::cerr << *it << std::endl;
 
 
 
@@ -279,10 +277,10 @@ int main(int argc, char* argv[]) {
 
 	std::cerr << "Generating image...";
 	if (window.generateImage("data.jpg")) {
-		std::cerr << "\t\t[Done]" << std::endl;
+	std::cerr << "\t\t[Done]" << std::endl;
 	}
 	else {
-		std::cerr << "\t\t[Failure]" << std::endl;
+	std::cerr << "\t\t[Failure]" << std::endl;
 	}
 
 	system("pause");
@@ -292,7 +290,7 @@ int main(int argc, char* argv[]) {
 	/*
 	std::ofstream outFile("gen.tex", std::ios::out);
 	if (!outFile.is_open()) {
-		return EXIT_FAILURE;
+	return EXIT_FAILURE;
 	}
 	*/
 
@@ -304,7 +302,6 @@ int main(int argc, char* argv[]) {
 	//outFile.close();
 
 
-	
 	//std::ofstream outFile("C:\\Users\\Paul Cottalorda\\Desktop\\GraphVizOut.txt", std::ios::out);
 	//if (!outFile.is_open()) {
 	//	return EXIT_FAILURE;
@@ -328,12 +325,12 @@ int main(int argc, char* argv[]) {
 
 	for (size_t i = 0; i < G.getEdges().size(); i++)
 	{
-		std::cerr << "Noeud " << i << " : " << *(G.getEdges()[i]) << " : isLoop : " << printBool(G.getEdges()[i]->isLoop()) << std::endl;
+	std::cerr << "Noeud " << i << " : " << *(G.getEdges()[i]) << " : isLoop : " << printBool(G.getEdges()[i]->isLoop()) << std::endl;
 	}
 
 	for (size_t i = 0; i < G.getNodes().size(); i++)
 	{
-		std::cerr << "Noeud " << i << " : " << G.getNodes()[i]->degree() << std::endl;
+	std::cerr << "Noeud " << i << " : " << G.getNodes()[i]->degree() << std::endl;
 	}
 
 	G.generateAllEulerianOrientations();
@@ -344,22 +341,22 @@ int main(int argc, char* argv[]) {
 	//system("pause");
 
 	std::vector<Rational2DPoint> points;
-	points.push_back(Rational2DPoint(Rational(3),Rational(0)));
-	points.push_back(Rational2DPoint(Rational(3),Rational(2)));
-	points.push_back(Rational2DPoint(Rational(6),Rational(-1)));
-	points.push_back(Rational2DPoint(Rational(8),Rational(3)));
-	points.push_back(Rational2DPoint(Rational(5),Rational(2)));
+	points.push_back(Rational2DPoint(Rational(3), Rational(0)));
+	points.push_back(Rational2DPoint(Rational(3), Rational(2)));
+	points.push_back(Rational2DPoint(Rational(6), Rational(-1)));
+	points.push_back(Rational2DPoint(Rational(8), Rational(3)));
+	points.push_back(Rational2DPoint(Rational(5), Rational(2)));
 
 	std::vector<Segment> segments;
 	for (size_t i = 0; i < points.size(); ++i) {
 		int index1 = i;
 		int index2 = (i + 1) % points.size();
 		std::cerr << "[" << index1 << ";" << index2 << "]\n";
-		segments.push_back(Segment(points[index1],points[index2]));
+		segments.push_back(Segment(points[index1], points[index2]));
 	}
 	std::cerr << "\n\n";
 
-	
+
 	PolyLineCurve polyline(segments);
 	int i = 0;
 	for (auto it = polyline.begin(); it != polyline.end(); ++it) {
@@ -367,7 +364,7 @@ int main(int argc, char* argv[]) {
 		std::cerr << ++i << "/" << polyline.size() << " : " << *it << std::endl;
 	}
 	std::cerr << "\n\n";
-	
+
 	i = 1;
 	auto itt = polyline.begin();
 	for (auto it = polyline.begin(); it != polyline.end(); ++it) {
@@ -379,7 +376,7 @@ int main(int argc, char* argv[]) {
 			std::cerr << "normal\n";
 		}
 		auto InterSol = (*itt).intersectionWith((*it));
-		std::cerr << "[" << i << "/" << polyline.size() <<"]\n";
+		std::cerr << "[" << ++i << "/" << polyline.size() << "]\n";
 		std::cerr << "\t exists: ";
 		if (InterSol.exists) {
 			std::cerr << "true";
@@ -390,20 +387,46 @@ int main(int argc, char* argv[]) {
 		std::cerr << "\t unique: ";
 		if (InterSol.isUnique) {
 			std::cerr << "true";
-		}
-		else {
+		} else {
 			std::cerr << "false";
 		}
 		std::cerr << std::endl;
 		std::cerr << "\t" << InterSol.inter << "\n\n";
 
-		++i;
 	}
-	
+
+	i = 0;
+	for (auto it = polyline.begin(); it != polyline.end(); ++it) {
+		PolyLineCurve::iterator base(it);
+		++base;
+		for (auto itt = base; itt != polyline.end(); ++itt) {
+			auto InterSol = (*itt).intersectionWith((*it));
+			if (InterSol.exists) {
+				std::cerr << "[" << ++i << "]\n";
+				std::cerr << "\t exists: ";
+				if (InterSol.exists) {
+					std::cerr << "true";
+				} else {
+					std::cerr << "false";
+				}
+				std::cerr << std::endl;
+				std::cerr << "\t unique: ";
+				if (InterSol.isUnique) {
+					std::cerr << "true";
+				} else {
+					std::cerr << "false";
+				}
+				std::cerr << std::endl;
+				std::cerr << "\t" << InterSol.inter << "\n\n";
+
+
+			}
+		}
+	}
+
 
 	system("pause");
 	return EXIT_SUCCESS;
-
 
 
 	SettingWindow window(800, 4);

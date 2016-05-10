@@ -11,13 +11,11 @@ sf::Color genColor(double x) {
 		out_color.r = 0;
 		out_color.g = (uint8_t)(255 * 3 * x);
 		out_color.b = 255;
-	}
-	else if (x < 2.0 / 3.0) {
+	} else if (x < 2.0 / 3.0) {
 		out_color.r = (uint8_t)(255 * 3 * (x - 1.0 / 3.0));
 		out_color.g = 255;
 		out_color.b = (uint8_t)(255 * 3 * (2.0 / 3.0 - x));
-	}
-	else {
+	} else {
 		out_color.r = 255;
 		out_color.g = (uint8_t)(255 * 3 * (1.0 - x));
 		out_color.b = 0;
@@ -39,14 +37,12 @@ Boundiaries generateBoundiaries(const std::vector<Rational2DPoint>& vertices) {
 
 		if (x > __x_max) {
 			__x_max = x;
-		}
-		else if (x < __x_min) {
+		} else if (x < __x_min) {
 			__x_min = x;
 		}
 		if (y > __y_max) {
 			__y_max = y;
-		}
-		else if (y < __y_min) {
+		} else if (y < __y_min) {
 			__y_min = y;
 		}
 	}
