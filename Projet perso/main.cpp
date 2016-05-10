@@ -351,7 +351,7 @@ int main(int argc, char* argv[]) {
 	points.push_back(Rational2DPoint(Rational(5),Rational(2)));
 
 	std::vector<Segment> segments;
-	for (auto i = 0; i < points.size(); ++i) {
+	for (size_t i = 0; i < points.size(); ++i) {
 		int index1 = i;
 		int index2 = (i + 1) % points.size();
 		std::cerr << "[" << index1 << ";" << index2 << "]\n";
@@ -362,21 +362,21 @@ int main(int argc, char* argv[]) {
 	
 	PolyLineCurve polyline(segments);
 	int i = 0;
-	auto itt = polyline.begin();
 	for (auto it = polyline.begin(); it != polyline.end(); ++it) {
 		std::cerr << segments[i] << std::endl;
 		std::cerr << ++i << "/" << polyline.size() << " : " << *it << std::endl;
 	}
 	std::cerr << "\n\n";
-	/*
+	
 	i = 1;
+	auto itt = polyline.begin();
 	for (auto it = polyline.begin(); it != polyline.end(); ++it) {
+		++itt;
 		if (itt == polyline.end()) {
 			std::cerr << "return\n";
 			itt = polyline.begin();
 		} else {
 			std::cerr << "normal\n";
-			++itt;
 		}
 		auto InterSol = (*itt).intersectionWith((*it));
 		std::cerr << "[" << i << "/" << polyline.size() <<"]\n";
@@ -399,7 +399,7 @@ int main(int argc, char* argv[]) {
 
 		++i;
 	}
-	*/
+	
 
 	system("pause");
 	return EXIT_SUCCESS;

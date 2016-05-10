@@ -118,7 +118,6 @@ public:
 	public:
 		iterator(const iterator& it);
 		iterator& operator=(const iterator& it);
-		iterator& operator=(iterator&& other);
 		~iterator();
 
 		iterator& operator++();

@@ -341,16 +341,6 @@ PolyLineCurve::iterator& PolyLineCurve::iterator::operator=(const iterator& it) 
 	return *this;
 }
 
-PolyLineCurve::iterator& PolyLineCurve::iterator::operator=(iterator&& other) {
-	if (this == &other)
-		return *this;
-	std::iterator<std::input_iterator_tag, SplitSegmentWrapper>::operator =(std::move(other));
-	curve = other.curve;
-	internalIt = std::move(other.internalIt);
-	subInternalIt = other.subInternalIt;
-	return *this;
-}
-
 PolyLineCurve::iterator::~iterator() {
 	delete subInternalIt;
 }
