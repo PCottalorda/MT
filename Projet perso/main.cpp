@@ -20,6 +20,8 @@
 #include <SFML\Graphics\Sprite.hpp>
 
 
+#include "IntersectionManager.h"
+
 #include <stdint.h>
 
 #include "Rational.h"
@@ -303,10 +305,12 @@ int main(int argc, char* argv[]) {
 
 
 	
-	std::ofstream outFile("C:\\Users\\Paul Cottalorda\\Desktop\\GraphVizOut.txt", std::ios::out);
-	if (!outFile.is_open()) {
-		return EXIT_FAILURE;
-	}
+	//std::ofstream outFile("C:\\Users\\Paul Cottalorda\\Desktop\\GraphVizOut.txt", std::ios::out);
+	//if (!outFile.is_open()) {
+	//	return EXIT_FAILURE;
+	//}
+
+	/*
 
 	Graph G(4);
 	G.addEdge(0, 1);
@@ -334,8 +338,72 @@ int main(int argc, char* argv[]) {
 
 	G.generateAllEulerianOrientations();
 
-	outFile.close();
+	*/
+
+	//outFile.close();
 	//system("pause");
+
+	std::vector<Rational2DPoint> points;
+	points.push_back(Rational2DPoint(Rational(3),Rational(0)));
+	points.push_back(Rational2DPoint(Rational(3),Rational(2)));
+	points.push_back(Rational2DPoint(Rational(6),Rational(-1)));
+	points.push_back(Rational2DPoint(Rational(8),Rational(3)));
+	points.push_back(Rational2DPoint(Rational(5),Rational(2)));
+
+	std::vector<Segment> segments;
+	for (auto i = 0; i < points.size(); ++i) {
+		int index1 = i;
+		int index2 = (i + 1) % points.size();
+		std::cerr << "[" << index1 << ";" << index2 << "]\n";
+		segments.push_back(Segment(points[index1],points[index2]));
+	}
+	std::cerr << "\n\n";
+
+	
+	PolyLineCurve polyline(segments);
+	int i = 0;
+	auto itt = polyline.begin();
+	for (auto it = polyline.begin(); it != polyline.end(); ++it) {
+		std::cerr << segments[i] << std::endl;
+		std::cerr << ++i << "/" << polyline.size() << " : " << *it << std::endl;
+	}
+	std::cerr << "\n\n";
+	/*
+	i = 1;
+	for (auto it = polyline.begin(); it != polyline.end(); ++it) {
+		if (itt == polyline.end()) {
+			std::cerr << "return\n";
+			itt = polyline.begin();
+		} else {
+			std::cerr << "normal\n";
+			++itt;
+		}
+		auto InterSol = (*itt).intersectionWith((*it));
+		std::cerr << "[" << i << "/" << polyline.size() <<"]\n";
+		std::cerr << "\t exists: ";
+		if (InterSol.exists) {
+			std::cerr << "true";
+		} else {
+			std::cerr << "false";
+		}
+		std::cerr << std::endl;
+		std::cerr << "\t unique: ";
+		if (InterSol.isUnique) {
+			std::cerr << "true";
+		}
+		else {
+			std::cerr << "false";
+		}
+		std::cerr << std::endl;
+		std::cerr << "\t" << InterSol.inter << "\n\n";
+
+		++i;
+	}
+	*/
+
+	system("pause");
+	return EXIT_SUCCESS;
+
 
 
 	SettingWindow window(800, 4);

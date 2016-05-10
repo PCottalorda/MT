@@ -11,7 +11,10 @@ public:
 	friend class SplitSegmentWrapper;
 
 	class DegeneratedSegment : std::exception{};
-	using IntersectSol = struct {
+	class IntersectSol {
+	public:
+		IntersectSol() : exists(false), isUnique(false) {}
+
 		bool exists = false;
 		bool isUnique = false;
 		Rational2DPoint inter;
@@ -21,6 +24,7 @@ public:
 		}
 	};
 
+
 	Segment(const Rational2DPoint& p1 = Rational2DPoint(), const Rational2DPoint& p2 = Rational2DPoint());
 	Segment(const Segment& other);
 	Segment(Segment&& other);
@@ -28,15 +32,9 @@ public:
 	Segment& operator=(Segment&& other);
 	~Segment();
 
-
-	friend bool operator==(const Segment& lhs, const Segment& rhs) {
-		return lhs.p1 == rhs.p1
-			&& lhs.p2 == rhs.p2;
-	}
-
-	friend bool operator!=(const Segment& lhs, const Segment& rhs) {
-		return !(lhs == rhs);
-	}
+	friend bool operator==(const Segment& lhs, const Segment& rhs);
+	friend bool operator!=(const Segment& lhs, const Segment& rhs);
+	friend std::ostream& operator<<(std::ostream& os, const Segment& s);
 
 	bool isAlignedWith(const Rational2DPoint& X) const;
 	bool segmentContains(const Rational2DPoint& X) const;
@@ -54,12 +52,13 @@ public:
 class SplitSegmentWrapper {
 
 public:
-	SplitSegmentWrapper(Segment& base,SplitSegmentWrapper* father = nullptr);
+	SplitSegmentWrapper(const Segment& base,SplitSegmentWrapper* father = nullptr);
 	SplitSegmentWrapper(const SplitSegmentWrapper& seg);
 	~SplitSegmentWrapper();
 
 	friend bool operator==(const SplitSegmentWrapper& lhs, const SplitSegmentWrapper& rhs);
 	friend bool operator!=(const SplitSegmentWrapper& lhs, const SplitSegmentWrapper& rhs);
+	friend std::ostream& operator<<(std::ostream& os, const SplitSegmentWrapper& sW);
 
 	class IncorrectSplit : std::exception {};
 	class SplitSegmentIteratorOutOfRange : std::exception {};
@@ -81,8 +80,13 @@ public:
 
 	iterator begin();
 	iterator end();
-
-
+	size_t size() const {
+		return isSplit() ? son1->size() + son2->size() : 1;
+	}
+	
+	Segment::IntersectSol intersectionWith(const SplitSegmentWrapper& s) const {
+		return base.uniqueIntersectionWith(s.base);
+	}
 
 	void split(const Rational2DPoint& splitPoint);
 	bool isSplit() const;
@@ -113,7 +117,10 @@ public:
 		friend class PolyLineCurve;
 	public:
 		iterator(const iterator& it);
+		iterator& operator=(const iterator& it);
+		iterator& operator=(iterator&& other);
 		~iterator();
+
 		iterator& operator++();
 		iterator operator++(int);
 		friend bool operator==(const iterator& lhs, const iterator& rhs);
@@ -131,9 +138,17 @@ public:
 	};
 
 	explicit PolyLineCurve(std::vector<SplitSegmentWrapper> segs);
+	explicit PolyLineCurve(const std::vector<Segment>& segs);
 
 	iterator begin();
 	iterator end();
+	size_t size() const {
+		size_t res = 0;
+		for (const SplitSegmentWrapper& s : segments) {
+			res += s.size();
+		}
+		return res;
+	}
 
 
 private:

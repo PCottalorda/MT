@@ -32,16 +32,21 @@ Rational2DPoint Segment::directorVector() const {
 
 Rational2DPoint Segment::intersectionWith(const Segment& S) const {
 	assert(!isParallelTo(S));
-	Rational2DPoint red1 = -1 * directorVector();
-	Rational2DPoint red2 = S.directorVector();
+	Rational2DPoint red1 = p1 - p2;
+	Rational2DPoint red2 = S.p2 - S.p1;
 
 	Rational determinant = Rational2DPoint::det(red1, red2);
 	assert(determinant != 0);
 
 	Rational2DPoint calcInt = S.p2 - p2;
-	Rational lambda1 = (red1.x * calcInt.x - red1.y * calcInt.y) / determinant;
-
+	Rational lambda1 = (red2.y * calcInt.x - red2.x * calcInt.y) / determinant;
+	//=== Compute only for vérification purpose ===
+	Rational lambda2 = (-red1.y * calcInt.x + red1.x * calcInt.y)/determinant;
+	Rational2DPoint verif_res = lambda2 * S.p1 + (1 - lambda2) * S.p2;
+	//=============================================
 	Rational2DPoint result = lambda1 * p1 + (1 - lambda1) * p2;
+
+	assert(result == verif_res);
 	assert(isAlignedWith(result));
 	assert(S.isAlignedWith(result));
 
@@ -169,7 +174,9 @@ Rational Segment::lambdaCoeff(const Rational2DPoint& X) const {
 }
 
 SplitSegmentWrapper::iterator::iterator(SplitSegmentWrapper* base): base(base) {
-	assert(!base->isSplit());
+	if (base != nullptr) {
+		assert(!base->isSplit());
+	}
 }
 
 SplitSegmentWrapper::iterator::iterator(const iterator& it): base(it.base) {
@@ -177,6 +184,9 @@ SplitSegmentWrapper::iterator::iterator(const iterator& it): base(it.base) {
 
 SplitSegmentWrapper::iterator& SplitSegmentWrapper::iterator::operator++() {
 	SplitSegmentWrapper* current = base;
+	if (current == nullptr) {
+		throw SplitSegmentIteratorOutOfRange();
+	}
 	SplitSegmentWrapper* next = nullptr;
 	while (!current->isRoot()) {
 		// We check from what side we come
@@ -190,11 +200,6 @@ SplitSegmentWrapper::iterator& SplitSegmentWrapper::iterator::operator++() {
 		} else { // current is the second son of his father! 
 			current = current->father;
 		}
-	}
-
-	// We check if a next has been found!
-	if (next == nullptr) {
-		throw SplitSegmentIteratorOutOfRange();
 	}
 
 	base = next;
@@ -230,13 +235,10 @@ SplitSegmentWrapper::iterator SplitSegmentWrapper::begin() {
 
 SplitSegmentWrapper::iterator SplitSegmentWrapper::end() {
 	SplitSegmentWrapper* current = this;
-	while (current->isSplit()) {
-		current = current->son2;
-	}
-	return iterator(current);
+	return iterator(nullptr);
 }
 
-SplitSegmentWrapper::SplitSegmentWrapper(Segment& base, SplitSegmentWrapper* father):
+SplitSegmentWrapper::SplitSegmentWrapper(const Segment& base, SplitSegmentWrapper* father):
 	base(base),
 	__isSplit(false),
 	son1(nullptr),
@@ -327,6 +329,28 @@ PolyLineCurve::iterator::iterator(const iterator& it):
 	}
 }
 
+PolyLineCurve::iterator& PolyLineCurve::iterator::operator=(const iterator& it) {
+	curve = it.curve;
+	internalIt = it.internalIt;
+	if (it.subInternalIt != nullptr) {
+		delete subInternalIt;
+		subInternalIt = new SplitSegmentWrapper::iterator(*(it.subInternalIt));
+	} else {
+		subInternalIt = nullptr;
+	}
+	return *this;
+}
+
+PolyLineCurve::iterator& PolyLineCurve::iterator::operator=(iterator&& other) {
+	if (this == &other)
+		return *this;
+	std::iterator<std::input_iterator_tag, SplitSegmentWrapper>::operator =(std::move(other));
+	curve = other.curve;
+	internalIt = std::move(other.internalIt);
+	subInternalIt = other.subInternalIt;
+	return *this;
+}
+
 PolyLineCurve::iterator::~iterator() {
 	delete subInternalIt;
 }
@@ -335,16 +359,20 @@ PolyLineCurve::iterator& PolyLineCurve::iterator::operator++() {
 	if (internalIt == curve.end()) {
 		throw PolyLineCurveOutOfRangeIteratorException();
 	}
-	assert(subInternalIt == nullptr);
+	assert(subInternalIt != nullptr);
 	if (*subInternalIt == curve.back().end()) {
 		throw PolyLineCurveOutOfRangeIteratorException();
 	}
-
-	try {
-		++(*subInternalIt);
-	} catch (SplitSegmentWrapper::SplitSegmentIteratorOutOfRange&) {
+	
+	++(*subInternalIt);
+	if (*subInternalIt == internalIt->end()) {
 		++internalIt;
-		*subInternalIt = internalIt->begin();
+		if (internalIt != curve.end()) {
+			*subInternalIt = internalIt->begin();
+		} else {
+			delete subInternalIt;
+			subInternalIt = nullptr;
+		}
 	}
 
 	return *this;
@@ -377,13 +405,21 @@ PolyLineCurve::iterator::iterator(std::vector<SplitSegmentWrapper>& curve):
 void PolyLineCurve::iterator::pointEnd() {
 	if (curve.empty()) {
 		internalIt = curve.end();
+		subInternalIt = nullptr;
 	} else {
-		internalIt = --curve.end();
-		*subInternalIt = internalIt->end();
+		internalIt = curve.end();
+		subInternalIt = nullptr;
 	}
 }
 
 PolyLineCurve::PolyLineCurve(std::vector<SplitSegmentWrapper> segs): segments(segs) {
+}
+
+PolyLineCurve::PolyLineCurve(const std::vector<Segment>& segs) {
+	for (const Segment& s : segs) {
+		SplitSegmentWrapper sSW(s);
+		segments.push_back(SplitSegmentWrapper(s));
+	}
 }
 
 PolyLineCurve::iterator PolyLineCurve::begin() {
@@ -417,6 +453,20 @@ const Rational2DPoint* IntersectionManager::requestPoint(const Rational2DPoint& 
 	}
 }
 
+bool operator==(const Segment& lhs, const Segment& rhs) {
+	return lhs.p1 == rhs.p1
+		&& lhs.p2 == rhs.p2;
+}
+
+bool operator!=(const Segment& lhs, const Segment& rhs) {
+	return !(lhs == rhs);
+}
+
+std::ostream& operator<<(std::ostream& os, const Segment& s) {
+	os << "[" << s.p1 << " | " << s.p2 << "]";
+	return os;
+}
+
 bool operator==(const SplitSegmentWrapper& lhs, const SplitSegmentWrapper& rhs) {
 	return lhs.__isSplit == rhs.__isSplit
 	       && lhs.base == rhs.base
@@ -427,10 +477,26 @@ bool operator!=(const SplitSegmentWrapper& lhs, const SplitSegmentWrapper& rhs) 
 	return !(lhs == rhs);
 }
 
+std::ostream& operator<<(std::ostream& os, const SplitSegmentWrapper& sW) {
+	os << sW.base;
+	return os;
+}
+
 bool operator==(const PolyLineCurve::iterator& lhs, const PolyLineCurve::iterator& rhs) {
+	bool pre_res = true;
+	if (lhs.subInternalIt == nullptr) {
+		if (rhs.subInternalIt == nullptr) {
+			pre_res = true;
+		} else {
+			return false;
+		}
+	} else if (rhs.subInternalIt == nullptr) {
+		return false;
+	} else {
+		pre_res =  *lhs.subInternalIt == *rhs.subInternalIt;
+	}
 	return lhs.curve == rhs.curve
-		&& lhs.internalIt == rhs.internalIt
-		&& lhs.subInternalIt == rhs.subInternalIt;
+		&& lhs.internalIt == rhs.internalIt && pre_res;
 }
 
 bool operator!=(const PolyLineCurve::iterator& lhs, const PolyLineCurve::iterator& rhs) {
