@@ -340,6 +340,7 @@ int main(int argc, char* argv[]) {
 	//outFile.close();
 	//system("pause");
 
+	/*
 	std::vector<Rational2DPoint> points;
 	points.push_back(Rational2DPoint(Rational(3), Rational(0)));
 	points.push_back(Rational2DPoint(Rational(3), Rational(2)));
@@ -423,7 +424,43 @@ int main(int argc, char* argv[]) {
 			}
 		}
 	}
+	*/
+	std::default_random_engine rd;
+	std::uniform_real_distribution<float> internal_gen(-10.0f, 10.0f);
 
+	auto gen = std::bind(internal_gen, rd);
+	int nb_error = 1;
+	auto floatToRational = [](float f) -> Rational {
+		auto pow = [](Rational num, int puiss) -> Rational
+		{
+			Rational res = 1;
+			Rational b = num;
+			if (puiss < 0) {
+				puiss = -puiss;
+				b = Rational(1) / b;
+			}
+
+			for (int i = 0; i < puiss; ++i) {
+				res *= b;
+			}
+			return res;
+		};
+		using float_cast = union {
+			float f;
+			struct {
+				unsigned int mantissa : 23;
+				unsigned int exponent : 8;
+				unsigned int sign : 1;
+			} parts;
+		};
+		float_cast f_transf;
+		f_transf.f = f;
+		const unsigned int coeff_conv = 8388608; // 2^23;
+		Rational base = Rational(1) + Rational(f_transf.parts.mantissa) / Rational(coeff_conv);
+		int exp = f_transf.parts.exponent - 127;
+		Rational expo = pow(2, exp);
+		return base*expo*(f_transf.parts.sign ? -1 : 1);
+	};
 
 	system("pause");
 	return EXIT_SUCCESS;
