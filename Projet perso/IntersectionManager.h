@@ -1,29 +1,30 @@
 #pragma once
 #include "Rational2DPoint.h"
-#include <iterator>
+#include "InternalPositionSystem.h"
+#include "Graph.h"
 
+#include <iterator>
+#include <functional>
 
 class Segment {
 
 public:
 
 	friend class SplitSegmentWrapper;
+	friend class IntersectionManager;
 
 	class DegeneratedSegment : std::exception {
 	};
 
 	class IntersectSol {
 	public:
-		IntersectSol() : exists(false), isUnique(false) {
-		}
+		IntersectSol();
 
 		bool exists = false;
 		bool isUnique = false;
 		Rational2DPoint inter;
 
-		bool solutionIsUnique() const {
-			return exists && isUnique;
-		}
+		bool solutionIsUnique() const;
 	};
 
 
@@ -52,6 +53,8 @@ public:
 };
 
 class SplitSegmentWrapper {
+
+	friend class IntersectionManager;
 
 public:
 	SplitSegmentWrapper(const Segment& base, SplitSegmentWrapper* father = nullptr);
@@ -155,12 +158,57 @@ private:
 class IntersectionManager {
 	friend class Segment;
 
+	class GraphGenerationException : public std::exception {};
+
 public:
 	IntersectionManager();
 	~IntersectionManager();
 
-	const Rational2DPoint* requestPoint(const Rational2DPoint& p);
+	unsigned int requestPoint(const Rational2DPoint& p, std::function<bool(const Rational2DPoint& p1, const Rational2DPoint& p2)> equal = std::mem_fun(&Rational2DPoint::operator==));
+	Graph generateGraph() {
+
+		std::vector<SplitSegmentWrapper> allSegs;
+		// Regroupment of all the segment founds
+		for (PolyLineCurve& PLC : allCurves) {
+			for (SplitSegmentWrapper& SSW : PLC) {
+				allSegs.push_back(SSW);
+			}
+		}
+		// We compute all the intersections
+		for (auto i = 0; i < allSegs.size() - 1; ++i) {
+			for (auto j = i + 1; j < allSegs.size(); ++j) {
+				Segment::IntersectSol sol = allSegs[i].intersectionWith(allSegs[j]);
+				if (sol.solutionIsUnique()) {
+					allSegs[i].split(sol.inter);
+					allSegs[j].split(sol.inter);
+				} else {
+					if (sol.exists && !sol.isUnique) {
+						throw GraphGenerationException();
+					}
+				}
+			}
+		}
+	
+
+		Graph G(intersectionPointsSet.size());
+		std::function<void(const SplitSegmentWrapper& SSW, Graph& G)> fun = [&](const SplitSegmentWrapper& SSW, Graph& G)
+		{
+			if (SSW.isSplit()) {
+				fun(*(SSW.son1), G);
+				fun(*(SSW.son2), G);
+			} else {
+				unsigned int ind1 = requestPoint(SSW.base.p1);
+				unsigned int ind2 = requestPoint(SSW.base.p2);
+				G.addEdge(ind1, ind2);
+			}
+		};
+
+		return G;
+
+	}
+
 
 private:
 	std::vector<Rational2DPoint> intersectionPointsSet;
+	std::vector<PolyLineCurve> allCurves;
 };

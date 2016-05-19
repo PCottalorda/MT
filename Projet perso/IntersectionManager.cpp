@@ -1,6 +1,13 @@
 #include "IntersectionManager.h"
 
 
+Segment::IntersectSol::IntersectSol(): exists(false), isUnique(false) {
+}
+
+bool Segment::IntersectSol::solutionIsUnique() const {
+	return exists && isUnique;
+}
+
 Segment::Segment(const Rational2DPoint& p1, const Rational2DPoint& p2): p1(p1),
                                                                         p2(p2) {
 	if (p1 == p2) throw DegeneratedSegment();
@@ -458,16 +465,17 @@ IntersectionManager::IntersectionManager() {
 IntersectionManager::~IntersectionManager() {
 }
 
-const Rational2DPoint* IntersectionManager::requestPoint(const Rational2DPoint& p) {
-	auto request = std::find(intersectionPointsSet.begin(), intersectionPointsSet.end(), p);
-	if (request == intersectionPointsSet.end()) { // the request hasn't been found...
-		// In this case, we create a new point
-		intersectionPointsSet.push_back(p);
-		return &(intersectionPointsSet.back());
-	} else { // the request has been found...
-		// We return the adresse of the point found
-		return &(*request);
+unsigned int IntersectionManager::requestPoint(const Rational2DPoint& p, std::function<bool(const Rational2DPoint& p1, const Rational2DPoint& p2)> equal) {
+	unsigned int i = 0;
+	for (; i < intersectionPointsSet.size(); ++i) {
+		const Rational2DPoint request = intersectionPointsSet[i];
+		if (equal(request, p)) {
+			return i;
+		}
 	}
+	// In this case, we create a new point
+	intersectionPointsSet.push_back(p);
+	return i;
 }
 
 bool operator==(const Segment& lhs, const Segment& rhs) {

@@ -154,11 +154,59 @@ void InternalPositionSystem::addPoint() {
 }
 
 void InternalPositionSystem::invert() {
-	sf::Vector2f middSeg = 0.5f * (window->convertWindowToInternal(window->edgeSegments[index].getP1()) + window->convertWindowToInternal(window->edgeSegments[index].getP2()));
-	MouseInternal = MouseInternal - 2.0f * middSeg;
+	assert(internalShape.size() % 2 == 0);
+	int ind1 = index;
+	int ind2 = (index - 1 + internalShape.size()) % internalShape.size();
+	sf::Vector2f p1 = internalShape[ind1];
+	sf::Vector2f p2 = internalShape[ind2];
+	sf::Vector2f middle = 0.5f * (p1 + p2);
+	sf::Vector2f diff_midlle = MouseInternal - middle;
+	middle = -middle;
+	MouseInternal = middle + diff_midlle;
 	writeMousePosition();
 }
 
+std::vector<RationalPoint> InternalPositionSystem::exportPoints() {
+	std::vector<RationalPoint> res;
+	for (const Point& p : internalPoints) {
+		Rational2DPoint rPBase(floatToRational(p.point.x), floatToRational(p.point.y));
+		RationalPoint rP(rPBase, p.onBoundiary, p.index);
+		res.push_back(rP);
+	}
+	return res;
+}
+
+Rational InternalPositionSystem::floatToRational(float f) {
+	auto pow = [](Rational num, int puiss) -> Rational {
+		Rational res = 1;
+		Rational b = num;
+		if (puiss < 0) {
+			puiss = -puiss;
+			b = Rational(1) / b;
+		}
+
+		for (int i = 0; i < puiss; ++i) {
+			res *= b;
+		}
+		return res;
+	};
+	using float_cast = union {
+		float f;
+
+		struct {
+			unsigned int mantissa : 23;
+			unsigned int exponent : 8;
+			unsigned int sign : 1;
+		} parts;
+	};
+	float_cast f_transf;
+	f_transf.f = f;
+	const unsigned int coeff_conv = 8388608; // 2^23;
+	Rational base = Rational(1) + Rational(f_transf.parts.mantissa) / Rational(coeff_conv);
+	int exp = f_transf.parts.exponent - 127;
+	Rational expo = pow(2, exp);
+	return base * expo * (f_transf.parts.sign ? -1 : 1);
+}
 
 InternalPositionSystem::~InternalPositionSystem() {
 }
