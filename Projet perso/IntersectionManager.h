@@ -22,13 +22,13 @@ public:
 
 		bool exists = false;
 		bool isUnique = false;
-		Rational2DPoint inter;
+		RationalPoint inter;
 
 		bool solutionIsUnique() const;
 	};
 
 
-	Segment(const Rational2DPoint& p1 = Rational2DPoint(), const Rational2DPoint& p2 = Rational2DPoint());
+	Segment(const RationalPoint& p1, const RationalPoint&);
 	Segment(const Segment& other);
 	Segment(Segment&& other);
 	Segment& operator=(const Segment& other);
@@ -40,16 +40,19 @@ public:
 	friend std::ostream& operator<<(std::ostream& os, const Segment& s);
 
 	bool isAlignedWith(const Rational2DPoint& X) const;
+	bool isAlignedWith(const RationalPoint& X) const;
 	bool segmentContains(const Rational2DPoint& X) const;
+	bool segmentContains(const RationalPoint& X) const;
 	bool isParallelTo(const Segment& S) const;
 	Rational2DPoint directorVector() const;
-	Rational2DPoint intersectionWith(const Segment& S) const;
+	RationalPoint intersectionWith(const Segment& S) const;
 	bool hasAsExtremity(const Rational2DPoint& X) const;
+	bool hasAsExtremity(const RationalPoint& X) const;
 	IntersectSol uniqueIntersectionWith(const Segment& S) const;
 	Rational lambdaCoeff(const Rational2DPoint& X) const;
 
-	Rational2DPoint p1;
-	Rational2DPoint p2;
+	RationalPoint p1;
+	RationalPoint p2;
 };
 
 class SplitSegmentWrapper {
@@ -93,7 +96,7 @@ public:
 
 	Segment::IntersectSol intersectionWith(const SplitSegmentWrapper& s) const;
 
-	void split(const Rational2DPoint& splitPoint);
+	void split(const RationalPoint& splitPoint);
 	bool isSplit() const;
 	bool isRoot() const;
 
@@ -164,7 +167,7 @@ public:
 	IntersectionManager();
 	~IntersectionManager();
 
-	unsigned int requestPoint(const Rational2DPoint& p, std::function<bool(const Rational2DPoint& p1, const Rational2DPoint& p2)> equal = std::mem_fun(&Rational2DPoint::operator==));
+	unsigned int requestPoint(const RationalPoint& p, std::function<bool(const RationalPoint& p1, const RationalPoint& p2)> equal = std::mem_fn(&RationalPoint::operator==));
 	Graph generateGraph() {
 
 		std::vector<SplitSegmentWrapper> allSegs;
@@ -209,6 +212,6 @@ public:
 
 
 private:
-	std::vector<Rational2DPoint> intersectionPointsSet;
+	std::vector<RationalPoint> intersectionPointsSet;
 	std::vector<PolyLineCurve> allCurves;
 };

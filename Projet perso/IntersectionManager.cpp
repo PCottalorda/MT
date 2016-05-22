@@ -1,14 +1,14 @@
 #include "IntersectionManager.h"
 
 
-Segment::IntersectSol::IntersectSol(): exists(false), isUnique(false) {
+Segment::IntersectSol::IntersectSol(): exists(false), isUnique(false), inter(Rational2DPoint(),false,0) {
 }
 
 bool Segment::IntersectSol::solutionIsUnique() const {
 	return exists && isUnique;
 }
 
-Segment::Segment(const Rational2DPoint& p1, const Rational2DPoint& p2): p1(p1),
+Segment::Segment(const RationalPoint& p1, const RationalPoint& p2): p1(p1),
                                                                         p2(p2) {
 	if (p1 == p2) throw DegeneratedSegment();
 }
@@ -17,7 +17,11 @@ Segment::~Segment() {
 }
 
 bool Segment::isAlignedWith(const Rational2DPoint& X) const {
-	return Rational2DPoint::det(p2 - p1, X - p1) == 0;
+	return Rational2DPoint::det(p2.point - p1.point, X - p1.point) == 0;
+}
+
+bool Segment::isAlignedWith(const RationalPoint& X) const {
+	return isAlignedWith(X.point);
 }
 
 bool Segment::segmentContains(const Rational2DPoint& X) const {
@@ -29,35 +33,54 @@ bool Segment::segmentContains(const Rational2DPoint& X) const {
 	}
 }
 
+bool Segment::segmentContains(const RationalPoint& X) const {
+	return segmentContains(X.point);
+}
+
 bool Segment::isParallelTo(const Segment& S) const {
 	return Rational2DPoint::det(directorVector(), S.directorVector()) == 0;
 }
 
 Rational2DPoint Segment::directorVector() const {
-	return p2 - p1;
+	return p2.point - p1.point;
 }
 
-Rational2DPoint Segment::intersectionWith(const Segment& S) const {
+RationalPoint Segment::intersectionWith(const Segment& S) const {
+
 	assert(!isParallelTo(S));
-	Rational2DPoint red1 = p1 - p2;
-	Rational2DPoint red2 = S.p2 - S.p1;
+	Rational2DPoint red1 = p1.point - p2.point;
+	Rational2DPoint red2 = S.p2.point - S.p1.point;
 
 	Rational determinant = Rational2DPoint::det(red1, red2);
 	assert(determinant != 0);
 
-	Rational2DPoint calcInt = S.p2 - p2;
+	Rational2DPoint calcInt = S.p2.point - p2.point;
 	Rational lambda1 = (red2.y * calcInt.x - red2.x * calcInt.y) / determinant;
 	//=== Compute only for vérification purpose ===
 	Rational lambda2 = (-red1.y * calcInt.x + red1.x * calcInt.y) / determinant;
-	Rational2DPoint verif_res = lambda2 * S.p1 + (1 - lambda2) * S.p2;
+	Rational2DPoint verif_res = lambda2 * S.p1.point + (1 - lambda2) * S.p2.point;
 	//=============================================
-	Rational2DPoint result = lambda1 * p1 + (1 - lambda1) * p2;
+	Rational2DPoint result = lambda1 * p1.point + (1 - lambda1) * p2.point;
+
+	// We check if we fall directly on one of the extremal point (which is the only case where we can be on boundiary)
+	int index = 0;
+	int onBoundiary = false;
+	if (lambda1 == 1) {
+		index = p2.index;
+		onBoundiary = p2.onBoundiary;
+	}
+	else if (lambda1 == 1) {
+		index = p1.index;
+		onBoundiary = p1.onBoundiary;
+	}
 
 	assert(result == verif_res);
 	assert(isAlignedWith(result));
 	assert(S.isAlignedWith(result));
 
-	return result;
+	RationalPoint finalResult(result,onBoundiary,index);
+
+	return finalResult;
 }
 
 Segment::Segment(const Segment& other): p1(other.p1),
@@ -85,7 +108,11 @@ Segment& Segment::operator=(Segment&& other) {
 }
 
 bool Segment::hasAsExtremity(const Rational2DPoint& X) const {
-	return X == p1 || X == p2;
+	return X == p1.point || X == p2.point;
+}
+
+bool Segment::hasAsExtremity(const RationalPoint& X) const {
+	return hasAsExtremity(X.point);
 }
 
 Segment::IntersectSol Segment::uniqueIntersectionWith(const Segment& S) const {
@@ -155,7 +182,7 @@ Segment::IntersectSol Segment::uniqueIntersectionWith(const Segment& S) const {
 			// No solution
 		}
 	} else {
-		Rational2DPoint inter = intersectionWith(S);
+		RationalPoint inter = intersectionWith(S);
 		if (segmentContains(inter) && S.segmentContains(inter)) {
 			solution.exists = true;
 			solution.isUnique = true;
@@ -170,8 +197,8 @@ Segment::IntersectSol Segment::uniqueIntersectionWith(const Segment& S) const {
 
 Rational Segment::lambdaCoeff(const Rational2DPoint& X) const {
 	assert(isAlignedWith(X));
-	Rational2DPoint baseSeg = p2 - p1;
-	Rational2DPoint compSeg = X - p1;
+	Rational2DPoint baseSeg = p2.point - p1.point;
+	Rational2DPoint compSeg = X - p1.point;
 	if (baseSeg.x != 0) {
 		return compSeg.x / baseSeg.x;
 	} else {
@@ -284,7 +311,7 @@ Segment::IntersectSol SplitSegmentWrapper::intersectionWith(const SplitSegmentWr
 	return base.uniqueIntersectionWith(s.base);
 }
 
-void SplitSegmentWrapper::split(const Rational2DPoint& splitPoint) {
+void SplitSegmentWrapper::split(const RationalPoint& splitPoint) {
 	if (!base.segmentContains(splitPoint)) {
 		throw IncorrectSplit();
 	}
@@ -465,10 +492,10 @@ IntersectionManager::IntersectionManager() {
 IntersectionManager::~IntersectionManager() {
 }
 
-unsigned int IntersectionManager::requestPoint(const Rational2DPoint& p, std::function<bool(const Rational2DPoint& p1, const Rational2DPoint& p2)> equal) {
+unsigned int IntersectionManager::requestPoint(const RationalPoint& p, std::function<bool(const RationalPoint& p1, const RationalPoint& p2)> equal) {
 	unsigned int i = 0;
 	for (; i < intersectionPointsSet.size(); ++i) {
-		const Rational2DPoint request = intersectionPointsSet[i];
+		const RationalPoint request = intersectionPointsSet[i];
 		if (equal(request, p)) {
 			return i;
 		}
@@ -488,7 +515,7 @@ bool operator!=(const Segment& lhs, const Segment& rhs) {
 }
 
 std::ostream& operator<<(std::ostream& os, const Segment& s) {
-	os << "[" << s.p1 << " | " << s.p2 << "]";
+	os << "[" << s.p1.point << " | " << s.p2.point << "]";
 	return os;
 }
 
