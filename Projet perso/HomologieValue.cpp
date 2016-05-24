@@ -4,7 +4,7 @@
 HomologieValue::HomologieValue(unsigned dimension):
 	dim(dimension),
 	base(dimension) {
-	for (auto i = 0; i < dimension; ++i)
+	for (unsigned int i = 0; i < dimension; ++i)
 		base[i] = 0;
 }
 
@@ -52,11 +52,19 @@ int& HomologieValue::operator[](int i) {
 	return base[i];
 }
 
+HomologieValue HomologieValue::operator-() const {
+	HomologieValue res(*this);
+	for (int i = 0; i < dimension(); ++i) {
+		res[i] = -res[i];
+	}
+	return res;
+}
+
 HomologieValue& HomologieValue::operator+=(const HomologieValue& rhs) {
 	if (dimension() != rhs.dimension()) {
 		throw DimensionException();
 	}
-	for (auto i = 0; i < dim; ++i) {
+	for (unsigned int i = 0; i < dim; ++i) {
 		base[i] += rhs[i];
 	}
 	return *this;
@@ -66,7 +74,7 @@ HomologieValue& HomologieValue::operator-=(const HomologieValue& rhs) {
 	if (dimension() != rhs.dimension()) {
 		throw DimensionException();
 	}
-	for (auto i = 0; i < dim; ++i) {
+	for (unsigned int i = 0; i < dim; ++i) {
 		base[i] -= rhs[i];
 	}
 	return *this;

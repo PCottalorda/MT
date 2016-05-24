@@ -78,7 +78,7 @@ RationalPoint Segment::intersectionWith(const Segment& S) const {
 	assert(isAlignedWith(result));
 	assert(S.isAlignedWith(result));
 
-	RationalPoint finalResult(result,onBoundiary,index);
+	RationalPoint finalResult(result, onBoundiary, index);
 
 	return finalResult;
 }
@@ -492,11 +492,11 @@ IntersectionManager::IntersectionManager() {
 IntersectionManager::~IntersectionManager() {
 }
 
-unsigned int IntersectionManager::requestPoint(const RationalPoint& p, std::function<bool(const RationalPoint& p1, const RationalPoint& p2)> equal) {
+unsigned int IntersectionManager::requestPoint(const RationalPoint& p) {
 	unsigned int i = 0;
 	for (; i < intersectionPointsSet.size(); ++i) {
 		const RationalPoint request = intersectionPointsSet[i];
-		if (equal(request, p)) {
+		if (areEqual(request, p)) {
 			return i;
 		}
 	}

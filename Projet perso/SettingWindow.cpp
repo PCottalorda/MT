@@ -30,9 +30,13 @@ namespace {
 		return v.x * form.x + v.y * form.y;
 	}
 
+	float norm(const sf::Vector2f& v) {
+		return sqrtf(v.x*v.x + v.y*v.y);
+	}
+
 }
 
-SettingWindow::SettingWindow(unsigned size, unsigned genus) :
+SettingWindow::SettingWindow(unsigned int size, unsigned int genus) :
 	sf::RenderWindow(sf::VideoMode(size, size), "SettingWindows"),
 	size(size),
 	binded(true),
@@ -53,9 +57,9 @@ SettingWindow::SettingWindow(unsigned size, unsigned genus) :
 
 
 	// Compute rationalForms
-	float rotAngle = PI / genus;
+	float rotAngle = PI / (2*genus);
 	sf::Vector2f axis(1.0f, 0.0f);
-	for (size_t i = 0; i < 2 * genus; i++) {
+	for (size_t i = 0; i < 4 * genus; i++) {
 		ratFormsF.push_back(axis);
 		__rotate(axis, rotAngle);
 	}
@@ -63,6 +67,32 @@ SettingWindow::SettingWindow(unsigned size, unsigned genus) :
 	std::vector<sf::Vector2f> interPoints;
 	for (size_t i = 0; i < ratFormsF.size(); i++) {
 		interPoints.push_back(__intersectionPoint(ratFormsF[i], ratFormsF[(i + 1) % ratFormsF.size()]));
+	}
+
+
+	// TODO: SUPPRESS!
+	for (auto it = interPoints.begin(); it != interPoints.end(); ++it) {
+		std::cout << "[" << it->x << ";" << it->y << "]" << std::endl;
+	}
+
+	auto sfVector2f_to_Rational2DPoint = [&](const sf::Vector2f& vec)
+	{
+		Rational x = InternalPositionSystem::floatToRational(vec.x);
+		Rational y = InternalPositionSystem::floatToRational(vec.y);
+		return Rational2DPoint(x, y);
+	};
+
+	std::vector<Rational2DPoint> ratInterPoints;
+	for (size_t i = 0; i < interPoints.size() / 2; ++i) {
+		ratInterPoints.push_back(sfVector2f_to_Rational2DPoint(interPoints[i]));
+	}
+	assert(ratInterPoints.size() == interPoints.size() / 2);
+	for (size_t i = 0; i < interPoints.size() / 2; ++i) {
+		ratInterPoints.push_back(-ratInterPoints[i]);
+	}
+	assert(ratInterPoints.size() == interPoints.size());
+	for (unsigned int i = 0; i < interPoints.size(); ++i) {
+		std::cout << norm(ratInterPoints[i].toSFMLVector2f() - interPoints[i]) << std::endl;
 	}
 
 	center = sf::Vector2f(amplitude, amplitude);

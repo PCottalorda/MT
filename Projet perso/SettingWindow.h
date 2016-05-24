@@ -12,6 +12,7 @@ class SettingWindow :
 	public sf::RenderWindow {
 
 	friend class InternalPositionSystem;
+	friend class IntersectionManager;
 
 public:
 
@@ -38,24 +39,16 @@ private:
 	int size;
 	//std::vector<Rational2DForm> ratForms;
 	std::vector<sf::Vector2f> ratFormsF;
-
 	std::vector<sf::Vector2f> points;
 	bool binded;
 	sf::ConvexShape interiorShape;
 	sf::Vector2f center;
 	float amplitude;
-
-
 	std::vector<SegmentDrawable> edgeSegments;
-
-
 	bool complete;
-
 	sf::CircleShape cursorStandard;
 	sf::CircleShape cursorBoundiary;
-
 	std::vector<Vector2fWrapper> segmentPoints;
 	std::vector<SegmentDrawable> segments;
-
 	InternalPositionSystem InternalSys;
 };

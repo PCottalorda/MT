@@ -41,6 +41,10 @@ Rational2DPoint& Rational2DPoint::operator/=(const Rational& r) {
 	x /= r;
 	y /= r;
 	return *this;
+}
+
+Rational2DPoint Rational2DPoint::operator-() const {
+	return Rational2DPoint(-x, -y);
 };
 
 Rational2DPoint operator+(const Rational2DPoint& p1, const Rational2DPoint& p2) {

@@ -4,12 +4,14 @@
 
 #include <exception>
 
-Edge::Edge(Node* n1, Node* n2, uint64_t id) :
+Edge::Edge(Node* n1, Node* n2, uint64_t id,HomologieValue value) :
 	Node1(n1),
 	Node2(n2),
 	locked(false),
 	ori(STANDARD),
-	id(id) {
+	id(id),
+	value(value) 
+{
 	if (n1 == NULL || n2 == NULL)
 		throw std::exception();
 
@@ -27,13 +29,17 @@ uint64_t Edge::getId() const {
 	return id;
 }
 
+bool operator<(const Edge& e1, const Edge& e2) {
+	return e1.id < e2.id;
+}
+
 std::ostream& operator<<(std::ostream& os, const Edge& e) {
 	os << e.getOrigin()->getInternalNumber() << " -> " << e.getDestination()->getInternalNumber();
 	return os;
 }
 
 bool operator==(const Edge& lhs, const Edge& rhs) {
-	return (lhs.getOrigin() == rhs.getOrigin()) && (lhs.getDestination() == rhs.getDestination()) && (lhs.id == rhs.id);
+	return (lhs.getOrigin() == rhs.getOrigin()) && (lhs.getDestination() == rhs.getDestination()) && (lhs.id == rhs.id) && (lhs.value == rhs.value);
 }
 
 bool operator!=(const Edge& lhs, const Edge& rhs) {
@@ -89,6 +95,7 @@ Edge::Edge(const Edge& other): Node1(other.Node1),
                                Node2(other.Node2),
                                ori(other.ori),
                                locked(other.locked),
+                               value(other.value),
                                id(other.id) {
 }
 
@@ -96,6 +103,7 @@ Edge::Edge(Edge&& other): Node1(other.Node1),
                           Node2(other.Node2),
                           ori(other.ori),
                           locked(other.locked),
+                          value(other.value),
                           id(other.id) {
 }
 
@@ -106,6 +114,7 @@ Edge& Edge::operator=(const Edge& other) {
 	Node2 = other.Node2;
 	ori = other.ori;
 	locked = other.locked;
+	value = other.value;
 	id = other.id;
 	return *this;
 }
@@ -117,6 +126,7 @@ Edge& Edge::operator=(Edge&& other) {
 	Node2 = other.Node2;
 	ori = other.ori;
 	locked = other.locked;
+	value = other.value;
 	id = other.id;
 	return *this;
 }

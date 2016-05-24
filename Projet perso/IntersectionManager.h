@@ -5,6 +5,7 @@
 
 #include <iterator>
 #include <functional>
+#include "SettingWindow.h"
 
 class Segment {
 
@@ -133,7 +134,7 @@ public:
 		iterator operator++(int);
 		friend bool operator==(const iterator& lhs, const iterator& rhs);
 		friend bool operator!=(const iterator& lhs, const iterator& rhs);
-		SplitSegmentWrapper& operator*() const;;
+		SplitSegmentWrapper& operator*() const;
 
 	private:
 		explicit iterator(std::vector<SplitSegmentWrapper>& curve);
@@ -152,7 +153,6 @@ public:
 	iterator end();
 	size_t size() const;
 
-
 private:
 	std::vector<SplitSegmentWrapper> segments;
 };
@@ -167,7 +167,19 @@ public:
 	IntersectionManager();
 	~IntersectionManager();
 
-	unsigned int requestPoint(const RationalPoint& p, std::function<bool(const RationalPoint& p1, const RationalPoint& p2)> equal = std::mem_fn(&RationalPoint::operator==));
+
+	bool areEqual(const RationalPoint& r1, const RationalPoint& r2) const {
+		if (r1 == r2) {										// Same point on the fundamental polygon
+			return true;
+		} else if (r1.onBoundiary && r2.onBoundiary) {		// Not the same points on the fundamental polygon but they are both on the boundiary
+			assert(window->InternalSys.invert(window->InternalSys.invert(r1)) == r1);
+			return window->InternalSys.invert(r1) == r2;
+		} else {											// They are necessarily not the same!
+			return false;
+		}
+	}
+
+	unsigned int requestPoint(const RationalPoint& p);
 	Graph generateGraph() {
 
 		std::vector<SplitSegmentWrapper> allSegs;
@@ -178,8 +190,8 @@ public:
 			}
 		}
 		// We compute all the intersections
-		for (auto i = 0; i < allSegs.size() - 1; ++i) {
-			for (auto j = i + 1; j < allSegs.size(); ++j) {
+		for (size_t i = 0; i < allSegs.size() - 1; ++i) {
+			for (size_t j = i + 1; j < allSegs.size(); ++j) {
 				Segment::IntersectSol sol = allSegs[i].intersectionWith(allSegs[j]);
 				if (sol.solutionIsUnique()) {
 					allSegs[i].split(sol.inter);
@@ -211,7 +223,9 @@ public:
 	}
 
 
+
 private:
 	std::vector<RationalPoint> intersectionPointsSet;
 	std::vector<PolyLineCurve> allCurves;
+	SettingWindow* window;
 };

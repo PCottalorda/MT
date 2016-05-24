@@ -13,8 +13,6 @@ public:
 	PointOnBoundiaryWrapper(PointOnBoundiaryWrapper&& other);
 	PointOnBoundiaryWrapper& operator=(const PointOnBoundiaryWrapper& other);
 	PointOnBoundiaryWrapper& operator=(PointOnBoundiaryWrapper&& other);
-	bool operator==(const PointOnBoundiaryWrapper& rhs);
-	bool operator!=(const PointOnBoundiaryWrapper& rhs);
 
 	friend bool operator==(const PointOnBoundiaryWrapper& lhs, const PointOnBoundiaryWrapper& rhs) {
 		return lhs.point == rhs.point
@@ -68,16 +66,6 @@ PointOnBoundiaryWrapper<T>& PointOnBoundiaryWrapper<T>::operator=(PointOnBoundia
 	onBoundiary = other.onBoundiary;
 	index = other.index;
 	return *this;
-}
-
-template <typename T>
-bool PointOnBoundiaryWrapper<T>::operator==(const PointOnBoundiaryWrapper& rhs) {
-	return operator==(*this, rhs);
-}
-
-template <typename T>
-bool PointOnBoundiaryWrapper<T>::operator!=(const PointOnBoundiaryWrapper& rhs) {
-	return operator!=(*this, rhs);
 }
 
 #include "PointOnBoundiaryWrapper.cpp"

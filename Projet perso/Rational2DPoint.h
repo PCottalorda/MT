@@ -16,14 +16,16 @@ public:
 	Rational2DPoint& operator*=(const Rational& r);
 	Rational2DPoint& operator/=(const Rational& r);
 
+	Rational2DPoint operator-() const;
+
 	friend Rational2DPoint operator+(const Rational2DPoint& p1, const Rational2DPoint& p2);
 	friend Rational2DPoint operator-(const Rational2DPoint& p1, const Rational2DPoint& p2);
 	friend Rational2DPoint operator*(const Rational& r, const Rational2DPoint& p);
 	friend Rational2DPoint operator*(const Rational2DPoint& p, const Rational& r);
 	friend Rational2DPoint operator/(const Rational2DPoint& p, const Rational& r);
 
-	friend bool operator==(const Rational2DPoint& p1, const Rational2DPoint& p2);;
-	friend bool operator!=(const Rational2DPoint& p1, const Rational2DPoint& p2);;
+	friend bool operator==(const Rational2DPoint& p1, const Rational2DPoint& p2);
+	friend bool operator!=(const Rational2DPoint& p1, const Rational2DPoint& p2);
 
 
 	bool operator==(const Rational2DPoint& p);
