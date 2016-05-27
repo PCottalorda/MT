@@ -1,14 +1,9 @@
 #pragma once
-
 #include <SFML/Graphics.hpp>
-
-#include "SegmentDrawable.h"
-#include "PointOnBoundiaryWrapper.h"
 #include "InternalPositionSystem.h"
-#include "HomologieValue.h"
 #include "IntersectionManager.h"
-
-using Vector2fWrapper = PointOnBoundiaryWrapper<sf::Vector2f>;
+#include "SegmentDrawable.h"
+#include "HomologieValue.h"
 
 class SettingWindow :
 	public sf::RenderWindow {
@@ -57,7 +52,7 @@ private:
 	sf::Text instructionText;
 	sf::CircleShape cursorStandard;
 	sf::CircleShape cursorBoundiary;
-	std::vector<Vector2fWrapper> segmentPoints;
+	std::vector<Point> segmentPoints;
 	std::vector<SegmentDrawable> segments;
 	InternalPositionSystem InternalSys;
 

@@ -1,16 +1,14 @@
 #pragma once
-
-#include <SFML/System/Vector2.hpp>
-#include <vector>
-
 #include "PointOnBoundiaryWrapper.h"
+#include <SFML/System/Vector2.hpp>
 #include "Rational2DPoint.h"
-#include "IntersectionManager.h"
 
+
+class PolyLineCurve;
 class SettingWindow;
 
 
-using Point			= PointOnBoundiaryWrapper < sf::Vector2f >;
+using Point			= PointOnBoundiaryWrapper< sf::Vector2f >;
 using RationalPoint = PointOnBoundiaryWrapper < Rational2DPoint > ;
 
 class InternalPositionSystem {
@@ -33,25 +31,7 @@ public:
 	std::vector<RationalPoint> exportPoints();
 	static Rational floatToRational(float f);
 
-	 PolyLineCurve exportAndReinitialize() {
-		std::vector<RationalPoint> res = exportPoints();
-		assert(!res.empty());
-		internalPoints.clear();
-		std::vector<Segment> segs;
-		RationalPoint prev = res.front();
-		for (unsigned int i = 1; i < res.size(); ++i) {
-			RationalPoint current = res[i];
-			Segment seg(prev, current);
-			segs.push_back(seg);
-			if (current.onBoundiary) {
-				++i;
-				prev = res[i];
-			} else {
-				prev = current;
-			}
-		}
-		return PolyLineCurve(segs);
-	}
+	PolyLineCurve exportAndReinitialize();
 
 private:
 	bool onBoundiary;

@@ -1,5 +1,10 @@
 #include "SettingWindow.h"
 
+#include <SFML/Graphics.hpp>
+#include "SegmentDrawable.h"
+#include "HomologieValue.h"
+#include "InternalPositionSystem.h"
+#include "IntersectionManager.h"
 
 static const float PI = 3.14159265358979323846f;
 
@@ -236,11 +241,11 @@ sf::Vector2f SettingWindow::convertWindowToInternal(const sf::Vector2f& v) const
 void SettingWindow::addPoint(const sf::Vector2f& p, bool onBoudiary, bool addSegment) {
 	sf::Vector2f _p = convertInternalToWindow(p);
 	if (segmentPoints.size() == 0) {
-		segmentPoints.push_back(Vector2fWrapper(_p, onBoudiary, -1));
+		segmentPoints.push_back(Point(_p, onBoudiary, -1));
 	} else {
 		if (p != segmentPoints.back().point) {
 			sf::Vector2f p_prec = segmentPoints.back().point;
-			segmentPoints.push_back(Vector2fWrapper(_p, onBoudiary, -1));
+			segmentPoints.push_back(Point(_p, onBoudiary, -1));
 			if (addSegment) {
 				segments.push_back(SegmentDrawable(p_prec, _p, 3, sf::Color::Magenta));
 			}
@@ -276,7 +281,7 @@ void SettingWindow::cancelMove() {
 		segmentPoints.pop_back();
 	} else {
 		segments.pop_back();
-		Vector2fWrapper last = segmentPoints.back();
+		Point last = segmentPoints.back();
 		if (last.onBoundiary) {
 			segmentPoints.pop_back();
 			segmentPoints.pop_back();

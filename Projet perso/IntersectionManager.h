@@ -1,10 +1,9 @@
 #pragma once
-#include "Rational2DPoint.h"
+#include <exception>
 #include "InternalPositionSystem.h"
-#include "Graph.h"
 
-#include <iterator>
-#include "SettingWindow.h"
+class Graph;
+class SettingWindow;
 
 class Segment {
 

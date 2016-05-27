@@ -1,6 +1,5 @@
 #include "HomologieValue.h"
 
-#include <ostream>
 
 HomologieValue::HomologieValue(unsigned dimension):
 	dim(dimension),

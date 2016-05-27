@@ -1,6 +1,10 @@
 #include "IntersectionManager.h"
 
 #include <functional>
+#include <cassert>
+
+#include "Graph.h"
+#include "SettingWindow.h"
 
 
 Segment::IntersectSol::IntersectSol(): exists(false), isUnique(false), inter(Rational2DPoint(),false,0) {
@@ -487,7 +491,7 @@ size_t PolyLineCurve::size() const {
 	return res;
 }
 
-IntersectionManager::IntersectionManager() {
+IntersectionManager::IntersectionManager() : window(nullptr) {
 }
 
 
@@ -544,16 +548,20 @@ Graph IntersectionManager::generateGraph() {
 
 
 	Graph G(intersectionPointsSet.size());
-	std::function<void(const SplitSegmentWrapper& SSW, Graph& G)> fun = [&](const SplitSegmentWrapper& SSW, Graph& G) {
+	std::function<void(const SplitSegmentWrapper& SSW, Graph& Gr)> fun = [&](const SplitSegmentWrapper& SSW, Graph& Gra) {
 		if (SSW.isSplit()) {
-			fun(*(SSW.son1), G);
-			fun(*(SSW.son2), G);
+			fun(*(SSW.son1), Gra);
+			fun(*(SSW.son2), Gra);
 		} else {
 			unsigned int ind1 = requestPoint(SSW.base.p1);
 			unsigned int ind2 = requestPoint(SSW.base.p2);
-			G.addEdge(ind1, ind2, window->evaluate(SSW.base));
+			Gra.addEdge(ind1, ind2, window->evaluate(SSW.base));
 		}
 	};
+
+	for (unsigned int i = 0; i < allSegs.size(); ++i) {
+		fun(allSegs[i], G);
+	}
 
 	return G;
 

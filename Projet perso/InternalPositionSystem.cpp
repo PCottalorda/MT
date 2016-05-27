@@ -1,6 +1,7 @@
 #include "InternalPositionSystem.h"
 
 #include "SettingWindow.h"
+#include "IntersectionManager.h"
 #include <iostream>
 
 namespace {
@@ -224,6 +225,26 @@ Rational InternalPositionSystem::floatToRational(float f) {
 	int exp = f_transf.parts.exponent - 127;
 	Rational expo = pow(2, exp);
 	return base * expo * (f_transf.parts.sign ? -1 : 1);
+}
+
+PolyLineCurve InternalPositionSystem::exportAndReinitialize() {
+	std::vector<RationalPoint> res = exportPoints();
+	assert(!res.empty());
+	internalPoints.clear();
+	std::vector<Segment> segs;
+	RationalPoint prev = res.front();
+	for (unsigned int i = 1; i < res.size(); ++i) {
+		RationalPoint current = res[i];
+		Segment seg(prev, current);
+		segs.push_back(seg);
+		if (current.onBoundiary) {
+			++i;
+			prev = res[i];
+		} else {
+			prev = current;
+		}
+	}
+	return PolyLineCurve(segs);
 }
 
 InternalPositionSystem::~InternalPositionSystem() {
