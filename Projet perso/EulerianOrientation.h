@@ -3,6 +3,7 @@
 #include <vector>
 
 #include "Edge.h"
+#include <cassert>
 
 class Graph;
 
@@ -14,6 +15,7 @@ public:
 	~EulerianOrientation();
 
 	std::string generateGraphVizString() const;
+	HomologieValue cycleValue() const;
 
 private:
 

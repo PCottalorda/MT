@@ -30,17 +30,7 @@ public:
 	friend HomologieValue operator-(HomologieValue lhs, const HomologieValue& rhs);
 	unsigned int dimension() const;
 
-	friend std::ostream& operator<<(std::ostream& os, const HomologieValue& hVal) {
-		os << "[";
-		for (unsigned int i = 0; i < hVal.base.size() - 1; ++i) {
-			os << hVal.base[i]  << ",";
-		}
-		if (hVal.dimension() != 0) {
-			os << hVal.base.back();
-		}
-		os << "]";
-		return os;
-	}
+	friend std::ostream& operator<<(std::ostream& os, const HomologieValue& hVal);
 
 private:
 	unsigned int dim;

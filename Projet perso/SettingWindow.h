@@ -16,7 +16,7 @@ class SettingWindow :
 
 public:
 
-	SettingWindow(unsigned int size, unsigned int genus);;
+	SettingWindow(unsigned int size, unsigned int genus, const sf::Font& font);
 	~SettingWindow();
 	void updateLoop();
 	sf::Vector2f convertInternalToWindow(const sf::Vector2f& v) const;
@@ -35,8 +35,29 @@ public:
 	sf::Vector2f getMousePosition() const;
 	void invert();
 
+	std::string stateString() const {
+		auto bool_to_string = [](bool b) -> std::string {if (b) return "true"; else return "false"; };
+		std::string str("-- Internal State: --\n");
+		str += "\tGenus: " + std::to_string(genus) + "\n";
+		str += "\tX position: " + std::to_string(InternalSys.MouseInternal.x) + "\n";
+		str += "\tY position: " + std::to_string(InternalSys.MouseInternal.y) + "\n";
+		str += "\tBinded: " + bool_to_string(binded) + "\n";
+		str += "\tonClosure: " + bool_to_string(MouseOnClosure()) + "\n";
+		str += "\tonBoundiary: " + bool_to_string(MouseOnBoundiary());
+		if (MouseOnBoundiary()) {
+			str += "\n\tindex: " + std::to_string(InternalSys.index);
+		}
+		return str;
+	}
+
+	void displayState() {
+		stateText.setString(stateString());
+		draw(stateText);
+	}
+
 private:
 	int size;
+	int genus;
 	//std::vector<Rational2DForm> ratForms;
 	std::vector<sf::Vector2f> ratFormsF;
 	std::vector<sf::Vector2f> points;
@@ -46,9 +67,13 @@ private:
 	float amplitude;
 	std::vector<SegmentDrawable> edgeSegments;
 	bool complete;
+	sf::Text stateText;
+	sf::Text instructionText;
 	sf::CircleShape cursorStandard;
 	sf::CircleShape cursorBoundiary;
 	std::vector<Vector2fWrapper> segmentPoints;
 	std::vector<SegmentDrawable> segments;
 	InternalPositionSystem InternalSys;
+
+	const sf::Font& font;
 };

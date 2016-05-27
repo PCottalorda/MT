@@ -14,6 +14,15 @@ std::string EulerianOrientation::generateGraphVizString() const {
 	return graphVizString;
 }
 
+HomologieValue EulerianOrientation::cycleValue() const {
+	assert(!edges.empty());
+	HomologieValue res(edges.front().dimension());
+	for (const Edge& e : edges) {
+		res += e.value;
+	}
+	return res;
+}
+
 EulerianOrientation::EulerianOrientation(Graph* G, int tag):
 	internalNumber(tag),
 	BaseGraph(G) {

@@ -106,6 +106,9 @@
     <ClInclude Include="SettingWindow.h" />
     <ClInclude Include="__internalTree.h" />
   </ItemGroup>
+  <ItemGroup>
+    <Font Include="..\..\Projet perso\Projet perso\arial.ttf" />
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>

@@ -19,13 +19,13 @@ Graph::Graph(unsigned nbVertices) :
 Graph::~Graph() {
 }
 
-void Graph::addEdge(int i, int j) {
+void Graph::addEdge(int i, int j, const HomologieValue& value) {
 	// An exception will be send if out of range
 	// Ameliorates this
 	Node* node1 = nodes[i];
 	Node* node2 = nodes[j];
 
-	edges.push_back(new Edge(node1, node2, internalEdgeCounter));
+	edges.push_back(new Edge(node1, node2, internalEdgeCounter, value));
 	internalEdgeCounter++;
 	Edge* newNode = edges.back();
 

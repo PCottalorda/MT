@@ -13,7 +13,7 @@ public:
 	~Graph();
 
 
-	void addEdge(int i, int j);
+	void addEdge(int i, int j, const HomologieValue& value = HomologieValue(1));
 	std::vector<Edge*>& getEdges();
 	std::vector<Node*>& getNodes();
 

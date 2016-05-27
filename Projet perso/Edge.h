@@ -15,6 +15,7 @@ enum Orientation {
 class Edge {
 	friend class Graph;
 	friend class Node;
+	friend class EulerianOrientation;
 
 public:
 	Edge(const Edge& other);
@@ -58,6 +59,10 @@ public:
 		} else {	// ori == REVERSE
 			return -value;
 		}
+	}
+
+	unsigned int dimension() const {
+		return value.dimension();
 	}
 
 protected:

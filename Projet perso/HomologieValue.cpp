@@ -1,5 +1,6 @@
 #include "HomologieValue.h"
 
+#include <ostream>
 
 HomologieValue::HomologieValue(unsigned dimension):
 	dim(dimension),
@@ -54,7 +55,7 @@ int& HomologieValue::operator[](int i) {
 
 HomologieValue HomologieValue::operator-() const {
 	HomologieValue res(*this);
-	for (int i = 0; i < dimension(); ++i) {
+	for (unsigned int i = 0; i < dimension(); ++i) {
 		res[i] = -res[i];
 	}
 	return res;
@@ -88,6 +89,18 @@ HomologieValue operator+(HomologieValue lhs, const HomologieValue& rhs) {
 HomologieValue operator-(HomologieValue lhs, const HomologieValue& rhs) {
 	lhs -= rhs;
 	return lhs;
+}
+
+std::ostream& operator<<(std::ostream& os, const HomologieValue& hVal) {
+	os << "[";
+	for (unsigned int i = 0; i < hVal.base.size() - 1; ++i) {
+		os << hVal.base[i] << ",";
+	}
+	if (hVal.dimension() != 0) {
+		os << hVal.base.back();
+	}
+	os << "]";
+	return os;
 }
 
 unsigned HomologieValue::dimension() const {

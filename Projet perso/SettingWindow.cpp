@@ -36,15 +36,18 @@ namespace {
 
 }
 
-SettingWindow::SettingWindow(unsigned int size, unsigned int genus) :
-	sf::RenderWindow(sf::VideoMode(size, size), "SettingWindows"),
-	size(size),
+SettingWindow::SettingWindow(unsigned int size, unsigned int genus, const sf::Font& font) :
+sf::RenderWindow(sf::VideoMode(size, size), "SettingWindows"),
+size(size),
+genus(genus),
 	binded(true),
 	complete(false),
 	amplitude(size / 2.0f),
 	cursorStandard(10.0f),
 	cursorBoundiary(15.0f),
-	InternalSys(this) {
+	InternalSys(this),
+	font(font)
+{
 	// Exceptions
 	if (size <= 0)
 		throw std::exception();
@@ -122,6 +125,22 @@ SettingWindow::SettingWindow(unsigned int size, unsigned int genus) :
 	InternalSys.ratFormsF = ratFormsF;
 	InternalSys.internalShape = interPoints;
 
+	// Initialize the state;
+	stateText.setString(stateString());
+	stateText.setPosition(10.0f, 10.0f);
+	stateText.setColor(sf::Color::White);
+	stateText.setStyle(sf::Text::Bold);
+	stateText.setFont(font);
+	stateText.setCharacterSize(15);
+
+	instructionText.setString("-- Instructions: --\n\t<b>: Bind cursor\n\t<c>: Cancel move");
+	instructionText.setCharacterSize(15);
+	instructionText.setFont(font);
+	instructionText.setColor(sf::Color::Red);
+	instructionText.setStyle(sf::Text::Bold);
+	instructionText.setOrigin(instructionText.getLocalBounds().width, 0.0f);
+	instructionText.setPosition(sf::RenderWindow::getSize().x - 20.0f, 10.0f);
+
 }
 
 SettingWindow::~SettingWindow() {
@@ -155,15 +174,20 @@ void SettingWindow::updateLoop() {
 	}
 
 
-	if (actionConsistent())
+	if (actionConsistent()) {
 		if (segments.size() > 0) {
+			float rad = 12.5f;
 			sf::Mouse::setPosition(sf::Vector2i(MousePos), *this);
-			sf::CircleShape circ(20);
-			circ.setOrigin(20, 20);
-			circ.setFillColor(sf::Color::Cyan);
+			sf::CircleShape circ(rad);
+			circ.setOrigin(rad, rad);
+			circ.setFillColor(sf::Color::Red);
 			circ.setPosition(segmentPoints.front().point);
 			draw(circ);
 		}
+	}
+
+	draw(instructionText);
+	displayState();
 
 	sf::Event event;
 	while (this->pollEvent(event)) {
