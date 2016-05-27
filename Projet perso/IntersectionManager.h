@@ -4,7 +4,6 @@
 #include "Graph.h"
 
 #include <iterator>
-#include <functional>
 #include "SettingWindow.h"
 
 class Segment {
@@ -167,61 +166,9 @@ public:
 	IntersectionManager();
 	~IntersectionManager();
 
-
-	bool areEqual(const RationalPoint& r1, const RationalPoint& r2) const {
-		if (r1 == r2) {										// Same point on the fundamental polygon
-			return true;
-		} else if (r1.onBoundiary && r2.onBoundiary) {		// Not the same points on the fundamental polygon but they are both on the boundiary
-			assert(window->InternalSys.invert(window->InternalSys.invert(r1)) == r1);
-			return window->InternalSys.invert(r1) == r2;
-		} else {											// They are necessarily not the same!
-			return false;
-		}
-	}
-
+	bool areEqual(const RationalPoint& r1, const RationalPoint& r2) const;
 	unsigned int requestPoint(const RationalPoint& p);
-	Graph generateGraph() {
-
-		std::vector<SplitSegmentWrapper> allSegs;
-		// Regroupment of all the segment founds
-		for (PolyLineCurve& PLC : allCurves) {
-			for (SplitSegmentWrapper& SSW : PLC) {
-				allSegs.push_back(SSW);
-			}
-		}
-		// We compute all the intersections
-		for (size_t i = 0; i < allSegs.size() - 1; ++i) {
-			for (size_t j = i + 1; j < allSegs.size(); ++j) {
-				Segment::IntersectSol sol = allSegs[i].intersectionWith(allSegs[j]);
-				if (sol.solutionIsUnique()) {
-					allSegs[i].split(sol.inter);
-					allSegs[j].split(sol.inter);
-				} else {
-					if (sol.exists && !sol.isUnique) {
-						throw GraphGenerationException();
-					}
-				}
-			}
-		}
-	
-
-		Graph G(intersectionPointsSet.size());
-		std::function<void(const SplitSegmentWrapper& SSW, Graph& G)> fun = [&](const SplitSegmentWrapper& SSW, Graph& G)
-		{
-			if (SSW.isSplit()) {
-				fun(*(SSW.son1), G);
-				fun(*(SSW.son2), G);
-			} else {
-				unsigned int ind1 = requestPoint(SSW.base.p1);
-				unsigned int ind2 = requestPoint(SSW.base.p2);
-				G.addEdge(ind1, ind2);
-			}
-		};
-
-		return G;
-
-	}
-
+	Graph generateGraph();
 
 
 private:

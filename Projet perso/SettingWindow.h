@@ -5,6 +5,8 @@
 #include "SegmentDrawable.h"
 #include "PointOnBoundiaryWrapper.h"
 #include "InternalPositionSystem.h"
+#include "HomologieValue.h"
+#include "IntersectionManager.h"
 
 using Vector2fWrapper = PointOnBoundiaryWrapper<sf::Vector2f>;
 
@@ -35,25 +37,9 @@ public:
 	sf::Vector2f getMousePosition() const;
 	void invert();
 
-	std::string stateString() const {
-		auto bool_to_string = [](bool b) -> std::string {if (b) return "true"; else return "false"; };
-		std::string str("-- Internal State: --\n");
-		str += "\tGenus: " + std::to_string(genus) + "\n";
-		str += "\tX position: " + std::to_string(InternalSys.MouseInternal.x) + "\n";
-		str += "\tY position: " + std::to_string(InternalSys.MouseInternal.y) + "\n";
-		str += "\tBinded: " + bool_to_string(binded) + "\n";
-		str += "\tonClosure: " + bool_to_string(MouseOnClosure()) + "\n";
-		str += "\tonBoundiary: " + bool_to_string(MouseOnBoundiary());
-		if (MouseOnBoundiary()) {
-			str += "\n\tindex: " + std::to_string(InternalSys.index);
-		}
-		return str;
-	}
-
-	void displayState() {
-		stateText.setString(stateString());
-		draw(stateText);
-	}
+	std::string stateString() const;
+	HomologieValue evaluate(const Segment& seg) const;
+	void displayState();
 
 private:
 	int size;

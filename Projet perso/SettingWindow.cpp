@@ -318,3 +318,39 @@ sf::Vector2f SettingWindow::getMousePosition() const {
 void SettingWindow::invert() {
 	InternalSys.invert();
 }
+
+std::string SettingWindow::stateString() const {
+	auto bool_to_string = [](bool b) -> std::string {
+		if (b) return "true";
+		else return "false";
+	};
+	std::string str("-- Internal State: --\n");
+	str += "\tGenus: " + std::to_string(genus) + "\n";
+	str += "\tX position: " + std::to_string(InternalSys.MouseInternal.x) + "\n";
+	str += "\tY position: " + std::to_string(InternalSys.MouseInternal.y) + "\n";
+	str += "\tBinded: " + bool_to_string(binded) + "\n";
+	str += "\tonClosure: " + bool_to_string(MouseOnClosure()) + "\n";
+	str += "\tonBoundiary: " + bool_to_string(MouseOnBoundiary());
+	if (MouseOnBoundiary()) {
+		str += "\n\tindex: " + std::to_string(InternalSys.index);
+	}
+	return str;
+}
+
+HomologieValue SettingWindow::evaluate(const Segment& seg) const {
+	HomologieValue res(2 * genus);
+	if (seg.p2.onBoundiary) {
+		int homoInd = seg.p2.index % (2 * genus);
+		if (seg.p2.index / (2 * genus)) {
+			res[homoInd] = 1;
+		} else {
+			res[homoInd] = -1;
+		}
+	}
+	return res;
+}
+
+void SettingWindow::displayState() {
+	stateText.setString(stateString());
+	draw(stateText);
+}
