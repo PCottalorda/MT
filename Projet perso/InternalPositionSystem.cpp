@@ -34,8 +34,12 @@ void InternalPositionSystem::update() {
 
 	readMousePosition();
 
+
 	onBoundiary = false;
 	onClosure = false;
+	
+	
+	if (!window->actionConsistent()) return;
 
 	//==== Determining the position with regards to the 4n-gon CW-complex of the n-genus surface ====
 	sf::Vector2f form = ratFormsF[0];
@@ -79,7 +83,6 @@ void InternalPositionSystem::update() {
 	//==== Determining the position with regards to the first point (if it exists) ====
 	if (!internalPoints.empty()) {
 		float d2 = dist2(MouseInternal, internalPoints.front().point);
-		std::cerr << d2 << std::endl;
 		if (d2 < 0.005) {
 			onClosure = true;
 			if (authModif) {

@@ -138,7 +138,7 @@ genus(genus),
 	stateText.setFont(font);
 	stateText.setCharacterSize(15);
 
-	instructionText.setString("-- Instructions: --\n\t<b>: Bind cursor\n\t<c>: Cancel move");
+	instructionText.setString("-- Instructions: --\n\t<b>: Bind cursor\n\t<ESC>: Quit the window");
 	instructionText.setCharacterSize(15);
 	instructionText.setFont(font);
 	instructionText.setColor(sf::Color::Red);
@@ -180,7 +180,7 @@ void SettingWindow::updateLoop() {
 
 
 	if (actionConsistent()) {
-		if (segments.size() > 0) {
+		if (!segmentPoints.empty()) {
 			float rad = 12.5f;
 			sf::Mouse::setPosition(sf::Vector2i(MousePos), *this);
 			sf::CircleShape circ(rad);
