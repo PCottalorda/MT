@@ -4,6 +4,7 @@
 #include "IntersectionManager.h"
 #include "SegmentDrawable.h"
 #include "HomologieValue.h"
+#include "EulerianOrientation.h"
 
 class SettingWindow :
 	public sf::RenderWindow {
@@ -20,10 +21,16 @@ public:
 	sf::Vector2f convertWindowToInternal(const sf::Vector2f& v) const;
 	void addPoint(const sf::Vector2f& p, bool onBoudiary, bool addSegment = true);
 	void drawPointSegsAndPos(const sf::Vector2f& p);
-	void cancelMove();
 	bool actionConsistent() const;
 	void invertBinding();
 	void setBinding(bool b);
+	void computeDualUnitaryBall() const {
+		IntersectionManager intersection_manager(this);
+		std::set<HomologieValue> vals = intersection_manager.generateValues();
+		for (auto val : vals) {
+			std::cout << val << std::endl;
+		}
+	}
 
 	// InternalPositionSystem related functions
 	bool MouseOnClosure() const;
@@ -55,6 +62,8 @@ private:
 	std::vector<Point> segmentPoints;
 	std::vector<SegmentDrawable> segments;
 	InternalPositionSystem InternalSys;
+
+	std::vector<PolyLineCurve> lineCurvesSet;
 
 	const sf::Font& font;
 };

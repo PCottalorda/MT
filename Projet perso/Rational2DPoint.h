@@ -37,7 +37,7 @@ public:
 
 	friend std::ostream& operator<<(std::ostream& os, const Rational2DPoint& obj);
 
-	sf::Vector2f toSFMLVector2f();
+	sf::Vector2f toSFMLVector2f() const;
 
 	friend Rational2DForm compute_rat_form(const Rational2DPoint& p1, const Rational2DPoint& p2);
 

@@ -77,12 +77,6 @@ genus(genus),
 		interPoints.push_back(__intersectionPoint(ratFormsF[i], ratFormsF[(i + 1) % ratFormsF.size()]));
 	}
 
-
-	// TODO: SUPPRESS!
-	for (auto it = interPoints.begin(); it != interPoints.end(); ++it) {
-		std::cout << "[" << it->x << ";" << it->y << "]" << std::endl;
-	}
-
 	auto sfVector2f_to_Rational2DPoint = [&](const sf::Vector2f& vec)
 	{
 		Rational x = InternalPositionSystem::floatToRational(vec.x);
@@ -99,9 +93,6 @@ genus(genus),
 		ratInterPoints.push_back(-ratInterPoints[i]);
 	}
 	assert(ratInterPoints.size() == interPoints.size());
-	for (unsigned int i = 0; i < interPoints.size(); ++i) {
-		std::cout << norm(ratInterPoints[i].toSFMLVector2f() - interPoints[i]) << std::endl;
-	}
 
 	center = sf::Vector2f(amplitude, amplitude);
 
@@ -129,6 +120,7 @@ genus(genus),
 	// Complete the initialization of the related InternalPositionSystem.
 	InternalSys.ratFormsF = ratFormsF;
 	InternalSys.internalShape = interPoints;
+	InternalSys.internalRationalShape = ratInterPoints;
 
 	// Initialize the state;
 	stateText.setString(stateString());
@@ -146,6 +138,7 @@ genus(genus),
 	instructionText.setOrigin(instructionText.getLocalBounds().width, 0.0f);
 	instructionText.setPosition(sf::RenderWindow::getSize().x - 20.0f, 10.0f);
 
+	InternalSys.__validity_check();
 }
 
 SettingWindow::~SettingWindow() {
@@ -195,18 +188,18 @@ void SettingWindow::updateLoop() {
 	displayState();
 
 	sf::Event event;
-	while (this->pollEvent(event)) {
+	while (pollEvent(event)) {
 		switch (event.type) {
 			case sf::Event::KeyPressed:
 				switch (event.key.code) {
 					case sf::Keyboard::B:
 						invertBinding();
 						break;
-					case sf::Keyboard::C:
-						cancelMove();
-						break;
 					case sf::Keyboard::Escape:
-						this->close();
+						std::cout << "Compute Unitary Ball..." << std::endl;
+						computeDualUnitaryBall();
+						std::cout << "Unitary Ball computed." << std::endl;
+						close();
 						break;
 					default:
 						break;
@@ -274,22 +267,6 @@ void SettingWindow::drawPointSegsAndPos(const sf::Vector2f& p) {
 	}
 }
 
-void SettingWindow::cancelMove() {
-	if (segmentPoints.size() == 0) {
-		// Nothing to do!
-	} else if (segmentPoints.size() == 1) {
-		segmentPoints.pop_back();
-	} else {
-		segments.pop_back();
-		Point last = segmentPoints.back();
-		if (last.onBoundiary) {
-			segmentPoints.pop_back();
-			segmentPoints.pop_back();
-		} else {
-			segmentPoints.pop_back();
-		}
-	}
-}
 
 bool SettingWindow::actionConsistent() const {
 	return binded && !complete && hasFocus();

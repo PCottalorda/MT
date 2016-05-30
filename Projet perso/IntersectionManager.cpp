@@ -5,6 +5,7 @@
 
 #include "Graph.h"
 #include "SettingWindow.h"
+#include <set>
 
 
 Segment::IntersectSol::IntersectSol(): exists(false), isUnique(false), inter(Rational2DPoint(),false,0) {
@@ -70,7 +71,7 @@ RationalPoint Segment::intersectionWith(const Segment& S) const {
 
 	// We check if we fall directly on one of the extremal point (which is the only case where we can be on boundiary)
 	int index = 0;
-	int onBoundiary = false;
+	bool onBoundiary = false;
 	if (lambda1 == 1) {
 		index = p2.index;
 		onBoundiary = p2.onBoundiary;
@@ -85,7 +86,7 @@ RationalPoint Segment::intersectionWith(const Segment& S) const {
 	assert(S.isAlignedWith(result));
 
 	RationalPoint finalResult(result, onBoundiary, index);
-
+	
 	return finalResult;
 }
 
@@ -491,9 +492,8 @@ size_t PolyLineCurve::size() const {
 	return res;
 }
 
-IntersectionManager::IntersectionManager() : window(nullptr) {
+IntersectionManager::IntersectionManager(const SettingWindow* win) : window(win), allCurves(win->lineCurvesSet) {
 }
-
 
 IntersectionManager::~IntersectionManager() {
 }
@@ -522,8 +522,11 @@ unsigned int IntersectionManager::requestPoint(const RationalPoint& p) {
 	return i;
 }
 
-Graph IntersectionManager::generateGraph() {
+std::set<HomologieValue> IntersectionManager::generateValues() {
 
+	std::set<HomologieValue> homoVal;
+
+	std::cout << "We regroup all the segments found..." << std::endl;
 	std::vector<SplitSegmentWrapper> allSegs;
 	// Regroupment of all the segment founds
 	for (PolyLineCurve& PLC : allCurves) {
@@ -531,9 +534,13 @@ Graph IntersectionManager::generateGraph() {
 			allSegs.push_back(SSW);
 		}
 	}
+	std::cout << "Done!(" << allSegs.size() << " found)" <<  std::endl;
+
+	std::cout << "We compute the intersections... (can take a while)" << std::endl;
 	// We compute all the intersections
-	for (size_t i = 0; i < allSegs.size() - 1; ++i) {
-		for (size_t j = i + 1; j < allSegs.size(); ++j) {
+	for (int i = 0; i < static_cast<int>(allSegs.size()) - 1; ++i) {
+		for (int j = i + 1; j < allSegs.size(); ++j) {
+			std::cout << i << "," << j << std::endl;
 			Segment::IntersectSol sol = allSegs[i].intersectionWith(allSegs[j]);
 			if (sol.solutionIsUnique()) {
 				allSegs[i].split(sol.inter);
@@ -545,8 +552,33 @@ Graph IntersectionManager::generateGraph() {
 			}
 		}
 	}
+	std::cout << "Done..." << std::endl;
+	std::cout.flush();
 
+	std::function<void(const SplitSegmentWrapper& SSW)> fill = [&](const SplitSegmentWrapper& SSW) {
+		if (SSW.isSplit()) {
+			fill(*(SSW.son1));
+			fill(*(SSW.son2));
+		}
+		else {
+			requestPoint(SSW.base.p1);
+			requestPoint(SSW.base.p2);
+		}
+	};
 
+	std::cout << "Regroup the intersection points" << std::endl;
+	for (unsigned int i = 0; i < allSegs.size(); ++i) {
+		fill(allSegs[i]);
+	}
+	std::cout << "Done..." << std::endl;
+
+	if (intersectionPointsSet.empty()) {
+		HomologieValue nullHomoVal(window->genus*2);
+		homoVal.insert(nullHomoVal);
+		return homoVal;
+	}
+
+	std::cout << "Create and fill the graph..." << std::endl;
 	Graph G(intersectionPointsSet.size());
 	std::function<void(const SplitSegmentWrapper& SSW, Graph& Gr)> fun = [&](const SplitSegmentWrapper& SSW, Graph& Gra) {
 		if (SSW.isSplit()) {
@@ -562,9 +594,19 @@ Graph IntersectionManager::generateGraph() {
 	for (unsigned int i = 0; i < allSegs.size(); ++i) {
 		fun(allSegs[i], G);
 	}
+	std::cout << "Done..." << std::endl;
 
-	return G;
+	std::cout << "We generate all the eulerian coorientations..." << std::endl;
+	std::vector<EulerianOrientation> eulOris = G.generateAllEulerianOrientations();
+	std::cout << "Done... (" << eulOris.size() << " found)." << std::endl;
 
+	std::cout << "Evaluation of all the eulerian coorientation found..." << std::endl;
+	for (const EulerianOrientation& eulOri : eulOris) {
+		homoVal.insert(eulOri.cycleValue());
+	}
+	std::cout << "Done..." << std::endl;
+
+	return homoVal;
 }
 
 bool operator==(const Segment& lhs, const Segment& rhs) {

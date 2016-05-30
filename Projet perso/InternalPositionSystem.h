@@ -27,11 +27,16 @@ public:
 	void setMouseInternal(const sf::Vector2f& v);
 	void addPoint();
 	void invert();
-	RationalPoint invert(const RationalPoint& p);
+	RationalPoint invert(const RationalPoint& p) const ;
 	std::vector<RationalPoint> exportPoints();
 	static Rational floatToRational(float f);
 
-	PolyLineCurve exportAndReinitialize();
+	void exportAndReinitialize();
+	void reset();
+	void __validity_check() const {
+		assert(internalShape.size() == internalRationalShape.size());
+		assert(internalShape.size() == ratFormsF.size());
+	}
 
 private:
 	bool onBoundiary;

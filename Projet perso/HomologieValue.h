@@ -19,6 +19,22 @@ public:
 
 	friend bool operator==(const HomologieValue& lhs, const HomologieValue& rhs);
 	friend bool operator!=(const HomologieValue& lhs, const HomologieValue& rhs);
+	friend bool operator<(const HomologieValue& lhs, const HomologieValue& rhs) {
+		if (lhs.dimension() != rhs.dimension()) {
+			throw DimensionException();
+		}
+		for (int i = 0; i < lhs.dimension(); ++i) {
+			if (lhs[i] == rhs[i]) {
+				continue;
+			}
+			else if (lhs[i] < rhs[i]) {
+				return true;
+			} else {
+				return false;
+			}
+		}
+		return false;
+	}
 
 	int operator[](int i) const;
 	int& operator[](int i);

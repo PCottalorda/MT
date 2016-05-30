@@ -107,7 +107,7 @@ Rational Rational2DPoint::det(const Rational2DPoint& p1, const Rational2DPoint& 
 	return p1.x * p2.y - p1.y * p2.x;
 };
 
-sf::Vector2f Rational2DPoint::toSFMLVector2f() {
+sf::Vector2f Rational2DPoint::toSFMLVector2f() const {
 	return sf::Vector2f(static_cast<float>(x), static_cast<float>(y));
 };
 

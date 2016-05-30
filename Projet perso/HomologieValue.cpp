@@ -92,7 +92,7 @@ HomologieValue operator-(HomologieValue lhs, const HomologieValue& rhs) {
 
 std::ostream& operator<<(std::ostream& os, const HomologieValue& hVal) {
 	os << "[";
-	for (unsigned int i = 0; i < hVal.base.size() - 1; ++i) {
+	for (int i = 0; i < static_cast<int>(hVal.base.size()) - 1; ++i) {
 		os << hVal.base[i] << ",";
 	}
 	if (hVal.dimension() != 0) {

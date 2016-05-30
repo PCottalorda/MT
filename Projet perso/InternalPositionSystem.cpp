@@ -2,7 +2,6 @@
 
 #include "SettingWindow.h"
 #include "IntersectionManager.h"
-#include <iostream>
 
 namespace {
 	float project(const sf::Vector2f& v, const sf::Vector2f& form) {
@@ -20,11 +19,11 @@ namespace {
 }
 
 InternalPositionSystem::InternalPositionSystem(SettingWindow* w) :
-	window(w),
-	onClosure(false),
-	authModif(true),
-	onBoundiary(false),
-	index(0) {
+window(w),
+onClosure(false),
+authModif(true),
+onBoundiary(false),
+index(0) {
 	// ratFormF initialized in SettingWindow::SettingWindow()
 	// internalShape initialized in SettingWindow::SettingWindow()
 }
@@ -37,8 +36,8 @@ void InternalPositionSystem::update() {
 
 	onBoundiary = false;
 	onClosure = false;
-	
-	
+
+
 	if (!window->actionConsistent()) return;
 
 	//==== Determining the position with regards to the 4n-gon CW-complex of the n-genus surface ====
@@ -70,7 +69,8 @@ void InternalPositionSystem::update() {
 		float coeff = project(nP, X) / norm2(X);
 		if (coeff < 0.01f) {
 			coeff = 0.01f;
-		} else if (coeff > 0.99f) {
+		}
+		else if (coeff > 0.99f) {
 			coeff = 0.99f;
 		}
 		sf::Vector2f newPos = coeff * p2 + (1 - coeff) * p1;
@@ -120,12 +120,14 @@ void InternalPositionSystem::addPoint() {
 	if (onBoundiary) {
 		if (internalPoints.empty()) { // The first point is located on the border
 			return;
-		} else {
+		}
+		else {
 			// We check if the last point was onBoundiary
 			// TODO: Restrict to same boundiary!
 			if (internalPoints.back().index == index) {
 				// We do nothing!
-			} else {
+			}
+			else {
 				// We add the new boundiary point
 				// TODO: Add the new points
 				internalPoints.push_back(Point(MouseInternal, true, index));
@@ -135,20 +137,24 @@ void InternalPositionSystem::addPoint() {
 				window->addPoint(MouseInternal, true, false);
 			}
 		}
-	} else {
+	}
+	else {
 		// WE REMIND THAT THE FIRST POINT IS NEVER ON BOUNDIARY 
 		// (onClosure and onBoundiary are never both true at the same time)
 
 		if (internalPoints.empty()) {
 			internalPoints.push_back(Point(MouseInternal, false, -1));
 			window->addPoint(MouseInternal, true, false);
-		} else {
+		}
+		else {
 			if (onClosure) {
 				// We do not add any point!
 				window->complete = true;
 				window->setBinding(false);
 				window->addPoint(MouseInternal, true, true);
-			} else {
+				exportAndReinitialize();
+			}
+			else {
 				internalPoints.push_back(Point(MouseInternal, false, -1));
 				window->addPoint(MouseInternal, true, true);
 			}
@@ -170,14 +176,14 @@ void InternalPositionSystem::invert() {
 	writeMousePosition();
 }
 
-RationalPoint InternalPositionSystem::invert(const RationalPoint& p) {
+RationalPoint InternalPositionSystem::invert(const RationalPoint& p) const {
 	assert(p.onBoundiary);
 	assert(internalShape.size() % 2 == 0);
 	int ind1 = p.index;
 	int ind2 = (ind1 - 1 + internalShape.size()) % internalShape.size();
 	Rational2DPoint p1 = internalRationalShape[ind1];
 	Rational2DPoint p2 = internalRationalShape[ind2];
-	assert(Rational2DPoint::det(p1-p.point,p2-p.point) == 0);
+	assert(Rational2DPoint::det(p1 - p.point, p2 - p.point) == 0);
 	Rational2DPoint middle = Rational(1, 2) * (p1 + p2);
 	Rational2DPoint diff_midlle = p.point - middle;
 	middle = Rational(-1) * middle; // We go to the opposite!
@@ -188,13 +194,62 @@ RationalPoint InternalPositionSystem::invert(const RationalPoint& p) {
 }
 
 std::vector<RationalPoint> InternalPositionSystem::exportPoints() {
+	auto boundiaryfind = [&](const Point& p)
+	{
+		auto findLambda = [](const sf::Vector2f& v1, const sf::Vector2f& v2)
+		{
+			return v1.x*v2.x + v1.y*v2.y / (v2.x*v2.x + v2.y*v2.y);
+		};
+		assert(p.onBoundiary);
+		int ind1 = p.index;
+		int ind2 = (ind1 - 1 + internalShape.size()) % internalShape.size();
+		Rational2DPoint rp1 = internalRationalShape[ind1];
+		Rational2DPoint rp2 = internalRationalShape[ind2];
+		sf::Vector2f p1 = internalShape[ind1];
+		sf::Vector2f p2 = internalShape[ind2];
+		float lambda = findLambda(p.point - p1, p2 - p1);
+		assert(lambda >= 0 && lambda <= 1);
+		Rational rLambda = floatToRational(lambda);
+		Rational2DPoint newP = rp1 + rLambda*(rp2 - rp1);
+		return newP;
+	};
 	std::vector<RationalPoint> res;
-	for (const Point& p : internalPoints) {
-		// TODO: ameliorate!
-		Rational2DPoint rPBase(floatToRational(p.point.x), floatToRational(p.point.y));
-		RationalPoint rP(rPBase, p.onBoundiary, p.index);
-		res.push_back(rP);
+	auto PointToRationalPoint = [&res,&boundiaryfind](const Point& p) {
+		if (p.onBoundiary) {
+			Rational2DPoint rPBase(boundiaryfind(p));
+			RationalPoint rP(rPBase, p.onBoundiary, p.index);
+			return rP;
+		}
+		else {
+			Rational2DPoint rPBase(floatToRational(p.point.x), floatToRational(p.point.y));
+			RationalPoint rP(rPBase, p.onBoundiary, p.index);
+			return rP;
+		}
+	};
+	for (int i = 0; i < internalPoints.size(); ++i) {
+		Point p = internalPoints[i];
+		if (p.onBoundiary) {
+			RationalPoint rP = PointToRationalPoint(p);
+			RationalPoint rP2 = invert(rP);
+			++i;
+			res.push_back(rP);
+			res.push_back(rP2);
+		} else {
+			RationalPoint rP = PointToRationalPoint(p);
+			res.push_back(rP);
+		}
 	}
+	
+	assert(res.size() == internalPoints.size());
+	for (int i = 0; i < res.size(); ++i) {
+		auto dist = [](const RationalPoint& rP, const Point& p)
+		{
+			sf::Vector2f vec = p.point - rP.point.toSFMLVector2f();
+			return sqrtf(vec.x*vec.x + vec.y*vec.y);
+		};
+		std::cout << dist(res[i], internalPoints[i]) << std::endl;
+	}
+
 	return res;
 }
 
@@ -230,24 +285,30 @@ Rational InternalPositionSystem::floatToRational(float f) {
 	return base * expo * (f_transf.parts.sign ? -1 : 1);
 }
 
-PolyLineCurve InternalPositionSystem::exportAndReinitialize() {
+void InternalPositionSystem::exportAndReinitialize() {
 	std::vector<RationalPoint> res = exportPoints();
 	assert(!res.empty());
-	internalPoints.clear();
 	std::vector<Segment> segs;
 	RationalPoint prev = res.front();
-	for (unsigned int i = 1; i < res.size(); ++i) {
-		RationalPoint current = res[i];
+	for (unsigned int i = 1; i < res.size() +1; ++i) {
+		RationalPoint current = res[i%res.size()];
 		Segment seg(prev, current);
 		segs.push_back(seg);
 		if (current.onBoundiary) {
 			++i;
-			prev = res[i];
-		} else {
+			prev = res[i%res.size()];
+		}
+		else {
 			prev = current;
 		}
 	}
-	return PolyLineCurve(segs);
+	window->lineCurvesSet.push_back(PolyLineCurve(segs));
+	reset();
+}
+
+void InternalPositionSystem::reset() {
+	internalPoints.clear();
+	update();
 }
 
 InternalPositionSystem::~InternalPositionSystem() {

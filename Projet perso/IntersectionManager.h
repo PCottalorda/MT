@@ -1,6 +1,9 @@
 #pragma once
 #include <exception>
+#include <set>
+
 #include "InternalPositionSystem.h"
+#include "HomologieValue.h"
 
 class Graph;
 class SettingWindow;
@@ -162,16 +165,15 @@ class IntersectionManager {
 	class GraphGenerationException : public std::exception {};
 
 public:
-	IntersectionManager();
+	IntersectionManager(const SettingWindow*);
 	~IntersectionManager();
 
 	bool areEqual(const RationalPoint& r1, const RationalPoint& r2) const;
 	unsigned int requestPoint(const RationalPoint& p);
-	Graph generateGraph();
-
+	std::set<HomologieValue> generateValues();
 
 private:
 	std::vector<RationalPoint> intersectionPointsSet;
 	std::vector<PolyLineCurve> allCurves;
-	SettingWindow* window;
+	const SettingWindow* window;
 };
