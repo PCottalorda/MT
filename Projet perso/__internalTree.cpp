@@ -1,6 +1,8 @@
 #include "__internalTree.h"
 
 
+#include "Rational.h"
+
 __internalTree::__internalTree(Rational2DPoint __x1, Rational2DPoint __x2, std::function<Rational(const Rational2DPoint&)> norm) :
 	x1(__x1),
 	x2(__x2),

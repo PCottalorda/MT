@@ -1,7 +1,6 @@
 #include "Edge.h"
 #include "Node.h"
 
-
 #include <exception>
 
 Edge::Edge(Node* n1, Node* n2, uint64_t id,HomologieValue value) :

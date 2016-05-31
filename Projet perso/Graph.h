@@ -32,8 +32,8 @@ private:
 	std::unordered_set<const Node*> __fast_ptr_nodes;
 	unsigned int numberVertices;
 
-	uint64_t internalNodeCounter;
-	uint64_t internalEdgeCounter;
+	int internalNodeCounter;
+	int internalEdgeCounter;
 	std::vector<Node *> nodes;
 	std::vector<Edge *> edges;
 

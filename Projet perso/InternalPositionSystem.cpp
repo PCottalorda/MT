@@ -245,7 +245,7 @@ std::vector<RationalPoint> InternalPositionSystem::exportPoints() {
 
 
 	int genus = window->genus;
-	int i = 0;
+	size_t i = 0;
 	while (i < internalPoints.size()) {
 		Point& p = internalPoints[i];
 		if (p.onBoundiary) {
@@ -266,7 +266,7 @@ std::vector<RationalPoint> InternalPositionSystem::exportPoints() {
 	assert(res.size() == internalPoints.size());
 	
 	assert(res.size() == internalPoints.size());
-	for (int i = 0; i < res.size(); ++i) {
+	for (size_t i = 0; i < res.size(); ++i) {
 		auto dist = [](const RationalPoint& rP, const Point& p)
 		{
 			sf::Vector2f vec = p.point - rP.point.toSFMLVector2f();

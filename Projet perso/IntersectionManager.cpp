@@ -540,7 +540,7 @@ std::set<HomologieValue> IntersectionManager::generateValues() {
 	std::cout << "We compute the intersections... (can take a while)" << std::endl;
 	// We compute all the intersections
 	for (int i = 0; i < static_cast<int>(allSegs.size()) - 1; ++i) {
-		for (int j = i + 1; j < allSegs.size(); ++j) {
+		for (size_t j = i + 1; j < allSegs.size(); ++j) {
 			std::cout << i << "," << j << std::endl;
 			Segment::IntersectSol sol = allSegs[i].intersectionWith(allSegs[j]);
 			if (sol.solutionIsUnique()) {

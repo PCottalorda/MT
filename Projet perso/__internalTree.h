@@ -3,9 +3,7 @@
 #include <vector>
 #include <functional>
 
-#include "Rational.h"
 #include "Rational2DPoint.h"
-#include "Rational2DForm.h"
 
 
 class __internalTree {
