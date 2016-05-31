@@ -1,7 +1,9 @@
 #pragma once
 
-#include <iostream>
 #include <cstdint>
+#include <iostream>
+
+#include "HomologieValue.h"
 
 class Node;
 
@@ -13,14 +15,17 @@ enum Orientation {
 class Edge {
 	friend class Graph;
 	friend class Node;
+	friend class EulerianOrientation;
 
 public:
 	Edge(const Edge& other);
 	Edge(Edge&& other);
-	~Edge();
 
 	Edge& operator=(const Edge& other);
 	Edge& operator=(Edge&& other);
+
+	~Edge();
+
 
 	bool isLocked() const;
 	void lock();
@@ -45,11 +50,20 @@ public:
 
 	uint64_t getId() const;
 
-	friend bool operator<(const Edge& e1, const Edge& e2) {
-		return e1.id < e2.id;
+	friend bool operator<(const Edge& e1, const Edge& e2);
+	friend std::ostream& operator<<(std::ostream& os, const Edge& e);
+
+	HomologieValue getHomologieValue() const {
+		if (ori == STANDARD) {
+			return value;
+		} else {	// ori == REVERSE
+			return -value;
+		}
 	}
 
-	friend std::ostream& operator<<(std::ostream& os, const Edge& e);
+	unsigned int dimension() const {
+		return value.dimension();
+	}
 
 protected:
 	Node* Node1;
@@ -57,8 +71,9 @@ protected:
 	Orientation ori;
 	bool locked;
 	uint64_t id;
+	HomologieValue value;
 
-	Edge(Node* node1, Node* node2, uint64_t id);
+	Edge(Node* node1, Node* node2, uint64_t id, HomologieValue value);
 };
 
 std::ostream& operator<<(std::ostream& os, const Edge& e);

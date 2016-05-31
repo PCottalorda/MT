@@ -1,5 +1,6 @@
 #pragma once
 
+#include <utility>
 
 template <typename T>
 class PointOnBoundiaryWrapper {
@@ -13,7 +14,6 @@ public:
 	PointOnBoundiaryWrapper(PointOnBoundiaryWrapper&& other);
 	PointOnBoundiaryWrapper& operator=(const PointOnBoundiaryWrapper& other);
 	PointOnBoundiaryWrapper& operator=(PointOnBoundiaryWrapper&& other);
-
 
 	friend bool operator==(const PointOnBoundiaryWrapper& lhs, const PointOnBoundiaryWrapper& rhs) {
 		return lhs.point == rhs.point
@@ -29,6 +29,7 @@ public:
 	bool onBoundiary;
 	int index;
 };
+
 
 template <typename T>
 PointOnBoundiaryWrapper<T>::PointOnBoundiaryWrapper(const T& point, bool on_boundiary, int index): point(point),

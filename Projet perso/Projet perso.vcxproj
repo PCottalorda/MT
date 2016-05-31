@@ -70,7 +70,9 @@
     <ClCompile Include="Edge.cpp" />
     <ClCompile Include="EulerianOrientation.cpp" />
     <ClCompile Include="Graph.cpp" />
+    <ClCompile Include="HomologieValue.cpp" />
     <ClCompile Include="InternalPositionSystem.cpp" />
+    <ClCompile Include="IntersectionManager.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Node.cpp" />
     <ClCompile Include="NormObject.cpp" />
@@ -89,7 +91,9 @@
     <ClInclude Include="Edge.h" />
     <ClInclude Include="EulerianOrientation.h" />
     <ClInclude Include="Graph.h" />
+    <ClInclude Include="HomologieValue.h" />
     <ClInclude Include="InternalPositionSystem.h" />
+    <ClInclude Include="IntersectionManager.h" />
     <ClInclude Include="PointOnBoundiaryWrapper.h" />
     <ClInclude Include="Rational2DForm.h" />
     <ClInclude Include="Node.h" />
@@ -101,6 +105,9 @@
     <ClInclude Include="SegmentDrawable.h" />
     <ClInclude Include="SettingWindow.h" />
     <ClInclude Include="__internalTree.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <Font Include="..\..\Projet perso\Projet perso\arial.ttf" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

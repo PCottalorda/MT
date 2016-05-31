@@ -14,6 +14,7 @@ public:
 	~EulerianOrientation();
 
 	std::string generateGraphVizString() const;
+	HomologieValue cycleValue() const;
 
 private:
 

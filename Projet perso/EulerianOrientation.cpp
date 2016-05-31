@@ -4,6 +4,7 @@
 #include "Graph.h"
 
 #include <string>
+#include <cassert>
 
 std::string EulerianOrientation::generateGraphVizString() const {
 	std::string graphVizString("");
@@ -12,6 +13,15 @@ std::string EulerianOrientation::generateGraphVizString() const {
 			+ "\" -> \"" + std::to_string(internalNumber) + "_" + std::to_string(e.getDestination()->getInternalNumber()) + "\"\n";
 	}
 	return graphVizString;
+}
+
+HomologieValue EulerianOrientation::cycleValue() const {
+	assert(!edges.empty());
+	HomologieValue res(edges.front().dimension());
+	for (const Edge& e : edges) {
+		res += e.getHomologieValue();
+	}
+	return res;
 }
 
 EulerianOrientation::EulerianOrientation(Graph* G, int tag):

@@ -13,7 +13,7 @@ public:
 	~Graph();
 
 
-	void addEdge(int i, int j);
+	void addEdge(int i, int j, const HomologieValue& value = HomologieValue(1));
 	std::vector<Edge*>& getEdges();
 	std::vector<Node*>& getNodes();
 
@@ -32,8 +32,8 @@ private:
 	std::unordered_set<const Node*> __fast_ptr_nodes;
 	unsigned int numberVertices;
 
-	uint64_t internalNodeCounter;
-	uint64_t internalEdgeCounter;
+	int internalNodeCounter;
+	int internalEdgeCounter;
 	std::vector<Node *> nodes;
 	std::vector<Edge *> edges;
 

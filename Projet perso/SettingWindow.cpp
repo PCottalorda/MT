@@ -1,5 +1,10 @@
 #include "SettingWindow.h"
 
+#include <SFML/Graphics.hpp>
+#include "SegmentDrawable.h"
+#include "HomologieValue.h"
+#include "InternalPositionSystem.h"
+#include "IntersectionManager.h"
 
 static const float PI = 3.14159265358979323846f;
 
@@ -10,8 +15,7 @@ namespace {
 		float r = p1.x * p2.y - p2.x * p1.y;
 		if (r == 0) {
 			return sf::Vector2f(0, 0);
-		}
-		else {
+		} else {
 			return f /= r;
 		}
 	}
@@ -31,17 +35,25 @@ namespace {
 		return v.x * form.x + v.y * form.y;
 	}
 
+	float norm(const sf::Vector2f& v) {
+		return sqrtf(v.x*v.x + v.y*v.y);
+	}
+
 }
 
-SettingWindow::SettingWindow(unsigned size, unsigned genus) :
-	sf::RenderWindow(sf::VideoMode(size, size), "SettingWindows"),
-	size(size),
+SettingWindow::SettingWindow(unsigned int size, unsigned int genus, const sf::Font& font) :
+sf::RenderWindow(sf::VideoMode(size, size), "SettingWindows"),
+size(size),
+genus(genus),
 	binded(true),
 	complete(false),
 	amplitude(size / 2.0f),
 	cursorStandard(10.0f),
 	cursorBoundiary(15.0f),
-	InternalSys(this) {
+	InternalSys(this),
+	font(font),
+	indiceFirstPoint(0)
+{
 	// Exceptions
 	if (size <= 0)
 		throw std::exception();
@@ -54,9 +66,9 @@ SettingWindow::SettingWindow(unsigned size, unsigned genus) :
 
 
 	// Compute rationalForms
-	float rotAngle = PI / genus;
+	float rotAngle = PI / (2*genus);
 	sf::Vector2f axis(1.0f, 0.0f);
-	for (size_t i = 0; i < 2 * genus; i++) {
+	for (size_t i = 0; i < 4 * genus; i++) {
 		ratFormsF.push_back(axis);
 		__rotate(axis, rotAngle);
 	}
@@ -65,6 +77,23 @@ SettingWindow::SettingWindow(unsigned size, unsigned genus) :
 	for (size_t i = 0; i < ratFormsF.size(); i++) {
 		interPoints.push_back(__intersectionPoint(ratFormsF[i], ratFormsF[(i + 1) % ratFormsF.size()]));
 	}
+
+	auto sfVector2f_to_Rational2DPoint = [&](const sf::Vector2f& vec)
+	{
+		Rational x = InternalPositionSystem::floatToRational(vec.x);
+		Rational y = InternalPositionSystem::floatToRational(vec.y);
+		return Rational2DPoint(x, y);
+	};
+
+	std::vector<Rational2DPoint> ratInterPoints;
+	for (size_t i = 0; i < interPoints.size() / 2; ++i) {
+		ratInterPoints.push_back(sfVector2f_to_Rational2DPoint(interPoints[i]));
+	}
+	assert(ratInterPoints.size() == interPoints.size() / 2);
+	for (size_t i = 0; i < interPoints.size() / 2; ++i) {
+		ratInterPoints.push_back(-ratInterPoints[i]);
+	}
+	assert(ratInterPoints.size() == interPoints.size());
 
 	center = sf::Vector2f(amplitude, amplitude);
 
@@ -92,7 +121,38 @@ SettingWindow::SettingWindow(unsigned size, unsigned genus) :
 	// Complete the initialization of the related InternalPositionSystem.
 	InternalSys.ratFormsF = ratFormsF;
 	InternalSys.internalShape = interPoints;
+	InternalSys.internalRationalShape = ratInterPoints;
 
+	assert(InternalSys.internalShape.size() == InternalSys.internalRationalShape.size());
+	/*
+	for (size_t i = 0; i < interPoints.size(); ++i) {
+		std::cout << "[" << InternalSys.internalShape[i].x << "," << InternalSys.internalShape[i].y << "]" << std::endl;
+	}
+	for (size_t i = 0; i < ratInterPoints.size(); ++i) {
+		std::cout << InternalSys.internalRationalShape[i] << " | "; InternalSys.internalRationalShape[i].prettyPrint();
+	}	
+	for (size_t i = 0; i < InternalSys.internalShape.size(); ++i) {
+		//std::cout << norm(interPoints[i] - ratInterPoints[i].toSFMLVector2f()) << std::endl;
+	}
+	*/
+
+	// Initialize the state;
+	stateText.setString(stateString());
+	stateText.setPosition(10.0f, 10.0f);
+	stateText.setColor(sf::Color::White);
+	stateText.setStyle(sf::Text::Bold);
+	stateText.setFont(font);
+	stateText.setCharacterSize(15);
+
+	instructionText.setString("-- Instructions: --\n\t<b>: Bind cursor\n\t<ESC>: Quit the window");
+	instructionText.setCharacterSize(15);
+	instructionText.setFont(font);
+	instructionText.setColor(sf::Color::Red);
+	instructionText.setStyle(sf::Text::Bold);
+	instructionText.setOrigin(instructionText.getLocalBounds().width, 0.0f);
+	instructionText.setPosition(sf::RenderWindow::getSize().x - 20.0f, 10.0f);
+
+	InternalSys.__validity_check();
 }
 
 SettingWindow::~SettingWindow() {
@@ -119,37 +179,41 @@ void SettingWindow::updateLoop() {
 		if (MouseOnBoundiary()) {
 			cursorBoundiary.setPosition(MousePos);
 			draw(cursorBoundiary);
-		}
-		else {
+		} else {
 			cursorStandard.setPosition(MousePos);
 			draw(cursorStandard);
 		}
 	}
 
 
-	if (actionConsistent())
-		if (segments.size() > 0) {
+	if (actionConsistent()) {
+		if (!InternalSys.internalPoints.empty()) {
+			float rad = 12.5f;
 			sf::Mouse::setPosition(sf::Vector2i(MousePos), *this);
-			sf::CircleShape circ(20);
-			circ.setOrigin(20, 20);
-			circ.setFillColor(sf::Color::Cyan);
-			circ.setPosition(segmentPoints.front().point);
+			sf::CircleShape circ(rad);
+			circ.setOrigin(rad, rad);
+			circ.setFillColor(sf::Color::Red);
+			circ.setPosition(segmentPoints[indiceFirstPoint].point);
 			draw(circ);
 		}
+	}
+
+	draw(instructionText);
+	displayState();
 
 	sf::Event event;
-	while (this->pollEvent(event)) {
+	while (pollEvent(event)) {
 		switch (event.type) {
 			case sf::Event::KeyPressed:
 				switch (event.key.code) {
 					case sf::Keyboard::B:
 						invertBinding();
 						break;
-					case sf::Keyboard::C:
-						cancelMove();
-						break;
 					case sf::Keyboard::Escape:
-						this->close();
+						std::cout << "Compute Unitary Ball (this can take a while)..." << std::endl;
+						computeDualUnitaryBall();
+						std::cout << "Done." << std::endl;
+						close();
 						break;
 					default:
 						break;
@@ -184,12 +248,11 @@ sf::Vector2f SettingWindow::convertWindowToInternal(const sf::Vector2f& v) const
 void SettingWindow::addPoint(const sf::Vector2f& p, bool onBoudiary, bool addSegment) {
 	sf::Vector2f _p = convertInternalToWindow(p);
 	if (segmentPoints.size() == 0) {
-		segmentPoints.push_back(Vector2fWrapper(_p, onBoudiary, -1));
-	}
-	else {
+		segmentPoints.push_back(Point(_p, onBoudiary, -1));
+	} else {
 		if (p != segmentPoints.back().point) {
 			sf::Vector2f p_prec = segmentPoints.back().point;
-			segmentPoints.push_back(Vector2fWrapper(_p, onBoudiary, -1));
+			segmentPoints.push_back(Point(_p, onBoudiary, -1));
 			if (addSegment) {
 				segments.push_back(SegmentDrawable(p_prec, _p, 3, sf::Color::Magenta));
 			}
@@ -212,31 +275,12 @@ void SettingWindow::drawPointSegsAndPos(const sf::Vector2f& p) {
 	}
 
 	if (actionConsistent()) {
-		if (segmentPoints.size() != 0) {
+		if (InternalSys.internalPoints.size() != 0) {
 			this->draw(SegmentDrawable(p, segmentPoints.back().point, 3, sf::Color::Magenta));
 		}
 	}
 }
 
-void SettingWindow::cancelMove() {
-	if (segmentPoints.size() == 0) {
-		// Nothing to do!
-	}
-	else if (segmentPoints.size() == 1) {
-		segmentPoints.pop_back();
-	}
-	else {
-		segments.pop_back();
-		Vector2fWrapper last = segmentPoints.back();
-		if (last.onBoundiary) {
-			segmentPoints.pop_back();
-			segmentPoints.pop_back();
-		}
-		else {
-			segmentPoints.pop_back();
-		}
-	}
-}
 
 bool SettingWindow::actionConsistent() const {
 	return binded && !complete && hasFocus();
@@ -249,6 +293,14 @@ void SettingWindow::invertBinding() {
 void SettingWindow::setBinding(bool b) {
 	binded = b;
 	setMouseCursorVisible(!binded);
+}
+
+void SettingWindow::computeDualUnitaryBall() const {
+	IntersectionManager intersection_manager(this);
+	std::set<HomologieValue> vals = intersection_manager.generateValues();
+	for (auto val : vals) {
+		std::cout << val << std::endl;
+	}
 }
 
 bool SettingWindow::MouseOnClosure() const {
@@ -269,4 +321,40 @@ sf::Vector2f SettingWindow::getMousePosition() const {
 
 void SettingWindow::invert() {
 	InternalSys.invert();
+}
+
+std::string SettingWindow::stateString() const {
+	auto bool_to_string = [](bool b) -> std::string {
+		if (b) return "true";
+		else return "false";
+	};
+	std::string str("-- Internal State: --\n");
+	str += "\tGenus: " + std::to_string(genus) + "\n";
+	str += "\tX position: " + std::to_string(InternalSys.MouseInternal.x) + "\n";
+	str += "\tY position: " + std::to_string(InternalSys.MouseInternal.y) + "\n";
+	str += "\tBinded: " + bool_to_string(binded) + "\n";
+	str += "\tonClosure: " + bool_to_string(MouseOnClosure()) + "\n";
+	str += "\tonBoundiary: " + bool_to_string(MouseOnBoundiary());
+	if (MouseOnBoundiary()) {
+		str += "\n\tindex: " + std::to_string(InternalSys.index);
+	}
+	return str;
+}
+
+HomologieValue SettingWindow::evaluate(const Segment& seg) const {
+	HomologieValue res(2 * genus);
+	if (seg.p2.onBoundiary) {
+		int homoInd = seg.p2.index % (2 * genus);
+		if (seg.p2.index / (2 * genus)) {
+			res[homoInd] = 1;
+		} else {
+			res[homoInd] = -1;
+		}
+	}
+	return res;
+}
+
+void SettingWindow::displayState() {
+	stateText.setString(stateString());
+	draw(stateText);
 }

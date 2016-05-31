@@ -41,6 +41,10 @@ Rational2DPoint& Rational2DPoint::operator/=(const Rational& r) {
 	x /= r;
 	y /= r;
 	return *this;
+}
+
+Rational2DPoint Rational2DPoint::operator-() const {
+	return Rational2DPoint(-x, -y);
 };
 
 Rational2DPoint operator+(const Rational2DPoint& p1, const Rational2DPoint& p2) {
@@ -71,6 +75,14 @@ Rational2DPoint operator/(const Rational2DPoint& p, const Rational& r) {
 	Rational2DPoint pp(p);
 	pp /= r;
 	return pp;
+}
+
+bool operator==(const Rational2DPoint& p1, const Rational2DPoint& p2) {
+	return (p1.x == p2.x) && (p1.y == p2.y);
+}
+
+bool operator!=(const Rational2DPoint& p1, const Rational2DPoint& p2) {
+	return !(p1 == p2);
 };
 
 
@@ -82,20 +94,20 @@ bool Rational2DPoint::operator!=(const Rational2DPoint& p) {
 	return (x != p.x) || (y != p.y);
 };
 
-Rational2DPoint middle(const Rational2DPoint& p1, const Rational2DPoint& p2) {
+Rational2DPoint Rational2DPoint::middle(const Rational2DPoint& p1, const Rational2DPoint& p2) {
 	return Rational(1, 2) * (p1 + p2);
 };
 
 
-Rational dotProduct(const Rational2DPoint& p1, const Rational2DPoint& p2) {
+Rational Rational2DPoint::dotProduct(const Rational2DPoint& p1, const Rational2DPoint& p2) {
 	return p1.x * p2.x + p1.y * p2.y;
 };
 
-Rational det(const Rational2DPoint& p1, const Rational2DPoint& p2) {
+Rational Rational2DPoint::det(const Rational2DPoint& p1, const Rational2DPoint& p2) {
 	return p1.x * p2.y - p1.y * p2.x;
 };
 
-sf::Vector2f Rational2DPoint::toSFMLVector2f() {
+sf::Vector2f Rational2DPoint::toSFMLVector2f() const {
 	return sf::Vector2f(static_cast<float>(x), static_cast<float>(y));
 };
 
