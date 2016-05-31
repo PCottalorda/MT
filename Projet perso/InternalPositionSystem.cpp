@@ -145,6 +145,7 @@ void InternalPositionSystem::addPoint() {
 		if (internalPoints.empty()) {
 			internalPoints.push_back(Point(MouseInternal, false, -1));
 			window->addPoint(MouseInternal, true, false);
+			window->resetIndiceFirstPoint();
 		}
 		else {
 			if (onClosure) {
@@ -153,6 +154,8 @@ void InternalPositionSystem::addPoint() {
 				window->setBinding(false);
 				window->addPoint(MouseInternal, true, true);
 				exportAndReinitialize();
+				window->complete = false;
+				window->setBinding(true);
 			}
 			else {
 				internalPoints.push_back(Point(MouseInternal, false, -1));
@@ -369,7 +372,7 @@ void InternalPositionSystem::exportAndReinitialize() {
 			prev = current;
 		}
 	}
-	window->lineCurvesSet.push_back(PolyLineCurve(segs));
+	window->lineCurvesSet.push_back(PolyLineCurve(segs));	
 	reset();
 }
 

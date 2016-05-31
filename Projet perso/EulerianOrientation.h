@@ -3,7 +3,6 @@
 #include <vector>
 
 #include "Edge.h"
-#include <cassert>
 
 class Graph;
 

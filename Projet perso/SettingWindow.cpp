@@ -51,7 +51,8 @@ genus(genus),
 	cursorStandard(10.0f),
 	cursorBoundiary(15.0f),
 	InternalSys(this),
-	font(font)
+	font(font),
+	indiceFirstPoint(0)
 {
 	// Exceptions
 	if (size <= 0)
@@ -186,13 +187,13 @@ void SettingWindow::updateLoop() {
 
 
 	if (actionConsistent()) {
-		if (!segmentPoints.empty()) {
+		if (!InternalSys.internalPoints.empty()) {
 			float rad = 12.5f;
 			sf::Mouse::setPosition(sf::Vector2i(MousePos), *this);
 			sf::CircleShape circ(rad);
 			circ.setOrigin(rad, rad);
 			circ.setFillColor(sf::Color::Red);
-			circ.setPosition(segmentPoints.front().point);
+			circ.setPosition(segmentPoints[indiceFirstPoint].point);
 			draw(circ);
 		}
 	}
@@ -209,9 +210,9 @@ void SettingWindow::updateLoop() {
 						invertBinding();
 						break;
 					case sf::Keyboard::Escape:
-						std::cout << "Compute Unitary Ball..." << std::endl;
+						std::cout << "Compute Unitary Ball (this can take a while)..." << std::endl;
 						computeDualUnitaryBall();
-						std::cout << "Unitary Ball computed." << std::endl;
+						std::cout << "Done." << std::endl;
 						close();
 						break;
 					default:
@@ -274,7 +275,7 @@ void SettingWindow::drawPointSegsAndPos(const sf::Vector2f& p) {
 	}
 
 	if (actionConsistent()) {
-		if (segmentPoints.size() != 0) {
+		if (InternalSys.internalPoints.size() != 0) {
 			this->draw(SegmentDrawable(p, segmentPoints.back().point, 3, sf::Color::Magenta));
 		}
 	}
@@ -292,6 +293,14 @@ void SettingWindow::invertBinding() {
 void SettingWindow::setBinding(bool b) {
 	binded = b;
 	setMouseCursorVisible(!binded);
+}
+
+void SettingWindow::computeDualUnitaryBall() const {
+	IntersectionManager intersection_manager(this);
+	std::set<HomologieValue> vals = intersection_manager.generateValues();
+	for (auto val : vals) {
+		std::cout << val << std::endl;
+	}
 }
 
 bool SettingWindow::MouseOnClosure() const {

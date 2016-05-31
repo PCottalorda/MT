@@ -24,13 +24,11 @@ public:
 	bool actionConsistent() const;
 	void invertBinding();
 	void setBinding(bool b);
-	void computeDualUnitaryBall() const {
-		IntersectionManager intersection_manager(this);
-		std::set<HomologieValue> vals = intersection_manager.generateValues();
-		for (auto val : vals) {
-			std::cout << val << std::endl;
-		}
+	void resetIndiceFirstPoint() {
+		indiceFirstPoint = segmentPoints.size() - 1;
 	}
+
+	void computeDualUnitaryBall() const;
 
 	// InternalPositionSystem related functions
 	bool MouseOnClosure() const;
@@ -64,6 +62,6 @@ private:
 	InternalPositionSystem InternalSys;
 
 	std::vector<PolyLineCurve> lineCurvesSet;
-
+	int indiceFirstPoint;
 	const sf::Font& font;
 };

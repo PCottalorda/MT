@@ -74,7 +74,7 @@ size_t Counter::state() {
 
 
 std::vector<bool> Counter::getNext() {
-	std::cout << "\tConfiguration Found: " << state() << std::endl;
+	//std::cout << "\tConfiguration Found: " << state() << std::endl;
 	std::vector<bool> res(size);
 	for (size_t i = 0; i < size; i++) {
 		res[i] = loopGest[i];
@@ -156,7 +156,7 @@ void Node::__check_validity() {
 }
 
 std::vector<OrientationOnNode> Node::allPossibleOrientations() const {
-	std::cout << "Generate possible eulerian orientation of node " << internalNumber << std::endl;
+	//std::cout << "Generate possible eulerian orientation of node " << internalNumber << std::endl;
 	std::vector<OrientationOnNode> orientations;
 
 	std::vector<Edge> lockedEdges;
@@ -171,7 +171,7 @@ std::vector<OrientationOnNode> Node::allPossibleOrientations() const {
 		              if (!ed->isLoop()) degree++;
 	              });
 
-	std::cout << "Non looped degree: " << degree << std::endl;
+	//std::cout << "Non looped degree: " << degree << std::endl;
 
 	// We dispatch the edges.
 	for each (Edge* ed in edges) {
@@ -195,8 +195,8 @@ std::vector<OrientationOnNode> Node::allPossibleOrientations() const {
 		}
 	}
 
-	std::cout << "Non looped locked in degree  :" << in_degree << std::endl;
-	std::cout << "Non looped locked out degree :" << out_degree << std::endl;
+	//std::cout << "Non looped locked in degree  :" << in_degree << std::endl;
+	//std::cout << "Non looped locked out degree :" << out_degree << std::endl;
 
 	assert(edges.size() == lockedEdges.size() + notLockedLoopedEdges.size() + notLockedNotLoopedEdges.size());
 	assert(degree % 2 == 0);
@@ -215,12 +215,12 @@ std::vector<OrientationOnNode> Node::allPossibleOrientations() const {
 
 		assert(in_rem + out_rem == notLockedNotLoopedEdges.size());
 
-		std::cout << "Generate Binomial configs (" << in_rem << " parmi " << notLockedNotLoopedEdges.size() << ")..." << std::endl;
+		//std::cout << "Generate Binomial configs (" << in_rem << " parmi " << notLockedNotLoopedEdges.size() << ")..." << std::endl;
 		std::vector<std::vector<bool>> notLoopedStates = BinomialConfigs(in_rem, notLockedNotLoopedEdges.size()).generateAll();
-		std::cout << notLoopedStates.size() << " configuration(s) found" << std::endl;
-		std::cout << "Generate all configs..." << std::endl;
+		//std::cout << notLoopedStates.size() << " configuration(s) found" << std::endl;
+		//std::cout << "Generate all configs..." << std::endl;
 		std::vector<std::vector<bool>> loopedStates = AllConfigs(notLockedLoopedEdges.size()).generateAll();
-		std::cout << loopedStates.size() << " configuration(s) found" << std::endl;
+		//std::cout << loopedStates.size() << " configuration(s) found" << std::endl;
 
 		//--- Lambdas ---
 		auto applyInChange = [&](std::vector<bool>& setOri, std::vector<Edge>& edges) {
@@ -264,7 +264,7 @@ std::vector<OrientationOnNode> Node::allPossibleOrientations() const {
 
 		if (loopedStates.empty()) {
 			// There is no loop
-			std::cout << "No loop found..." << std::endl;
+			//std::cout << "No loop found..." << std::endl;
 			for (size_t i = 0; i < notLoopedStates.size(); i++) {
 				resEdges.clear();
 				std::vector<Edge> othersEdges(notLockedNotLoopedEdges);
@@ -278,7 +278,7 @@ std::vector<OrientationOnNode> Node::allPossibleOrientations() const {
 			}
 		} else if (notLoopedStates.empty()) {
 			// There is nothing else but loop
-			std::cout << "Only loops found..." << std::endl;
+			//std::cout << "Only loops found..." << std::endl;
 			for (size_t j = 0; j < loopedStates.size(); j++) {
 				resEdges.clear();
 				std::vector<Edge> loops(notLockedLoopedEdges);
@@ -291,7 +291,7 @@ std::vector<OrientationOnNode> Node::allPossibleOrientations() const {
 				orientations.push_back(resEdges);
 			}
 		} else {
-			std::cout << "Loops and other edges found..." << std::endl;
+			//std::cout << "Loops and other edges found..." << std::endl;
 			for (size_t i = 0; i < notLoopedStates.size(); i++) {
 				for (size_t j = 0; j < loopedStates.size(); j++) {
 					resEdges.clear();

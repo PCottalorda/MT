@@ -529,7 +529,7 @@ std::set<HomologieValue> IntersectionManager::generateValues() {
 
 	std::set<HomologieValue> homoVal;
 
-	std::cout << "We regroup all the segments found..." << std::endl;
+	std::cout << "Regroupment of all segments..." << std::endl;
 	std::vector<SplitSegmentWrapper> allSegs;
 	// Regroupment of all the segment founds
 	for (PolyLineCurve& PLC : allCurves) {
@@ -537,13 +537,13 @@ std::set<HomologieValue> IntersectionManager::generateValues() {
 			allSegs.push_back(SSW);
 		}
 	}
-	std::cout << "Done!(" << allSegs.size() << " found)" <<  std::endl;
+	std::cout << "Done." <<  std::endl;
 
-	std::cout << "We compute the intersections... (can take a while)" << std::endl;
+	std::cout << "Computation of all intersections..." << std::endl;
 	// We compute all the intersections
 	for (int i = 0; i < static_cast<int>(allSegs.size()) - 1; ++i) {
 		for (size_t j = i + 1; j < allSegs.size(); ++j) {
-			std::cout << i << "," << j << std::endl;
+			//std::cout << i << "," << j << std::endl;
 			Segment::IntersectSol sol = allSegs[i].intersectionWith(allSegs[j]);
 			if (sol.solutionIsUnique()) {
 				allSegs[i].split(sol.inter);
@@ -555,7 +555,7 @@ std::set<HomologieValue> IntersectionManager::generateValues() {
 			}
 		}
 	}
-	std::cout << "Done..." << std::endl;
+	std::cout << "Done." << std::endl;
 
 	std::function<void(const SplitSegmentWrapper& SSW)> fill = [&](const SplitSegmentWrapper& SSW) {
 		if (SSW.isSplit()) {
@@ -568,11 +568,11 @@ std::set<HomologieValue> IntersectionManager::generateValues() {
 		}
 	};
 
-	std::cout << "Regroup the intersection points" << std::endl;
+	std::cout << "Regroupment of all the intersection points..." << std::endl;
 	for (unsigned int i = 0; i < allSegs.size(); ++i) {
 		fill(allSegs[i]);
 	}
-	std::cout << "Done..." << std::endl;
+	std::cout << "Done." << std::endl;
 
 	if (intersectionPointsSet.empty()) {
 		HomologieValue nullHomoVal(window->genus*2);
@@ -596,17 +596,17 @@ std::set<HomologieValue> IntersectionManager::generateValues() {
 	for (unsigned int i = 0; i < allSegs.size(); ++i) {
 		fun(allSegs[i], G);
 	}
-	std::cout << "Done..." << std::endl;
+	std::cout << "Done." << std::endl;
 
-	std::cout << "We generate all the eulerian coorientations..." << std::endl;
+	std::cout << "Generation of all the eulerian coorientations..." << std::endl;
 	std::vector<EulerianOrientation> eulOris = G.generateAllEulerianOrientations();
-	std::cout << "Done... (" << eulOris.size() << " found)." << std::endl;
+	std::cout << "Done. (" << eulOris.size() << " found)." << std::endl;
 
 	std::cout << "Evaluation of all the eulerian coorientation found..." << std::endl;
 	for (const EulerianOrientation& eulOri : eulOris) {
 		homoVal.insert(eulOri.cycleValue());
 	}
-	std::cout << "Done..." << std::endl;
+	std::cout << "Done." << std::endl;
 
 	return homoVal;
 }

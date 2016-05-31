@@ -4,6 +4,7 @@
 #include "Graph.h"
 
 #include <string>
+#include <cassert>
 
 std::string EulerianOrientation::generateGraphVizString() const {
 	std::string graphVizString("");
