@@ -174,6 +174,8 @@ void InternalPositionSystem::invert() {
 	middle = -middle;
 	MouseInternal = middle + diff_midlle;
 	writeMousePosition();
+	int new_index = (index + (internalRationalShape.size() / 2)) % internalRationalShape.size();
+	index = new_index;
 }
 
 RationalPoint InternalPositionSystem::invert(const RationalPoint& p) const {
@@ -184,6 +186,7 @@ RationalPoint InternalPositionSystem::invert(const RationalPoint& p) const {
 	int ind2 = (ind1 - 1 + internalShape.size()) % internalShape.size();
 	Rational2DPoint p1 = internalRationalShape[ind1];
 	Rational2DPoint p2 = internalRationalShape[ind2];
+	/*
 	p1.prettyPrint();
 	p2.prettyPrint();
 	p.point.prettyPrint();
@@ -196,8 +199,9 @@ RationalPoint InternalPositionSystem::invert(const RationalPoint& p) const {
 	std::cout << "P1: " << p1 << " | "; p1.prettyPrint();
 	std::cout << "P2: " << p2 << " | "; p2.prettyPrint();
 	std::cout << "P : " << p.point << " | "; p.point.prettyPrint();
+	*/
 	Rational det = Rational2DPoint::det(p1 - p.point, p2 - p.point);
-	std::cerr << det << " | " << static_cast<float>(det) << std::endl;
+	//std::cerr << det << " | " << static_cast<float>(det) << std::endl;
 	assert(Rational2DPoint::det(p1 - p.point, p2 - p.point) == 0);
 	Rational2DPoint middle = Rational(1, 2) * (p1 + p2);
 	Rational2DPoint diff_midlle = p.point - middle;
@@ -213,7 +217,7 @@ std::vector<RationalPoint> InternalPositionSystem::exportPoints() {
 	{
 		auto findLambda = [](const sf::Vector2f& v1, const sf::Vector2f& v2)
 		{
-			return v1.x*v2.x + v1.y*v2.y / (v2.x*v2.x + v2.y*v2.y);
+			return (v1.x*v2.x + v1.y*v2.y) / (v2.x*v2.x + v2.y*v2.y);
 		};
 		assert(p.onBoundiary);
 		int ind1 = p.index;
@@ -223,6 +227,7 @@ std::vector<RationalPoint> InternalPositionSystem::exportPoints() {
 		sf::Vector2f p1 = internalShape[ind1];
 		sf::Vector2f p2 = internalShape[ind2];
 		float lambda = findLambda(p.point - p1, p2 - p1);
+		//std::cout << lambda << std::endl;
 		assert(lambda >= 0 && lambda <= 1);
 		Rational rLambda = floatToRational(lambda);
 		Rational2DPoint newP = rp1 + rLambda*(rp2 - rp1);
@@ -249,12 +254,40 @@ std::vector<RationalPoint> InternalPositionSystem::exportPoints() {
 	while (i < internalPoints.size()) {
 		Point& p = internalPoints[i];
 		if (p.onBoundiary) {
+			auto printRatPoint = [](const RationalPoint& rP) {
+				std::cerr << "====== " << &rP << " ======" << std::endl;
+				std::cerr << rP.point << " | "; rP.point.prettyPrint();
+				std::cout.flush();
+				if (rP.onBoundiary) {
+					std::cerr << "onBoundary: true\nindex: " << rP.index << std::endl;
+				} else {
+					std::cerr << "onboundary: false" << std::endl;
+				}
+				std::cerr << "======================" << std::endl;
+			};
+			auto printPoint = [](const Point& rP) {
+				std::cerr << "====== " << &rP << " ======" << std::endl;
+				std::cerr << "[ " << rP.point.x << " , " << rP.point.y << " ]" << std::endl;
+				std::cout.flush();
+				if (rP.onBoundiary) {
+					std::cerr << "onBoundary: true\nindex: " << rP.index << std::endl;
+				}
+				else {
+					std::cerr << "onboundary: false" << std::endl;
+				}
+				std::cerr << "======================" << std::endl;
+			};
 			RationalPoint rP = PointToRationalPoint(p);
+			//printRatPoint(rP);
 			res.push_back(rP);
+			//printPoint(internalPoints[i]);
 			assert(res[i].index == internalPoints[i].index);
 			++i;
 			RationalPoint rP2 = invert(rP);
+			//std::cerr << "Insertion!" << std::endl;
+			//printRatPoint(rP2);
 			res.push_back(rP2);
+			//printPoint(internalPoints[i]);
 			assert(res[i].index == internalPoints[i].index);
 		} else {
 			RationalPoint rP = PointToRationalPoint(p);
@@ -265,6 +298,7 @@ std::vector<RationalPoint> InternalPositionSystem::exportPoints() {
 	}
 	assert(res.size() == internalPoints.size());
 	
+	/*
 	assert(res.size() == internalPoints.size());
 	for (size_t i = 0; i < res.size(); ++i) {
 		auto dist = [](const RationalPoint& rP, const Point& p)
@@ -280,6 +314,7 @@ std::vector<RationalPoint> InternalPositionSystem::exportPoints() {
 		assert(res[i].index == internalPoints[i].index);
 
 	}
+	*/
 
 
 	return res;

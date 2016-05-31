@@ -8,7 +8,7 @@
 #include <set>
 
 
-Segment::IntersectSol::IntersectSol(): exists(false), isUnique(false), inter(Rational2DPoint(),false,0) {
+Segment::IntersectSol::IntersectSol(): exists(false), isUnique(false), inter(Rational2DPoint(),false,-1) {
 }
 
 bool Segment::IntersectSol::solutionIsUnique() const {
@@ -70,15 +70,14 @@ RationalPoint Segment::intersectionWith(const Segment& S) const {
 	Rational2DPoint result = lambda1 * p1.point + (1 - lambda1) * p2.point;
 
 	// We check if we fall directly on one of the extremal point (which is the only case where we can be on boundiary)
-	int index = 0;
+	int index = -1;
 	bool onBoundiary = false;
 	if (lambda1 == 1) {
-		index = p2.index;
-		onBoundiary = p2.onBoundiary;
-	}
-	else if (lambda1 == 1) {
 		index = p1.index;
 		onBoundiary = p1.onBoundiary;
+	} else if (lambda1 == 0) {
+		index = p2.index;
+		onBoundiary = p2.onBoundiary;
 	}
 
 	assert(result == verif_res);
@@ -180,6 +179,7 @@ Segment::IntersectSol Segment::uniqueIntersectionWith(const Segment& S) const {
 					}
 				} catch (DegeneratedSegment) {
 					// Only happens when infinite intersection occurs!
+					std::cout << "DEGENERATED SEGMENT!!!";
 					solution.exists = true;
 				}
 			} else {
@@ -189,11 +189,13 @@ Segment::IntersectSol Segment::uniqueIntersectionWith(const Segment& S) const {
 			// No solution
 		}
 	} else {
+		// The intersection point is not on the extremity!
 		RationalPoint inter = intersectionWith(S);
 		if (segmentContains(inter) && S.segmentContains(inter)) {
 			solution.exists = true;
 			solution.isUnique = true;
 			solution.inter = inter;
+			assert(!solution.inter.onBoundiary);
 		} else {
 			// No solution
 		}
@@ -547,7 +549,7 @@ std::set<HomologieValue> IntersectionManager::generateValues() {
 				allSegs[i].split(sol.inter);
 				allSegs[j].split(sol.inter);
 			} else {
-				if (sol.exists && !sol.isUnique) {
+				if (sol.solutionIsUnique()) {
 					throw GraphGenerationException();
 				}
 			}

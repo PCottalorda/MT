@@ -18,7 +18,7 @@ HomologieValue EulerianOrientation::cycleValue() const {
 	assert(!edges.empty());
 	HomologieValue res(edges.front().dimension());
 	for (const Edge& e : edges) {
-		res += e.value;
+		res += e.getHomologieValue();
 	}
 	return res;
 }

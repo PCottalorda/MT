@@ -123,6 +123,7 @@ genus(genus),
 	InternalSys.internalRationalShape = ratInterPoints;
 
 	assert(InternalSys.internalShape.size() == InternalSys.internalRationalShape.size());
+	/*
 	for (size_t i = 0; i < interPoints.size(); ++i) {
 		std::cout << "[" << InternalSys.internalShape[i].x << "," << InternalSys.internalShape[i].y << "]" << std::endl;
 	}
@@ -132,6 +133,7 @@ genus(genus),
 	for (size_t i = 0; i < InternalSys.internalShape.size(); ++i) {
 		//std::cout << norm(interPoints[i] - ratInterPoints[i].toSFMLVector2f()) << std::endl;
 	}
+	*/
 
 	// Initialize the state;
 	stateText.setString(stateString());
