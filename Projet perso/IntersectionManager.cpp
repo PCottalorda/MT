@@ -339,10 +339,11 @@ void SplitSegmentWrapper::split(const RationalPoint& splitPoint) {
 			Segment b(base.p1, splitPoint);
 			son1 = new SplitSegmentWrapper(b, this);
 			b = Segment(splitPoint, base.p2);
-			son1 = new SplitSegmentWrapper(b, this);
+			son2 = new SplitSegmentWrapper(b, this);
 			__isSplit = true;
 		}
 	}
+	__checkValidity();
 }
 
 bool SplitSegmentWrapper::isSplit() const {
@@ -553,7 +554,6 @@ std::set<HomologieValue> IntersectionManager::generateValues() {
 		}
 	}
 	std::cout << "Done..." << std::endl;
-	std::cout.flush();
 
 	std::function<void(const SplitSegmentWrapper& SSW)> fill = [&](const SplitSegmentWrapper& SSW) {
 		if (SSW.isSplit()) {

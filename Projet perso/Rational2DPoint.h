@@ -41,6 +41,10 @@ public:
 
 	friend Rational2DForm compute_rat_form(const Rational2DPoint& p1, const Rational2DPoint& p2);
 
+
+	void prettyPrint() const {
+		std::cout << "(" << static_cast<float>(x) << "," << static_cast<float>(y) << ")" << std::endl;
+	}
 public:
 	Rational x;
 	Rational y;

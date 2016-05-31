@@ -122,6 +122,17 @@ genus(genus),
 	InternalSys.internalShape = interPoints;
 	InternalSys.internalRationalShape = ratInterPoints;
 
+	assert(InternalSys.internalShape.size() == InternalSys.internalRationalShape.size());
+	for (int i = 0; i < interPoints.size(); ++i) {
+		std::cout << "[" << InternalSys.internalShape[i].x << "," << InternalSys.internalShape[i].y << "]" << std::endl;
+	}
+	for (int i = 0; i < ratInterPoints.size(); ++i) {
+		std::cout << InternalSys.internalRationalShape[i] << " | "; InternalSys.internalRationalShape[i].prettyPrint();
+	}	
+	for (int i = 0; i < InternalSys.internalShape.size(); ++i) {
+		//std::cout << norm(interPoints[i] - ratInterPoints[i].toSFMLVector2f()) << std::endl;
+	}
+
 	// Initialize the state;
 	stateText.setString(stateString());
 	stateText.setPosition(10.0f, 10.0f);

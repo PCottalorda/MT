@@ -23,7 +23,7 @@ public:
 		if (lhs.dimension() != rhs.dimension()) {
 			throw DimensionException();
 		}
-		for (int i = 0; i < lhs.dimension(); ++i) {
+		for (unsigned int i = 0; i < lhs.dimension(); ++i) {
 			if (lhs[i] == rhs[i]) {
 				continue;
 			}

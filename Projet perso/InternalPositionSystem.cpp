@@ -179,16 +179,31 @@ void InternalPositionSystem::invert() {
 RationalPoint InternalPositionSystem::invert(const RationalPoint& p) const {
 	assert(p.onBoundiary);
 	assert(internalShape.size() % 2 == 0);
+	assert(internalShape.size() == 4 * window->genus);
 	int ind1 = p.index;
 	int ind2 = (ind1 - 1 + internalShape.size()) % internalShape.size();
 	Rational2DPoint p1 = internalRationalShape[ind1];
 	Rational2DPoint p2 = internalRationalShape[ind2];
+	p1.prettyPrint();
+	p2.prettyPrint();
+	p.point.prettyPrint();
+	if (p.onBoundiary) {
+		std::cout << "OnBound, index: " << p.index << std::endl;
+	} else {
+		std::cout << "NotOnBoundiary" << std::endl;
+	}
+	std::cout << p.onBoundiary << std::endl;
+	std::cout << "P1: " << p1 << " | "; p1.prettyPrint();
+	std::cout << "P2: " << p2 << " | "; p2.prettyPrint();
+	std::cout << "P : " << p.point << " | "; p.point.prettyPrint();
+	Rational det = Rational2DPoint::det(p1 - p.point, p2 - p.point);
+	std::cerr << det << " | " << static_cast<float>(det) << std::endl;
 	assert(Rational2DPoint::det(p1 - p.point, p2 - p.point) == 0);
 	Rational2DPoint middle = Rational(1, 2) * (p1 + p2);
 	Rational2DPoint diff_midlle = p.point - middle;
 	middle = Rational(-1) * middle; // We go to the opposite!
 	Rational2DPoint res = middle + diff_midlle;
-	int new_index = (p.index + internalRationalShape.size() / 2) % internalRationalShape.size();
+	int new_index = (p.index + (internalRationalShape.size() / 2)) % internalRationalShape.size();
 	RationalPoint result(res, true, new_index);
 	return result;
 }
@@ -221,24 +236,34 @@ std::vector<RationalPoint> InternalPositionSystem::exportPoints() {
 			return rP;
 		}
 		else {
+			assert(!p.onBoundiary);
 			Rational2DPoint rPBase(floatToRational(p.point.x), floatToRational(p.point.y));
 			RationalPoint rP(rPBase, p.onBoundiary, p.index);
 			return rP;
 		}
 	};
-	for (int i = 0; i < internalPoints.size(); ++i) {
-		Point p = internalPoints[i];
+
+
+	int genus = window->genus;
+	int i = 0;
+	while (i < internalPoints.size()) {
+		Point& p = internalPoints[i];
 		if (p.onBoundiary) {
 			RationalPoint rP = PointToRationalPoint(p);
-			RationalPoint rP2 = invert(rP);
-			++i;
 			res.push_back(rP);
+			assert(res[i].index == internalPoints[i].index);
+			++i;
+			RationalPoint rP2 = invert(rP);
 			res.push_back(rP2);
+			assert(res[i].index == internalPoints[i].index);
 		} else {
 			RationalPoint rP = PointToRationalPoint(p);
 			res.push_back(rP);
+			assert(res[i].index == internalPoints[i].index);
 		}
+		++i;
 	}
+	assert(res.size() == internalPoints.size());
 	
 	assert(res.size() == internalPoints.size());
 	for (int i = 0; i < res.size(); ++i) {
@@ -247,8 +272,15 @@ std::vector<RationalPoint> InternalPositionSystem::exportPoints() {
 			sf::Vector2f vec = p.point - rP.point.toSFMLVector2f();
 			return sqrtf(vec.x*vec.x + vec.y*vec.y);
 		};
-		std::cout << dist(res[i], internalPoints[i]) << std::endl;
+		float d = dist(res[i], internalPoints[i]);
+		//std::cout << d << std::endl;
+		assert(d < 1.0e-4f);
+		assert(res[i].onBoundiary == internalPoints[i].onBoundiary);
+		std::cerr << "ResIndex: " << res[i].index << "   |   " << "InternalPointIndex: " << internalPoints[i].index << std::endl;
+		assert(res[i].index == internalPoints[i].index);
+
 	}
+
 
 	return res;
 }
