@@ -94,6 +94,7 @@ std::vector<EulerianOrientation> Graph::generateAllEulerianOrientations() {
 void Graph::__kernel_generateEulerian(unsigned i, std::vector<EulerianOrientation>& eulOri) {
 	//std::cout << "kernelGenerator step: " << i << std::endl;
 	static unsigned int counter = 1;
+
 	if (i >= nodes.size()) {
 		std::cout << "\tNew eulerian orientation found [" << counter << "]" << std::endl;
 		counter++;
