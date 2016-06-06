@@ -187,3 +187,12 @@ FakesAssemblies/
 GeneratedArtifacts/
 _Pvt_Extensions/
 ModelManifest.xml
+*.dll
+*.png
+*.tex
+*.pdf
+*.synctex.gz
+*.log
+*.aux
+*.dll
+*.bak
