@@ -70,6 +70,7 @@
     <ClCompile Include="Edge.cpp" />
     <ClCompile Include="EulerianOrientation.cpp" />
     <ClCompile Include="Graph.cpp" />
+    <ClCompile Include="GraphGenerationWindow.cpp" />
     <ClCompile Include="HomologieValue.cpp" />
     <ClCompile Include="InternalPositionSystem.cpp" />
     <ClCompile Include="IntersectionManager.cpp" />
@@ -91,6 +92,7 @@
     <ClInclude Include="Edge.h" />
     <ClInclude Include="EulerianOrientation.h" />
     <ClInclude Include="Graph.h" />
+    <ClInclude Include="GraphGenerationWindow.h" />
     <ClInclude Include="HomologieValue.h" />
     <ClInclude Include="InternalPositionSystem.h" />
     <ClInclude Include="IntersectionManager.h" />

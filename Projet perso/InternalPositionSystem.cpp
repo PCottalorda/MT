@@ -381,6 +381,11 @@ void InternalPositionSystem::reset() {
 	update();
 }
 
+void InternalPositionSystem::__validity_check() const {
+	assert(internalShape.size() == internalRationalShape.size());
+	assert(internalShape.size() == ratFormsF.size());
+}
+
 InternalPositionSystem::~InternalPositionSystem() {
 }
 

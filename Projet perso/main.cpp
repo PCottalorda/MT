@@ -3,6 +3,7 @@
 #include <iostream>
 #include <limits>
 #include <string>
+#include "GraphGenerationWindow.h"
 
 
 int main(int argc, char* argv[]) {
@@ -12,8 +13,25 @@ int main(int argc, char* argv[]) {
 		return EXIT_FAILURE;
 	}
 
-	bool loop = true;
+	/*
+	std::set<HomologieValue> homoVal;
+	for (int i = 0; i < 3; ++i) {
+		HomologieValue pos(2);
+		pos[0] = i;
+		pos[1] = i;
+		homoVal.insert(pos);
+		homoVal.insert(-pos);
+	}
 
+	GraphGenerationWindow win(800, "GenData/test.png");
+	win.setToPrint(homoVal);
+	win.screenShot();
+	win.generateStreamLateX(std::cout, std::string("bite"), std::string("ouille"));
+
+	system("pause");
+	*/
+	
+	bool loop = true;
 	while (loop) {
 
 		// Get the genus.
@@ -23,8 +41,6 @@ int main(int argc, char* argv[]) {
 		std::istringstream iss(buff);
 		int genus = -1;
 		if (buff == std::string("q") || buff == std::string("quit")) {
-			// TODO: Générer le .tex
-
 			std::cout << "\tQuitting." << std::endl;
 			loop = false;
 		}
@@ -46,8 +62,7 @@ int main(int argc, char* argv[]) {
 		}
 
 	}
-
-
+	
 
 	return EXIT_SUCCESS;
 

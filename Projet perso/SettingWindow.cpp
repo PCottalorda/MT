@@ -5,6 +5,7 @@
 #include "HomologieValue.h"
 #include "InternalPositionSystem.h"
 #include "IntersectionManager.h"
+#include "GraphGenerationWindow.h"
 
 static const float PI = 3.14159265358979323846f;
 
@@ -60,6 +61,7 @@ genus(genus),
 	if (genus <= 0)
 		throw std::exception();
 
+	srand(time(NULL));
 
 	setVerticalSyncEnabled(true);
 	setMouseCursorVisible(false);
@@ -210,9 +212,7 @@ void SettingWindow::updateLoop() {
 						invertBinding();
 						break;
 					case sf::Keyboard::Escape:
-						std::cout << "Compute Unitary Ball (this can take a while)..." << std::endl;
-						computeDualUnitaryBall();
-						std::cout << "Done." << std::endl;
+						computeAndGenerateLateX();
 						close();
 						break;
 					default:
@@ -295,12 +295,10 @@ void SettingWindow::setBinding(bool b) {
 	setMouseCursorVisible(!binded);
 }
 
-void SettingWindow::computeDualUnitaryBall() const {
+std::set<HomologieValue> SettingWindow::computeDualUnitaryBall() const {
 	IntersectionManager intersection_manager(this);
 	std::set<HomologieValue> vals = intersection_manager.generateValues();
-	for (auto val : vals) {
-		std::cout << val << std::endl;
-	}
+	return vals;
 }
 
 bool SettingWindow::MouseOnClosure() const {

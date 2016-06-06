@@ -33,10 +33,7 @@ public:
 
 	void exportAndReinitialize();
 	void reset();
-	void __validity_check() const {
-		assert(internalShape.size() == internalRationalShape.size());
-		assert(internalShape.size() == ratFormsF.size());
-	}
+	void __validity_check() const;
 
 private:
 	bool onBoundiary;
