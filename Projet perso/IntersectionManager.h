@@ -23,7 +23,6 @@
 #include <exception>
 #include <set>
 
-#include "InternalPositionSystem.h"
 #include "HomologieValue.h"
 
 class Graph;
@@ -169,6 +168,9 @@ public:
 	bool areEqual(const RationalPoint& r1, const RationalPoint& r2) const;
 	unsigned int requestPoint(const RationalPoint& p);
 	std::set<HomologieValue> generateValues();
+	size_t size() const {
+		return intersectionPointsSet.size();
+	}
 
 private:
 	std::vector<RationalPoint> intersectionPointsSet;

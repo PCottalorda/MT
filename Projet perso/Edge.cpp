@@ -22,6 +22,7 @@
 #include "Node.h"
 
 #include <exception>
+#include <iostream>
 
 Edge::Edge(Node* n1, Node* n2, uint64_t id,HomologieValue value) :
 	Node1(n1),

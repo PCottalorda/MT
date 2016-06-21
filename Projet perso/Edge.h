@@ -21,7 +21,7 @@
 
 
 #include <cstdint>
-#include <iostream>
+#include <iosfwd>
 
 #include "HomologieValue.h"
 
