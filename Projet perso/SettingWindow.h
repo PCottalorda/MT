@@ -76,21 +76,23 @@ public:
 	std::set<HomologieValue> computeDualUnitaryBall() const;
 
 	void computeAndGenerateLateX() {
-		std::cout << "Save image of the multi-lacet..." << std::endl;
-		unsigned int indice = rand();	std::string namePoly = "GenData\\Screenshot_" + std::to_string(indice) + ".png";
+		//std::cout << "Save image of the multi-lacet..." << std::endl;
+		unsigned int indice = rand();	
+		std::string namePoly = "GenData\\Screenshot_" + std::to_string(indice) + ".png";
 		std::string intNamePoly = "Screenshot_" + std::to_string(indice) + ".png";
 		std::string nameBall = "GenData\\Lattice_" + std::to_string(indice) + ".png";
 		std::string intNameBall = "Lattice_" + std::to_string(indice) + ".png";
 		std::string nameTex = "GenData\\output_" + std::to_string(indice) + ".tex";
 		screenCapture(namePoly);
-		std::cout << "Done." << std::endl;
-		std::cout << "Compute Unitary Ball (this can take a while)..." << std::endl;
+		//std::cout << "Done." << std::endl;
+		//std::cout << "Compute Unitary Ball (this can take a while)..." << std::endl;
+		std::cout << "Indice: " << indice << std::endl;
 		std::set<HomologieValue> vals = computeDualUnitaryBall();
 		GraphGenerationWindow graphWin(800, nameBall);
 		graphWin.setToPrint(vals);
 		graphWin.generateLatex(nameTex, intNamePoly, intNameBall);
 		graphWin.close();
-		std::cout << "Done." << std::endl;
+		//std::cout << "Done." << std::endl;
 	}
 
 	// InternalPositionSystem related functions

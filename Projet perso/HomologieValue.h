@@ -21,7 +21,7 @@
 
 
 #include <vector>
-#include <ostream>
+#include <iosfwd>
 
 class HomologieValue
 {

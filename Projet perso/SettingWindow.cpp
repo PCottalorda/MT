@@ -22,6 +22,7 @@
 #include "SettingWindow.h"
 
 #include <SFML/Graphics.hpp>
+#include <chrono>
 #include "SegmentDrawable.h"
 #include "HomologieValue.h"
 #include "InternalPositionSystem.h"
@@ -64,7 +65,7 @@ namespace {
 }
 
 SettingWindow::SettingWindow(unsigned int size, unsigned int genus, const sf::Font& font) :
-sf::RenderWindow(sf::VideoMode(size, size), "SettingWindows"),
+sf::RenderWindow(sf::VideoMode(size, size), "SettingWindow"),
 size(size),
 genus(genus),
 	binded(true),
@@ -318,7 +319,14 @@ void SettingWindow::setBinding(bool b) {
 
 std::set<HomologieValue> SettingWindow::computeDualUnitaryBall() const {
 	IntersectionManager intersection_manager(this);
+	std::chrono::high_resolution_clock clock;
+	std::chrono::high_resolution_clock::time_point pre_time = clock.now();
 	std::set<HomologieValue> vals = intersection_manager.generateValues();
+	std::chrono::high_resolution_clock::time_point post_time = clock.now();
+	std::chrono::milliseconds timelapse = 
+		std::chrono::duration_cast<std::chrono::milliseconds>(post_time - pre_time);
+	std::cout << "Time: " << timelapse.count() << " ms." << std::endl;
+	std::cout << "NumberPoints: " << intersection_manager.size() << std::endl;
 	return vals;
 }
 

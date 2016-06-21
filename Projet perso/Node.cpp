@@ -1,5 +1,3 @@
-
-
 /*****************************************************************************
 *                                                                            *
 *  Copyright 2016 Paul Cottalorda                                            *
@@ -24,6 +22,10 @@
 #include <algorithm>
 #include <cassert>
 #include <functional>
+#include <map>
+#include <unordered_map>
+#include <string>
+#include <iostream>
 
 
 //=============================== COUNTER ===================================================================
@@ -47,22 +49,45 @@ private:
 	void __next(size_t i);
 	void findNext();
 	void next();
-
 };
+
+
 
 class BinomialConfigs : public Counter {
 public:
-	BinomialConfigs(size_t n, size_t m) :
-		Counter(m, [n, m](const std::vector<bool>& v, size_t s) {
+	class BinomialEntry {
+	public:
+		size_t n;
+		size_t m;
+	
+		BinomialEntry(size_t n = 1, size_t m = 1) : n(n), m(m) {};
+
+	};
+public:
+	BinomialConfigs(BinomialEntry en) :
+		Counter(en.m, [&en](const std::vector<bool>& v, size_t s) {
 			        size_t count = 0;
 			        for (size_t i = 0; i < s; i++)
 				        if (v[i]) count++;
 
-			        return count == n;
+			        return count == en.n;
 		        }) {
-		assert(m >= n);
+		if (en.m < en.n) {
+			std::string errStr = "Invalid entry found for BinomialConfigs: (" + std::to_string(en.n) + "," + std::to_string(en.m) + ")";
+			throw std::out_of_range(errStr);
+		}
 	};
 };
+
+// Definition of a hash function for BinomialEntry
+namespace std {
+	template<>
+	struct hash<BinomialConfigs::BinomialEntry> {
+		std::size_t operator()(const BinomialConfigs::BinomialEntry& Key) const {
+			return Key.n*Key.m + Key.n;
+		}
+	};
+}
 
 class AllConfigs : public Counter {
 public:
@@ -94,8 +119,55 @@ size_t Counter::state() {
 }
 
 
+template<typename Ctr, typename Key>
+class CounterManager {
+	// Type definition
+private:
+	using ResType = typename std::result_of < decltype(&Ctr::generateAll)(Ctr) >::type;
+
+public:
+	CounterManager() {};
+	~CounterManager() {};
+	/*
+	const ResType& getSets (Key key) {
+		// We check if we have already computed the results.
+		try {
+			auto result = computedResults[key];
+			return result;
+		} catch (std::out_of_range&) {	// The result was not already computed
+			Ctr counter(key);
+			ResType res = counter.generateAll();
+			computedResults.insert(key, res);
+			return computedResults[key];
+		}
+	}*/
+
+	/*
+	const ResType& getSets(Key key) {
+		// We check if we have already computed the results.
+		const auto it = computedResults.find(key);
+		if (it == computedResults.end()) {
+			// No element with such key have been found
+			return *(computedResults.insert(std::make_pair<Key, ResType>(key, Ctr(key).generateAll())));
+		} else {
+			return *it;
+		}
+	}
+	*/
+
+private:
+	//std::unordered_map<Key, decltype(std::declval<Ctr>().generateAll())> computedResults;
+	std::unordered_map<Key, ResType> computedResults;
+
+};
+
+using BinomialConfigsCounterManager = CounterManager < BinomialConfigs, BinomialConfigs::BinomialEntry > ;
+using AllConfigsCounterManager = CounterManager < AllConfigs, size_t > ;
+
+
+
+
 std::vector<bool> Counter::getNext() {
-	//std::cout << "\tConfiguration Found: " << state() << std::endl;
 	std::vector<bool> res(size);
 	for (size_t i = 0; i < size; i++) {
 		res[i] = loopGest[i];
@@ -177,7 +249,10 @@ void Node::__check_validity() {
 }
 
 std::vector<OrientationOnNode> Node::allPossibleOrientations() const {
-	//std::cout << "Generate possible eulerian orientation of node " << internalNumber << std::endl;
+	static BinomialConfigsCounterManager BinomialConfsMan;
+	static AllConfigsCounterManager AllConfsMan;
+
+
 	std::vector<OrientationOnNode> orientations;
 
 	std::vector<Edge> lockedEdges;
@@ -191,8 +266,6 @@ std::vector<OrientationOnNode> Node::allPossibleOrientations() const {
 	std::for_each(edges.begin(), edges.end(), [&degree](const Edge* ed) {
 		              if (!ed->isLoop()) degree++;
 	              });
-
-	//std::cout << "Non looped degree: " << degree << std::endl;
 
 	// We dispatch the edges.
 	for each (Edge* ed in edges) {
@@ -216,9 +289,6 @@ std::vector<OrientationOnNode> Node::allPossibleOrientations() const {
 		}
 	}
 
-	//std::cout << "Non looped locked in degree  :" << in_degree << std::endl;
-	//std::cout << "Non looped locked out degree :" << out_degree << std::endl;
-
 	assert(edges.size() == lockedEdges.size() + notLockedLoopedEdges.size() + notLockedNotLoopedEdges.size());
 	assert(degree % 2 == 0);
 	assert(degree >= out_degree + in_degree);
@@ -236,15 +306,15 @@ std::vector<OrientationOnNode> Node::allPossibleOrientations() const {
 
 		assert(in_rem + out_rem == notLockedNotLoopedEdges.size());
 
-		//std::cout << "Generate Binomial configs (" << in_rem << " parmi " << notLockedNotLoopedEdges.size() << ")..." << std::endl;
-		std::vector<std::vector<bool>> notLoopedStates = BinomialConfigs(in_rem, notLockedNotLoopedEdges.size()).generateAll();
-		//std::cout << notLoopedStates.size() << " configuration(s) found" << std::endl;
-		//std::cout << "Generate all configs..." << std::endl;
+		BinomialConfigs::BinomialEntry binomialKey(in_rem, notLockedNotLoopedEdges.size());
+		const std::vector<std::vector<bool>> notLoopedStates = BinomialConfigs(binomialKey).generateAll();
+		//const std::vector<std::vector<bool>>& notLoopedStates = BinomialConfsMan.getSets(binomialKey);
 		std::vector<std::vector<bool>> loopedStates = AllConfigs(notLockedLoopedEdges.size()).generateAll();
-		//std::cout << loopedStates.size() << " configuration(s) found" << std::endl;
+		//const std::vector<std::vector<bool>>& loopedStates = AllConfsMan.getSets(notLockedLoopedEdges.size());
+		//auto loopedStates = AllConfsMan.getSets(notLockedLoopedEdges.size());
 
 		//--- Lambdas ---
-		auto applyInChange = [&](std::vector<bool>& setOri, std::vector<Edge>& edges) {
+		auto applyInChange = [&](const std::vector<bool>& setOri, std::vector<Edge>& edges) {
 			assert(setOri.size() == edges.size());
 			for (size_t i = 0; i < setOri.size(); i++) {
 				assert(edges[i].isAdjacentTo(this));
@@ -259,7 +329,7 @@ std::vector<OrientationOnNode> Node::allPossibleOrientations() const {
 				}
 			}
 		};
-		auto applyChange = [&](std::vector<bool>& setOri, std::vector<Edge>& edges) {
+		auto applyChange = [&](const std::vector<bool>& setOri, std::vector<Edge>& edges) {
 			assert(setOri.size() == edges.size());
 			for (size_t i = 0; i < setOri.size(); i++) {
 				if (setOri[i]) {
@@ -267,7 +337,7 @@ std::vector<OrientationOnNode> Node::allPossibleOrientations() const {
 				}
 			}
 		};
-		auto concatenate = [](std::vector<Edge>& v1, std::vector<Edge>& v2) -> std::vector<Edge> {
+		auto concatenate = [](const std::vector<Edge>& v1, const std::vector<Edge>& v2) -> std::vector<Edge> {
 			std::vector<Edge> res;
 			std::for_each(v1.begin(), v1.end(), [&res](const Edge& e) {
 				              res.push_back(e);

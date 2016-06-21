@@ -599,3 +599,989 @@ os << "\\end{document}" << std::endl;
 window.close();
 }
 */
+
+
+/*
+
+#pragma once
+
+
+#include <vector>
+#include <functional>
+
+#include "Rational2DPoint.h"
+
+
+class __internalTree {
+
+public:
+	Rational2DPoint x1;
+	Rational2DPoint x2;
+
+	bool __isCone;
+	bool __isFlat;
+
+	Rational2DPoint ConeIntersec;
+
+	Rational2DForm FlatNorm; // Has sense only is isFlat
+	Rational2DForm ConeNorm1; // Has sense only if ifCone
+	Rational2DForm ConeNorm2; // Has sense only if ifCone
+
+	std::function<Rational(const Rational2DPoint&)> norm;
+
+	__internalTree* child_1 = nullptr;
+	__internalTree* child_2 = nullptr;
+
+
+public:
+	__internalTree(Rational2DPoint __x1, Rational2DPoint __x2, std::function<Rational(const Rational2DPoint&)> norm);
+	~__internalTree();
+
+	void normalize(Rational2DPoint& x);
+
+	Rational2DPoint normed(const Rational2DPoint& x);
+
+	bool isFlat();
+	bool isCone();
+
+	bool isLeaf();
+	bool isFlatSegment(const Rational2DPoint& x1, const Rational2DPoint& x2, std::function<Rational(const Rational2DPoint&)> norm);
+
+	void prettyPrint();
+
+	void __internal_computeUnitaryBall();
+
+	void collectData(std::vector<Rational2DForm>& forms, std::vector<Rational2DPoint>& v);
+};
+
+
+
+
+#include "__internalTree.h"
+
+
+#include "Rational.h"
+
+__internalTree::__internalTree(Rational2DPoint __x1, Rational2DPoint __x2, std::function<Rational(const Rational2DPoint&)> norm) :
+x1(__x1),
+x2(__x2),
+norm(norm),
+child_1(NULL),
+child_2(NULL),
+__isFlat(false),
+__isCone(false) {
+	normalize(x1);
+	normalize(x2);
+};
+
+__internalTree::~__internalTree() {
+	delete child_1;
+	delete child_2;
+};
+
+void __internalTree::normalize(Rational2DPoint& x) {
+	x = x / norm(x);
+};
+
+Rational2DPoint __internalTree::normed(const Rational2DPoint& x) {
+	return x / norm(x);
+};
+
+bool __internalTree::isFlat() {
+	return __isFlat;
+};
+
+bool __internalTree::isCone() {
+	return __isCone;
+}
+
+bool __internalTree::isLeaf() {
+	return __isCone || __isFlat;
+};
+
+bool __internalTree::isFlatSegment(const Rational2DPoint& x1, const Rational2DPoint& x2, std::function<Rational(const Rational2DPoint&)> norm) {
+	//std::cerr << "isFlat called [" << this << "]" << std::endl;
+	Rational2DPoint mid(Rational2DPoint::middle(x1, x2));
+	return (norm(mid) == Rational(1, 1));
+};
+
+void __internalTree::prettyPrint() {
+	if (this == NULL)
+		return;
+
+	if (isLeaf()) {
+		if (isCone()) {
+			std::cerr << "|| CONE : " << std::endl;
+			std::cerr << "|| x1 : " << x1 << std::endl;
+			std::cerr << "|| x2 : " << x2 << std::endl;
+			std::cerr << "||\t ConeNorm1 : " << ConeNorm1 << std::endl;
+			std::cerr << "||\t ConeNorm2 : " << ConeNorm2 << std::endl;
+			std::cerr << "||\t Intersect : " << ConeIntersec << std::endl;
+		}
+		else {
+			std::cerr << "|| FLAT : " << std::endl;
+			std::cerr << "|| x1 : " << x1 << std::endl;
+			std::cerr << "|| x2 : " << x2 << std::endl;
+			std::cerr << "||\t FlatNorm : " << FlatNorm << std::endl;
+		}
+		std::cerr << std::endl;
+	}
+	else {
+		child_1->prettyPrint();
+		child_2->prettyPrint();
+	}
+};
+
+void __internalTree::__internal_computeUnitaryBall() {
+
+	if (x1 == x2) {
+		// Dead case: should never happened!
+		// TODO: gestion erreur;
+		throw std::exception();
+	}
+	else {
+		Rational2DPoint mid(Rational2DPoint::middle(x1, x2));
+		mid = Rational(1, 2) * (x1 + x2);
+		if (norm(mid) == Rational(1, 1)) { // Flat leaf
+			__isFlat = true;
+			FlatNorm = compute_rat_form(x1, x2);
+		}
+		else {
+			Rational2DPoint __xx(mid);
+			Rational2DPoint __yy(mid);
+
+			// We search the extremal pent of the unitary ball on the segment.
+			// /!\ CAUTION: THIS OPERATION IS NOT BOUNDED IN TIME BUT CONVERGES RAPIDELY IN
+			// REASONABLE CASES /!\.
+
+
+			while (!isFlatSegment(x1, normed(__xx), norm)) {
+				__xx = Rational2DPoint::middle(x1, __xx);
+				normalize(__xx);
+			}
+			while (!isFlatSegment(x2, normed(__yy), norm)) {
+				__yy = Rational2DPoint::middle(x2, __yy);
+				normalize(__yy);
+			}
+
+			normalize(__xx);
+			normalize(__yy);
+
+			// The two Rational2DForm c represent the affine rational form x -> <x|c> -1;
+			Rational2DForm f1 = compute_rat_form(x1, __xx);
+			Rational2DForm f2 = compute_rat_form(__yy, x2);
+
+			// By duality the same algorithm allows to compute the intersection point of the two forms.
+			Rational2DPoint __internal_intersectionPoint = compute_rat_form(f1, f2);
+
+			if (norm(__internal_intersectionPoint) == Rational(1, 1)) { // Cone leaf
+
+				ConeIntersec = __internal_intersectionPoint;
+				__isCone = true;
+				ConeNorm1 = f1;
+				ConeNorm2 = f2;
+			}
+			else { // Not a leaf
+
+				normalize(mid);
+
+				child_1 = new __internalTree(x1, mid, norm);
+				child_2 = new __internalTree(mid, x2, norm);
+
+				child_1->__internal_computeUnitaryBall();
+				child_2->__internal_computeUnitaryBall();
+			}
+		}
+	}
+}
+
+void __internalTree::collectData(std::vector<Rational2DForm>& forms, std::vector<Rational2DPoint>& v) {
+	if (isFlat()) {
+		// We add the FlatNorm to the list 
+		if (forms.size() == 0) {
+			forms.push_back(FlatNorm);
+		}
+		else {
+			Rational2DForm f = forms.back();
+			if (FlatNorm != f) // We check if the norm matches
+				forms.push_back(FlatNorm);
+		}
+	}
+	else if (isCone()) {
+		// We add the ConeForms to the list
+		if (forms.size() == 0) {
+			forms.push_back(ConeNorm1);
+			forms.push_back(ConeNorm2);
+		}
+		else {
+			Rational2DForm f = forms.back();
+			if (ConeNorm1 != f) { // We check if the norm matches
+				forms.push_back(ConeNorm1);
+			}
+			forms.push_back(ConeNorm2);
+		}
+		v.push_back(ConeIntersec);
+	}
+	else {
+		child_1->collectData(forms, v);
+		child_2->collectData(forms, v);
+	}
+}
+*/
+
+/*
+
+#pragma once
+
+#include <vector>
+
+#include <ostream>
+#include <random>
+
+#include "Rational.h"
+#include "Rational2DPoint.h"
+
+class NormObject {
+
+	using NormObjectException = std::exception;
+
+	// Public methods
+public:
+	NormObject();
+	NormObject(std::string& str);
+	virtual ~NormObject();
+
+	float operator()(float x, float y) const;
+	Rational operator()(const Rational& x, const Rational& y) const;
+	Rational operator()(const Rational2DPoint& p) const;
+
+	// Private intern class
+private:
+	class RationalSlopeRep final {
+
+		friend class NormObject;
+
+	public:
+		RationalSlopeRep();
+		RationalSlopeRep(int a, int b);
+		~RationalSlopeRep();
+
+		bool isProportional(const RationalSlopeRep& slopeRep) const;
+
+		friend std::ostream& operator<<(std::ostream& os, const RationalSlopeRep& slopeRep);
+
+	public:
+		int a;
+		int b;
+
+		void randomize();
+
+	private:
+		static std::default_random_engine generator;
+		static std::uniform_int_distribution<int> distribution;
+		static std::function<int()> RNG;
+
+	};
+
+	friend std::ostream& operator<<(std::ostream& os, const RationalSlopeRep& slopeRep);
+	friend std::ostream& operator<<(std::ostream& os, const NormObject& slopeRep);
+
+	// Private static methods
+	static bool isDigit(const char c);
+	static int getDigit(const char c);
+
+	// Private members
+	std::vector<RationalSlopeRep> v;
+
+
+};
+
+
+#include "NormObject.h"
+
+
+#include <chrono>
+#include <cstdint>
+
+std::default_random_engine NormObject::RationalSlopeRep::generator((unsigned int)std::chrono::system_clock::now().time_since_epoch().count());
+std::uniform_int_distribution<int> NormObject::RationalSlopeRep::distribution(-100, 100);
+std::function<int()> NormObject::RationalSlopeRep::RNG(std::bind(distribution, generator));
+
+void NormObject::RationalSlopeRep::randomize() {
+	do {
+		a = RNG();
+		b = RNG();
+	} while (a == 0 && b == 0);
+}
+
+NormObject::NormObject() {
+	int nb_set;
+
+	do {
+		nb_set = abs(RationalSlopeRep::RNG()) % 20;
+	} while (nb_set <= 1);
+
+	auto check = [](const std::vector<RationalSlopeRep>& v) {
+		const RationalSlopeRep& refSlope = v[0];
+		for (unsigned int i = 1; i < v.size(); i++) {
+			if (!(refSlope.isProportional(v[i])))
+				return true;
+		}
+
+		return false;
+	};
+
+	do {
+		v.clear();
+
+		for (int i = 0; i < nb_set; i++) {
+			v.push_back(RationalSlopeRep()); // Random slope rep
+		}
+	} while (!check(v));
+}
+
+std::ostream& operator<<(std::ostream& os, const NormObject::RationalSlopeRep& slopeRep) {
+	os << "[" << slopeRep.a << "," << slopeRep.b << "]";
+	return os;
+}
+
+NormObject::RationalSlopeRep::RationalSlopeRep(int a, int b) :
+a(a),
+b(b) {
+	if ((a == 0) && (b == 0)) {
+		throw NormObject::NormObjectException();
+	}
+}
+
+NormObject::RationalSlopeRep::RationalSlopeRep() {
+	randomize();
+}
+
+NormObject::RationalSlopeRep::~RationalSlopeRep() {
+}
+
+bool NormObject::RationalSlopeRep::isProportional(const NormObject::RationalSlopeRep& slopeRep) const {
+	int64_t __a = slopeRep.a;
+	int64_t __b = slopeRep.b;
+	return (a * __b + b * __a) == 0;
+}
+
+
+NormObject::NormObject(std::string& str) {
+
+	enum __AUTOM_STATE {
+		START,
+		GEN_OPEN,
+		GEN_CLOSE,
+		LOC_OPEN,
+		LOC_CLOSE,
+		READ_NUMBER_1,
+		READ_NUMBER_2,
+		COMMA_LOC,
+		COMMA_GEN,
+		MINUS_1,
+		MINUS_2
+	};
+
+
+	int64_t number_read_1 = 0;
+	int64_t number_read_2 = 0;
+	bool negative_read = false;
+
+	__AUTOM_STATE state = START;
+
+	if (str.size() == 0) {
+		throw NormObject::NormObjectException();
+	}
+
+
+	for (size_t index = 0; index < str.size(); index++) {
+
+		char curr = str[index];
+
+		switch (state) {
+		case START:
+			if (curr == '[') {
+				state = GEN_OPEN;
+			}
+			else {
+				throw NormObject::NormObjectException();
+			}
+			break;
+		case GEN_OPEN:
+			if (curr == '[') {
+				state = LOC_OPEN;
+			}
+			else {
+				throw NormObject::NormObjectException();
+			}
+			break;
+		case GEN_CLOSE:
+			break;
+		case LOC_OPEN:
+			number_read_1 = 0;
+			number_read_2 = 0;
+			if (curr == '-') {
+				negative_read = true;
+				state = MINUS_1;
+			}
+			else if (isDigit(curr)) {
+				number_read_1 = number_read_1 * 10 + getDigit(curr);
+				state = READ_NUMBER_1;
+			}
+			else {
+				throw NormObject::NormObjectException();
+			}
+			break;
+		case LOC_CLOSE:
+			if (curr == ',') {
+				state = COMMA_GEN;
+			}
+			else if (curr == ']') {
+				state = GEN_CLOSE;
+			}
+			else {
+				throw NormObject::NormObjectException();
+			}
+			negative_read = false;
+			v.push_back(RationalSlopeRep((int)number_read_1, (int)number_read_2));
+			break;
+		case READ_NUMBER_1:
+			if (curr == ',') {
+				if (negative_read) {
+					number_read_1 *= -1;
+				}
+				negative_read = false;
+				state = COMMA_LOC;
+			}
+			else if (isDigit(curr)) {
+				number_read_1 = number_read_1 * 10 + getDigit(curr);
+				state = READ_NUMBER_1;
+			}
+			else {
+				throw NormObject::NormObjectException();
+			}
+			break;
+		case MINUS_1:
+			if (isDigit(curr)) {
+				number_read_1 = number_read_1 * 10 + getDigit(curr);
+				state = READ_NUMBER_1;
+			}
+			else {
+				throw NormObject::NormObjectException();
+			}
+			break;
+		case READ_NUMBER_2:
+			if (curr == ']') {
+				if (negative_read) {
+					number_read_2 *= -1;
+				}
+				negative_read = false;
+				state = LOC_CLOSE;
+			}
+			else if (isDigit(curr)) {
+				number_read_2 = number_read_2 * 10 + getDigit(curr);
+				state = READ_NUMBER_2;
+			}
+			else {
+				throw NormObject::NormObjectException();
+			}
+			break;
+		case MINUS_2:
+			if (isDigit(curr)) {
+				number_read_2 = number_read_2 * 10 + getDigit(curr);
+				state = READ_NUMBER_2;
+			}
+			else {
+				throw NormObject::NormObjectException();
+			}
+			break;
+		case COMMA_LOC:
+			if (curr == '-') {
+				negative_read = true;
+				state = MINUS_2;
+			}
+			else if (isDigit(curr)) {
+				number_read_2 = number_read_2 * 10 + getDigit(curr);
+				state = READ_NUMBER_2;
+			}
+			else {
+				throw NormObject::NormObjectException();
+			}
+			break;
+		case COMMA_GEN:
+			if (curr == '[') {
+				state = LOC_OPEN;
+			}
+			else {
+				throw NormObject::NormObjectException();
+			}
+			break;
+		default:
+			// Unreachable code
+			throw NormObject::NormObjectException();
+		}
+
+	}
+
+	if (v.size() < 2) {
+		throw NormObject::NormObjectException();
+	}
+
+	bool isNorm = false;
+
+	RationalSlopeRep& slopeRepRef = v[0];
+
+	for (size_t i = 1; i < v.size(); i++) {
+		if (!slopeRepRef.isProportional(v[i])) {
+			isNorm = true;
+			break;
+		}
+	}
+
+	if (!isNorm) {
+		throw NormObject::NormObjectException();
+	}
+}
+
+NormObject::~NormObject() {
+
+}
+
+float NormObject::operator()(float x, float y) const {
+	float res = 0;
+	for (size_t i = 0; i < v.size(); i++) {
+		float a = (float)(v[i].a);
+		float b = (float)(v[i].b);
+		res += abs(b * x - a * y);
+	}
+	return res;
+}
+
+Rational NormObject::operator()(const Rational& x, const Rational& y) const {
+	Rational res(0, 1);
+	for (size_t i = 0; i < v.size(); i++) {
+		int __a = v[i].a;
+		int __b = v[i].b;
+		Rational a(__a, 1);
+		Rational b(__b, 1);
+		res += abs(b * x - a * y);
+	}
+	return res;
+}
+
+Rational NormObject::operator()(const Rational2DPoint& p) const {
+	return operator()(p.x, p.y);
+}
+
+bool NormObject::isDigit(const char c) {
+	return (c - '0') >= 0 && (c - '0') <= 9;
+}
+
+int NormObject::getDigit(const char c) {
+	return c - '0';
+}
+
+std::ostream& operator<<(std::ostream& os, const NormObject& nO) {
+	os << "[";
+	for (size_t i = 0; i < (nO.v.size() - 1); i++) {
+		os << nO.v[i] << ",";
+	}
+	os << nO.v.back() << "]";
+	return os;
+}
+*/
+
+
+
+/*
+#pragma once
+
+
+#include <vector>
+#include <SFML\Graphics.hpp>
+#include <cmath>
+#include <functional>
+
+
+#include "Rational.h"
+#include "Rational2DPoint.h"
+
+
+sf::Color genColor(double x);
+
+using Boundiaries = struct {
+float x_min;
+float x_max;
+float y_min;
+float y_max;
+};
+
+
+Boundiaries generateBoundiaries(const std::vector<Rational2DPoint>& vertices);
+
+
+class PrintingWindow :
+public sf::RenderWindow {
+public:
+
+sf::Vector2f windowCoor(const Rational2DPoint& r);
+
+void drawPoly(const std::vector<Rational2DPoint>& v);
+
+PrintingWindow(unsigned int X, unsigned int Y, const std::vector<Rational2DPoint>& vertices);
+PrintingWindow(unsigned int X, unsigned int Y, const Boundiaries& bound);
+
+void drawNorm(std::function<float(float x, float y)> norm);
+bool generateImage(const std::string& filename);
+
+void resetBoundiaires(const Boundiaries& bounds);
+void computeUpperLayout();
+
+void display();
+
+private:
+
+PrintingWindow(unsigned int X, unsigned int Y, float x_min, float x_max, float y_min, float y_max);
+
+sf::RenderTexture UpperLayout;
+sf::Sprite UpperLayoutSprite;
+
+float x_min;
+float x_max;
+float y_min;
+float y_max;
+
+float x_amp;
+float y_amp;
+
+float x_coeff;
+float y_coeff;
+
+float x_center;
+float y_center;
+
+unsigned int X;
+unsigned int Y;
+};
+
+
+#include "PrintingWindow.h"
+
+
+sf::Color genColor(double x) {
+
+x = std::max(0.0, std::min(x, 1.0));
+
+sf::Color out_color;
+
+if (x < 1.0 / 3.0) {
+out_color.r = 0;
+out_color.g = (uint8_t)(255 * 3 * x);
+out_color.b = 255;
+} else if (x < 2.0 / 3.0) {
+out_color.r = (uint8_t)(255 * 3 * (x - 1.0 / 3.0));
+out_color.g = 255;
+out_color.b = (uint8_t)(255 * 3 * (2.0 / 3.0 - x));
+} else {
+out_color.r = 255;
+out_color.g = (uint8_t)(255 * 3 * (1.0 - x));
+out_color.b = 0;
+}
+
+return out_color;
+}
+
+
+Boundiaries generateBoundiaries(const std::vector<Rational2DPoint>& vertices) {
+Rational __x_max(vertices[0].x);
+Rational __x_min(vertices[0].x);
+Rational __y_max(vertices[0].y);
+Rational __y_min(vertices[0].y);
+
+for (unsigned int i = 0; i < vertices.size(); i++) {
+Rational x = vertices[i].x;
+Rational y = vertices[i].y;
+
+if (x > __x_max) {
+__x_max = x;
+} else if (x < __x_min) {
+__x_min = x;
+}
+if (y > __y_max) {
+__y_max = y;
+} else if (y < __y_min) {
+__y_min = y;
+}
+}
+
+float a = static_cast<float>(Rational(1, 1));
+
+Rational x_rat_amp = __x_max - __x_min;
+Rational y_rat_amp = __y_max - __y_min;
+Rational x_rat_sum = __x_max + __x_min;
+Rational y_rat_sum = __y_max + __y_min;
+
+float x_amp = 1.2f * static_cast<float>(x_rat_amp);
+float y_amp = 1.2f * static_cast<float>(y_rat_amp);
+
+float x_center = 0.5f * static_cast<float>(x_rat_sum);
+float y_center = 0.5f * static_cast<float>(x_rat_sum);
+
+float half_x_amp = x_amp * 0.5f;
+float half_y_amp = y_amp * 0.5f;
+
+float x_min = x_center - half_x_amp;
+float x_max = x_center + half_x_amp;
+float y_min = y_center - half_y_amp;
+float y_max = y_center + half_y_amp;
+
+Boundiaries bound;
+
+bound.x_max = x_max;
+bound.x_min = x_min;
+bound.y_min = y_min;
+bound.y_max = y_max;
+
+return bound;
+};
+
+
+sf::Vector2f PrintingWindow::windowCoor(const Rational2DPoint& r) {
+float __x = static_cast<float>(r.x) - x_min;
+float __y = static_cast<float>(r.y) - y_min;
+
+float x_coeff = x_amp / X;
+float y_coeff = y_amp / Y;
+
+return sf::Vector2f(__x / x_coeff, __y / y_coeff);
+}
+
+void PrintingWindow::drawPoly(const std::vector<Rational2DPoint>& v) {
+float size_dot = std::max((float)(std::min(X, Y)) / 100.0f, 1.0f);
+sf::CircleShape dot(size_dot);
+dot.setOrigin(sf::Vector2f(dot.getRadius(), dot.getRadius()));
+dot.setFillColor(sf::Color(148, 0, 211));
+
+sf::VertexArray arr(sf::LinesStrip, v.size() + 1);
+for (unsigned int i = 0; i < v.size() + 1; i++) {
+arr[i] = windowCoor(v[i % v.size()]);
+arr[i].color = sf::Color::White;
+arr[i].color = sf::Color(148, 0, 211);
+}
+
+this->draw(arr);
+
+
+for (unsigned int i = 0; i < v.size(); i++) {
+sf::Vector2f pos = windowCoor(v[i]);
+dot.setPosition(pos);
+this->draw(dot);
+}
+
+
+};
+
+PrintingWindow::PrintingWindow(unsigned int X, unsigned int Y, float x_min, float x_max, float y_min, float y_max) :
+RenderWindow(sf::VideoMode(X, Y), "Visualization window"),
+x_min(x_min),
+x_max(x_max),
+y_min(y_min),
+y_max(y_max),
+X(X),
+Y(Y) {
+if (X == 0 || Y == 0) {
+// TODO: Generate exception;
+throw std::exception();
+}
+
+if (x_min >= x_max || y_min >= y_max) {
+// TODO: Generate exception;
+throw std::exception();
+}
+
+x_amp = x_max - x_min;
+y_amp = y_max - y_min;
+
+x_coeff = X / x_amp;
+y_coeff = Y / y_amp;
+
+x_center = 0.5f * (x_max + x_min);
+y_center = 0.5f * (y_max + y_min);
+
+computeUpperLayout();
+};
+
+void PrintingWindow::drawNorm(std::function<float(float x, float y)> norm) {
+float x_amp = x_max - x_min;
+float y_amp = y_max - y_min;
+
+float x_coeff = x_amp / X;
+float y_coeff = y_amp / Y;
+
+float x = X * x_coeff;
+float y = Y * y_coeff;
+
+float x_offset = x / 2.0f;
+float y_offset = y / 2.0f;
+
+float upperBound = 0.0f;
+upperBound = std::max(upperBound, norm(x_min, y_min));
+upperBound = std::max(upperBound, norm(x_min, y_max));
+upperBound = std::max(upperBound, norm(x_max, y_min));
+upperBound = std::max(upperBound, norm(x_max, y_max));
+
+sf::Image im;
+im.create(X, Y);
+
+for (unsigned int i = 0; i < X; i++)
+for (unsigned int j = 0; j < Y; j++) {
+float x = x_min + i * x_coeff;
+float y = y_min + j * y_coeff;
+
+float __eval_norm = norm(x, y);
+
+sf::Color cc = genColor(__eval_norm / upperBound);
+if (abs(__eval_norm - 1.0f) <= 0.01f) {
+cc = sf::Color::Black;
+}
+im.setPixel(i, j, cc);
+}
+
+
+sf::Sprite sprite;
+sf::Texture text;
+text.loadFromImage(im);
+sprite.setTexture(text);
+
+this->draw(sprite);
+}
+
+void PrintingWindow::display() {
+this->draw(UpperLayoutSprite);
+RenderWindow::display();
+};
+
+bool PrintingWindow::generateImage(const std::string& filename) {
+sf::Image screenshot = this->capture();
+return screenshot.saveToFile(filename);
+};
+
+
+PrintingWindow::PrintingWindow(unsigned int X, unsigned int Y, const Boundiaries& bound) :
+PrintingWindow(X, Y, bound.x_min, bound.x_max, bound.y_min, bound.y_max) {
+};
+
+
+PrintingWindow::PrintingWindow(unsigned int X, unsigned int Y, const std::vector<Rational2DPoint>& vertices) :
+PrintingWindow(X, Y, generateBoundiaries(vertices)) {
+};
+
+void PrintingWindow::resetBoundiaires(const Boundiaries& bounds) {
+
+x_min = bounds.x_min;
+x_max = bounds.x_max;
+y_min = bounds.y_min;
+y_max = bounds.y_max;
+
+
+if (x_min >= x_max || y_min >= y_max) {
+// TODO: Generate exception;
+throw std::exception();
+}
+
+x_amp = x_max - x_min;
+y_amp = y_max - y_min;
+
+x_coeff = X / x_amp;
+y_coeff = Y / y_amp;
+
+x_center = 0.5f * (x_max + x_min);
+y_center = 0.5f * (y_max + y_min);
+
+sf::Vector2f center(x_center, y_center);
+sf::Vector2f size(x_amp, y_amp);
+
+computeUpperLayout();
+}
+
+void PrintingWindow::computeUpperLayout() {
+sf::Vector2f center(x_center, y_center);
+sf::Vector2f size(x_amp, y_amp);
+
+
+//=========== Creating and setting the upper layout =============
+// UpperLayout is a member.
+UpperLayout.create(X, Y);
+UpperLayout.clear(sf::Color(0, 0, 0, 0)); // Transparent layout
+
+
+// Compute a "good size" for the integral latice.
+float X_nb_int_pt = ((float)X) / (20.0f * x_amp);
+float Y_nb_int_pt = ((float)Y) / (20.0f * x_amp);
+
+float int_point_rad = std::max(1.0f, std::min(X_nb_int_pt, Y_nb_int_pt));
+int_point_rad = 4.0f;
+float origin_point_rad = 2 * int_point_rad;
+
+sf::CircleShape int_point(int_point_rad);
+int_point.setFillColor(sf::Color::Black);
+int_point.setOrigin(int_point.getRadius(), int_point.getRadius());
+
+sf::CircleShape origin_point(origin_point_rad);
+origin_point.setOrigin(origin_point.getRadius(), origin_point.getRadius());
+sf::Vector2f origin(-x_min * x_coeff, -y_min * y_coeff);
+origin_point.setPosition(origin);
+origin_point.setFillColor(sf::Color::Black);
+
+//=========== Drawing the integral lattice =====================
+int int_x_min = (int)x_min - 1;
+int int_x_max = (int)x_max + 1;
+
+int int_y_min = (int)y_min - 1;
+int int_y_max = (int)y_max + 1;
+
+int numberOfPoints = (int_x_max - int_x_min + 1) * (int_y_max - int_y_min + 1);
+int counter = 1;
+
+//std::cerr << "In..." << std::endl;
+
+for (int i = int_x_min; i <= int_x_max; i++) {
+for (int j = int_y_min; j <= int_y_max; j++) {
+float __x = (float)i;
+float __y = (float)j;
+
+float x = (__x - x_min) * x_coeff;
+float y = (__y - y_min) * y_coeff;
+// Convert to frame coordinates
+
+
+int_point.setPosition(x, y);
+UpperLayout.draw(int_point);
+
+counter++;
+}
+}
+
+UpperLayout.draw(origin_point); // Draw the origin point
+
+sf::RectangleShape X_axis(sf::Vector2f((float)X, 4.0f));
+X_axis.setOrigin(X_axis.getSize() / 2.0f);
+X_axis.setPosition(origin);
+X_axis.setFillColor(sf::Color::Black);
+
+UpperLayout.draw(X_axis);
+
+sf::RectangleShape Y_axis(sf::Vector2f(4.0f, (float)Y));
+Y_axis.setOrigin(Y_axis.getSize() / 2.0f);
+Y_axis.setPosition(origin);
+Y_axis.setFillColor(sf::Color::Black);
+
+UpperLayout.draw(Y_axis);
+
+
+//=========== Set the sprite  for the upper layout ============
+UpperLayoutSprite.setTexture(UpperLayout.getTexture());
+}
+
+*/

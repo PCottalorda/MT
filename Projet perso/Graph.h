@@ -26,6 +26,7 @@
 #include <unordered_set>
 #include "EulerianOrientation.h"
 
+
 class Graph {
 public:
 	Graph(unsigned int nbVertices);

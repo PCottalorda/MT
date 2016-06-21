@@ -1,5 +1,3 @@
-
-
 /*****************************************************************************
 *                                                                            *
 *  Copyright 2016 Paul Cottalorda                                            *
@@ -102,13 +100,6 @@ std::vector<EulerianOrientation> Graph::generateAllEulerianOrientations() {
 	__kernel_generateEulerian(0, eulOri);
 	assert(!eulOri.empty());
 
-	/*
-	std::cerr << "digraph G {\n";
-	for each (const EulerianOrientation& eO in eulOri) {
-		std::cerr << eO.generateGraphVizString() << std::endl;
-	}
-	std::cerr << "}" << std::endl;
-	*/
 	return eulOri;
 }
 
@@ -117,31 +108,23 @@ void Graph::__kernel_generateEulerian(unsigned i, std::vector<EulerianOrientatio
 	static unsigned int counter = 1;
 
 	if (i >= nodes.size()) {
-		std::cout << "\tNew eulerian orientation found [" << counter << "]" << std::endl;
+		//std::cout << "\tNew eulerian orientation found [" << counter << "]" << std::endl;
 		counter++;
 		eulOri.push_back(EulerianOrientation(this, internalNodeCounter));
-		assert(!eulOri.empty());
 		internalNodeCounter++;
 	} else {
-		//std::cout << "Node " << i << std::endl;
 		Node* refNode = nodes[i];
 		if (refNode->isComplete()) {
-			//std::cout << "\tComplete Node..." << std::endl;
 			if (refNode->isEulerian()) {
-				//std::cout << "\t\tEulerian Node..." << std::endl;
 				__kernel_generateEulerian(i + 1, eulOri);
 			} else {
-				//std::cout << "\t\tNon Eulerian Node..." << std::endl;
 				// The current restricted orientation is not eulerian
-				// and cannot be extended
+				// and cannot be extended into an eulerian orientation.
 			}
 		} else {
-			//std::cout << "\tIncomplete Node..." << std::endl;
 			std::vector<OrientationOnNode> ori(refNode->allPossibleOrientations());
-			//std::cout << ori.size() << " possible eulerian orientations..." << std::endl;
 			OrientationOnNode saveOri(refNode->saveOrientation());
 			for each (const OrientationOnNode& o in ori) {
-				// We check if the two orientations are compatible
 				refNode->setOrientedEdges(o);
 				assert(refNode->isComplete());
 				assert(refNode->isEulerian());

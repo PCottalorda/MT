@@ -42,15 +42,21 @@
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
-      <Optimization>Disabled</Optimization>
+      <Optimization>Full</Optimization>
       <SDLCheck>true</SDLCheck>
       <AdditionalIncludeDirectories>D:\Programmation\Librairies\boost_1_58_0;D:\Programmation\Librairies\SFML\sources\include</AdditionalIncludeDirectories>
+      <BrowseInformation>true</BrowseInformation>
+      <DebugInformationFormat>None</DebugInformationFormat>
+      <BasicRuntimeChecks>Default</BasicRuntimeChecks>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalLibraryDirectories>D:\Programmation\Librairies\SFML\build\lib\Debug</AdditionalLibraryDirectories>
       <AdditionalDependencies>kernel32.lib;user32.lib;gdi32.lib;winspool.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;comdlg32.lib;advapi32.lib;sfml-graphics-d.lib;sfml-window-d.lib;sfml-system-d.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
+    <Bscmake>
+      <PreserveSbr>true</PreserveSbr>
+    </Bscmake>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
@@ -59,6 +65,7 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
+      <AdditionalIncludeDirectories>D:\Programmation\Librairies\boost_1_58_0;D:\Programmation\Librairies\SFML\sources\include</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -76,17 +83,14 @@
     <ClCompile Include="IntersectionManager.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Node.cpp" />
-    <ClCompile Include="NormObject.cpp" />
     <ClCompile Include="old.cpp" />
     <ClCompile Include="PointOnBoundiaryWrapper.cpp" />
-    <ClCompile Include="PrintingWindow.cpp" />
     <ClCompile Include="Rational.cpp" />
     <ClCompile Include="Rational2DForm.cpp" />
     <ClCompile Include="Rational2DPoint.cpp" />
     <ClCompile Include="Segment.cpp" />
     <ClCompile Include="SegmentDrawable.cpp" />
     <ClCompile Include="SettingWindow.cpp" />
-    <ClCompile Include="__internalTree.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Edge.h" />
@@ -99,14 +103,11 @@
     <ClInclude Include="PointOnBoundiaryWrapper.h" />
     <ClInclude Include="Rational2DForm.h" />
     <ClInclude Include="Node.h" />
-    <ClInclude Include="NormObject.h" />
-    <ClInclude Include="PrintingWindow.h" />
     <ClInclude Include="Rational.h" />
     <ClInclude Include="Rational2DPoint.h" />
     <ClInclude Include="Segment.h" />
     <ClInclude Include="SegmentDrawable.h" />
     <ClInclude Include="SettingWindow.h" />
-    <ClInclude Include="__internalTree.h" />
   </ItemGroup>
   <ItemGroup>
     <Font Include="..\..\Projet perso\Projet perso\arial.ttf" />
