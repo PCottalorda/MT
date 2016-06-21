@@ -76,17 +76,12 @@
     <ClCompile Include="IntersectionManager.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Node.cpp" />
-    <ClCompile Include="NormObject.cpp" />
     <ClCompile Include="old.cpp" />
-    <ClCompile Include="PointOnBoundiaryWrapper.cpp" />
-    <ClCompile Include="PrintingWindow.cpp" />
-    <ClCompile Include="Rational.cpp" />
     <ClCompile Include="Rational2DForm.cpp" />
     <ClCompile Include="Rational2DPoint.cpp" />
     <ClCompile Include="Segment.cpp" />
     <ClCompile Include="SegmentDrawable.cpp" />
     <ClCompile Include="SettingWindow.cpp" />
-    <ClCompile Include="__internalTree.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Edge.h" />
@@ -99,14 +94,11 @@
     <ClInclude Include="PointOnBoundiaryWrapper.h" />
     <ClInclude Include="Rational2DForm.h" />
     <ClInclude Include="Node.h" />
-    <ClInclude Include="NormObject.h" />
-    <ClInclude Include="PrintingWindow.h" />
     <ClInclude Include="Rational.h" />
     <ClInclude Include="Rational2DPoint.h" />
     <ClInclude Include="Segment.h" />
     <ClInclude Include="SegmentDrawable.h" />
     <ClInclude Include="SettingWindow.h" />
-    <ClInclude Include="__internalTree.h" />
   </ItemGroup>
   <ItemGroup>
     <Font Include="..\..\Projet perso\Projet perso\arial.ttf" />

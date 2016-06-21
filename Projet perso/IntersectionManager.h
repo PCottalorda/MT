@@ -1,5 +1,3 @@
-#pragma once
-
 /*****************************************************************************
 *                                                                            *
 *  Copyright 2016 Paul Cottalorda                                            *
@@ -17,6 +15,9 @@
 *  limitations under the License.                                            *
 *                                                                            *
 ******************************************************************************/
+
+
+#pragma once
 
 
 #include <exception>
@@ -93,27 +94,6 @@ public:
 	class IncorrectSplit : std::exception {
 	};
 
-	/*
-	class SplitSegmentIteratorOutOfRange : std::exception {};
-	class iterator : public std::iterator < std::input_iterator_tag, SplitSegmentWrapper > {
-		friend class SplitSegmentWrapper;
-
-	public:
-		iterator(const iterator& it);
-		iterator& operator++();
-		iterator operator++(int);
-		bool operator==(const iterator& rhs) const;
-		bool operator!=(const iterator& rhs) const;
-		SplitSegmentWrapper& operator*() const;
-
-	private:
-		explicit iterator(SplitSegmentWrapper* base);
-		SplitSegmentWrapper* base;
-	};
-
-	iterator begin();
-	iterator end();
-	*/
 	size_t size() const;
 
 	Segment::IntersectSol intersectionWith(const SplitSegmentWrapper& s) const;
@@ -159,12 +139,10 @@ public:
 
 	private:
 		explicit iterator(std::vector<SplitSegmentWrapper>& curve);
-		//void pointEnd();
 
 	private: // Members
 		std::vector<SplitSegmentWrapper>& curve;
 		std::vector<SplitSegmentWrapper>::iterator internalIt;
-		//SplitSegmentWrapper::iterator* subInternalIt;
 	};
 
 	explicit PolyLineCurve(std::vector<SplitSegmentWrapper> segs);

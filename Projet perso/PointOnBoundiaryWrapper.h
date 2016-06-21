@@ -1,6 +1,3 @@
-#pragma once
-
-
 /*****************************************************************************
 *                                                                            *
 *  Copyright 2016 Paul Cottalorda                                            *
@@ -19,6 +16,9 @@
 *                                                                            *
 ******************************************************************************/
 
+
+
+#pragma once
 
 #include <utility>
 
@@ -89,4 +89,3 @@ PointOnBoundiaryWrapper<T>& PointOnBoundiaryWrapper<T>::operator=(PointOnBoundia
 	return *this;
 }
 
-#include "PointOnBoundiaryWrapper.cpp"

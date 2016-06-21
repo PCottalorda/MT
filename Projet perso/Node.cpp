@@ -1,5 +1,3 @@
-
-
 /*****************************************************************************
 *                                                                            *
 *  Copyright 2016 Paul Cottalorda                                            *
@@ -24,6 +22,7 @@
 #include <algorithm>
 #include <cassert>
 #include <functional>
+#include <unordered_map>
 
 
 //=============================== COUNTER ===================================================================
@@ -50,32 +49,12 @@ private:
 
 };
 
-class BinomialConfigs : public Counter {
-public:
-	BinomialConfigs(size_t n, size_t m) :
-		Counter(m, [n, m](const std::vector<bool>& v, size_t s) {
-			        size_t count = 0;
-			        for (size_t i = 0; i < s; i++)
-				        if (v[i]) count++;
 
-			        return count == n;
-		        }) {
-		assert(m >= n);
-	};
-};
 
-class AllConfigs : public Counter {
-public:
-	AllConfigs(size_t s) :
-		Counter(s, [](const std::vector<bool>&, size_t) {
-			        return true;
-		        }) {
-	};
-};
-
-Counter::Counter(size_t size, const std::function<bool(const std::vector<bool>&, size_t)>& func) : size(size),
-                                                                                                       func(func),
-                                                                                                       loopGest(size + 1, false) {
+Counter::Counter(size_t size, const std::function<bool(const std::vector<bool>&, size_t)>& func) : 
+	size(size),
+	func(func),
+	loopGest(size + 1, false) {
 
 }
 
@@ -95,7 +74,6 @@ size_t Counter::state() {
 
 
 std::vector<bool> Counter::getNext() {
-	//std::cout << "\tConfiguration Found: " << state() << std::endl;
 	std::vector<bool> res(size);
 	for (size_t i = 0; i < size; i++) {
 		res[i] = loopGest[i];
@@ -151,6 +129,90 @@ std::vector<std::vector<bool>> Counter::generateAll() {
 }
 
 
+
+
+struct BinomialParams {
+	size_t n;
+	size_t m;
+
+	BinomialParams(size_t n, size_t m) : n(n), m(m) {};
+
+	friend bool operator==(const BinomialParams& lhs, const BinomialParams& rhs) {
+		return lhs.n == rhs.n
+			&& lhs.m == rhs.m;
+	}
+
+	friend bool operator!=(const BinomialParams& lhs, const BinomialParams& rhs) {
+		return !(lhs == rhs);
+	}
+};
+
+namespace std {
+	template<>
+	struct hash<BinomialParams> {
+		std::size_t operator() (const BinomialParams& b) const {
+			return b.m*b.n + b.n;
+		}
+	};
+}
+
+class BinomialConfigs : public Counter {
+public:
+	BinomialConfigs(size_t n, size_t m) :
+		Counter(m, [n, m](const std::vector<bool>& v, size_t s) {
+		size_t count = 0;
+		for (size_t i = 0; i < s; i++)
+			if (v[i]) count++;
+
+		return count == n;
+	}) {
+		assert(m >= n);
+	}
+
+	BinomialConfigs(BinomialParams p) : BinomialConfigs(p.n,p.m) {}
+};
+
+class AllConfigs : public Counter {
+public:
+	AllConfigs(size_t s) :
+		Counter(s, [](const std::vector<bool>&, size_t) {
+		return true;
+	}) {
+	};
+};
+
+
+template<typename Type, typename Key>
+class CounterValuesManager {
+	using ResType = typename std::result_of<decltype(&Type::generateAll)(Type)>::type;
+	using MapType = std::unordered_map<Key, ResType>;
+public:
+	CounterValuesManager() {};
+	~CounterValuesManager() {};
+
+
+	const ResType& getValue(Key key) {
+		auto it = computedResults.find(key);
+		if (it == computedResults.end()) {
+			ResType res = Type(key).generateAll();
+			auto resInsertion = computedResults.insert(std::pair<Key, ResType>(key, res));
+			return resInsertion.first->second;
+		} else {
+			return it->second;
+		}
+	}
+
+private:
+	MapType computedResults;
+};
+
+
+using BinomialValuesManager = CounterValuesManager < BinomialConfigs, BinomialParams > ;
+using AllValuesManager = CounterValuesManager < AllConfigs, size_t > ;
+
+
+
+
 //======== NODE ==============================================================================================
 
 Node::Node(int i) : internalNumber(i) {
@@ -178,6 +240,10 @@ void Node::__check_validity() {
 
 std::vector<OrientationOnNode> Node::allPossibleOrientations() const {
 	//std::cout << "Generate possible eulerian orientation of node " << internalNumber << std::endl;
+
+	BinomialValuesManager	BinValMan;
+	AllValuesManager		AllValMan;
+
 	std::vector<OrientationOnNode> orientations;
 
 	std::vector<Edge> lockedEdges;
@@ -236,12 +302,13 @@ std::vector<OrientationOnNode> Node::allPossibleOrientations() const {
 
 		assert(in_rem + out_rem == notLockedNotLoopedEdges.size());
 
-		//std::cout << "Generate Binomial configs (" << in_rem << " parmi " << notLockedNotLoopedEdges.size() << ")..." << std::endl;
+		BinomialParams binParams(in_rem, notLockedNotLoopedEdges.size());
+		std::vector<std::vector<bool>> notLoopedStates2 = BinomialConfigs(binParams).generateAll();
+		std::vector<std::vector<bool>> notLoopedStates3 = BinValMan.getValue(binParams);
 		std::vector<std::vector<bool>> notLoopedStates = BinomialConfigs(in_rem, notLockedNotLoopedEdges.size()).generateAll();
-		//std::cout << notLoopedStates.size() << " configuration(s) found" << std::endl;
-		//std::cout << "Generate all configs..." << std::endl;
+		assert(notLoopedStates == notLoopedStates2);
+		assert(notLoopedStates2 == notLoopedStates3);
 		std::vector<std::vector<bool>> loopedStates = AllConfigs(notLockedLoopedEdges.size()).generateAll();
-		//std::cout << loopedStates.size() << " configuration(s) found" << std::endl;
 
 		//--- Lambdas ---
 		auto applyInChange = [&](std::vector<bool>& setOri, std::vector<Edge>& edges) {
