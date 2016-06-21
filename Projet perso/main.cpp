@@ -57,7 +57,7 @@ int main(int argc, char* argv[]) {
 
 		// Get the genus.
 		std::string buff;
-		std::cout << "Enter the genus (or quit with <q>) or <quit>:";
+		std::cout << "Enter the genus (or quit with <q> or <quit>):";
 		std::getline(std::cin, buff);
 		std::istringstream iss(buff);
 		int genus = -1;

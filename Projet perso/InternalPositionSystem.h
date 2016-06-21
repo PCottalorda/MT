@@ -19,8 +19,9 @@
 ******************************************************************************/
 
 
-#include "PointOnBoundiaryWrapper.h"
 #include <SFML/System/Vector2.hpp>
+
+#include "PointOnBoundiaryWrapper.h"
 #include "Rational2DPoint.h"
 
 
@@ -66,5 +67,4 @@ private:
 	bool authModif;
 	int index;
 	SettingWindow* window;
-
 };

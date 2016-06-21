@@ -1,5 +1,3 @@
-
-
 /*****************************************************************************
 *                                                                            *
 *  Copyright 2016 Paul Cottalorda                                            *
@@ -19,14 +17,14 @@
 ******************************************************************************/
 
 
-#include "IntersectionManager.h"
 
 #include <functional>
 #include <cassert>
+#include <set>
 
 #include "Graph.h"
 #include "SettingWindow.h"
-#include <set>
+#include "IntersectionManager.h"
 
 
 Segment::IntersectSol::IntersectSol(): exists(false), isUnique(false), inter(Rational2DPoint(),false,-1) {
