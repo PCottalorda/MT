@@ -23,6 +23,8 @@
 #include <cassert>
 #include <functional>
 #include <unordered_map>
+#include <iostream>
+#include <string>
 
 
 //=============================== COUNTER ===================================================================
@@ -39,6 +41,37 @@ public:
 	std::vector<bool> getNext();
 	bool finished() const;
 	std::vector<std::vector<bool>> generateAll();
+
+
+	Counter(const Counter& other)
+		: loopGest(other.loopGest),
+		  size(other.size),
+		  func(other.func) {
+	}
+
+	Counter(Counter&& other)
+		: loopGest(std::move(other.loopGest)),
+		  size(other.size),
+		  func(std::move(other.func)) {
+	}
+
+	Counter& operator=(const Counter& other) {
+		if (this == &other)
+			return *this;
+		loopGest = other.loopGest;
+		size = other.size;
+		func = other.func;
+		return *this;
+	}
+
+	Counter& operator=(Counter&& other) {
+		if (this == &other)
+			return *this;
+		loopGest = std::move(other.loopGest);
+		size = other.size;
+		func = std::move(other.func);
+		return *this;
+	}
 
 private:
 	size_t state();
@@ -145,13 +178,18 @@ struct BinomialParams {
 	friend bool operator!=(const BinomialParams& lhs, const BinomialParams& rhs) {
 		return !(lhs == rhs);
 	}
+
+	friend std::ostream& operator<< (std::ostream& os, const BinomialParams& rhs) {
+		os << "(" << rhs.n << "," << rhs.m << ")";
+		return os;
+	}
 };
 
 namespace std {
 	template<>
 	struct hash<BinomialParams> {
 		std::size_t operator() (const BinomialParams& b) const {
-			return b.m*b.n + b.n;
+			return (b.n * 0x1F1F1F1F) ^ b.m;
 		}
 	};
 }
@@ -192,13 +230,18 @@ public:
 
 
 	const ResType& getValue(Key key) {
-		auto it = computedResults.find(key);
-		if (it == computedResults.end()) {
-			ResType res = Type(key).generateAll();
-			auto resInsertion = computedResults.insert(std::pair<Key, ResType>(key, res));
+		std::cout << "Key : " << key << std::endl;
+		std::cout << "Hash: " << std::to_string(std::hash<Key>()(key)) << std::endl;
+		try {
+			ResType res = computedResults[key];
+			std::cout << "Found" << std::endl;
+			return res;
+		} catch (std::out_of_range&) {
+			std::cout << "Not found" << std::endl;
+			ResType res	= Type(key).generateAll();
+			ResType resInsertion = computedResults.insert(std::pair<Key, ResType>(key, res));
+			assert(res == resInsertion);
 			return resInsertion.first->second;
-		} else {
-			return it->second;
 		}
 	}
 
@@ -207,8 +250,8 @@ private:
 };
 
 
-using BinomialValuesManager = CounterValuesManager < BinomialConfigs, BinomialParams > ;
-using AllValuesManager = CounterValuesManager < AllConfigs, size_t > ;
+using BinomialValuesManager	= CounterValuesManager < BinomialConfigs, BinomialParams > ;
+using AllValuesManager		= CounterValuesManager < AllConfigs, size_t > ;
 
 
 
@@ -303,12 +346,15 @@ std::vector<OrientationOnNode> Node::allPossibleOrientations() const {
 		assert(in_rem + out_rem == notLockedNotLoopedEdges.size());
 
 		BinomialParams binParams(in_rem, notLockedNotLoopedEdges.size());
-		std::vector<std::vector<bool>> notLoopedStates2 = BinomialConfigs(binParams).generateAll();
-		std::vector<std::vector<bool>> notLoopedStates3 = BinValMan.getValue(binParams);
-		std::vector<std::vector<bool>> notLoopedStates = BinomialConfigs(in_rem, notLockedNotLoopedEdges.size()).generateAll();
-		assert(notLoopedStates == notLoopedStates2);
-		assert(notLoopedStates2 == notLoopedStates3);
-		std::vector<std::vector<bool>> loopedStates = AllConfigs(notLockedLoopedEdges.size()).generateAll();
+		//std::vector<std::vector<bool>> notLoopedStates2 = BinomialConfigs(binParams).generateAll();
+		std::vector<std::vector<bool>> notLoopedStates = BinValMan.getValue(binParams);
+		//std::vector<std::vector<bool>> notLoopedStates = BinomialConfigs(in_rem, notLockedNotLoopedEdges.size()).generateAll();
+		//assert(notLoopedStates == notLoopedStates2);
+		//assert(notLoopedStates2 == notLoopedStates3);
+		std::vector<std::vector<bool>> loopedStates = AllValMan.getValue(notLockedLoopedEdges.size());
+		//std::vector<std::vector<bool>> loopedStates = AllConfigs(notLockedLoopedEdges.size()).generateAll();
+		//assert(loopedStates == loopedStates2);
+
 
 		//--- Lambdas ---
 		auto applyInChange = [&](std::vector<bool>& setOri, std::vector<Edge>& edges) {
