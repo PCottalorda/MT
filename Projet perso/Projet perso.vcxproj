@@ -68,6 +68,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Edge.cpp" />
+    <ClCompile Include="EulerianCoorientationWrapper.cpp" />
     <ClCompile Include="EulerianOrientation.cpp" />
     <ClCompile Include="Graph.cpp" />
     <ClCompile Include="GraphGenerationWindow.cpp" />
@@ -85,6 +86,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Edge.h" />
+    <ClInclude Include="EulerianCoorientationWrapper.h" />
     <ClInclude Include="EulerianOrientation.h" />
     <ClInclude Include="Graph.h" />
     <ClInclude Include="GraphGenerationWindow.h" />
